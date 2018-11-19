@@ -9,6 +9,38 @@
 // Grids (choose one)
 @include foundation-xy-grid-classes;
 
-@include foundation-menu;
-@include foundation-menu-icon;
-@include foundation-dropdown-menu;
+// Menu
+ul[role="menu"] {
+    @include menu-base;
+    @include menu-direction('horizontal');
+
+    &.vertical {
+        @include menu-direction('vertical');
+    }
+
+    li {
+        &.menu-text{
+            @include menu-text;
+        }
+
+        &[role="separator"] {
+            padding: $global-padding;
+        }
+
+        a {
+            &:hover, &:focus {
+                background: $medium-gray;
+            }
+            &[aria-current="true"] {
+                background: $medium-gray;
+            }
+            &[aria-disabled="true"] {
+                color: $medium-gray;
+
+                svg path {
+                    fill: $dark-gray;
+                }
+            }
+        }
+    }
+}

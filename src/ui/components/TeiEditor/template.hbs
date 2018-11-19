@@ -1,14 +1,12 @@
 <div class="grid-y grid-frame">
   <div class="cell shrink">
-    <nav class="menubar">
-      <ul class="menu">
-        <li><a href="#"><MdiIcon @name="Undo" @label="Undo" @class="small"/></a></li>
-        <li><a href="#"><MdiIcon @name="Redo" @label="Redo" @class="small"/></a></li>
-        <li><a href="#">File</a></li>
-        <li><a href="#">Block</a></li>
-        <li><a href="#">Inline</a></li>
-      </ul>
-    </nav>
+    <AriaMenu @class="menubar">
+      <AriaMenuAction @tabindex="0" @label="Undo"><MdiIcon @name="Undo" @class="small"/></AriaMenuAction>
+      <AriaMenuAction @label="Redo"><MdiIcon @name="Redo" @class="small"/></AriaMenuAction>
+      <AriaMenuAction>File</AriaMenuAction>
+      <AriaMenuAction>Block</AriaMenuAction>
+      <AriaMenuAction>Inline</AriaMenuAction>
+    </AriaMenu>
   </div>
   <div class="cell auto cell-block-container">
     <div class="grid-x">
@@ -30,33 +28,37 @@
           <dd>
             <select>
               <option>Paragraph</option>
+              <option>Heading</option>
             </select>
           </dd>
           <dt>Paragraph</dt>
           <dd>
-            <ul class="menu">
-              <li><a href="#"><MdiIcon @name="FormatAlignLeft" @label="Align the paragraph to the left"/></a></li>
-              <li><a href="#"><MdiIcon @name="FormatAlignCenter" @label="Align the paragraph to the centre"/></a></li>
-              <li><a href="#"><MdiIcon @name="FormatAlignRight" @label="Align the paragraph to the right"/></a></li>
-              <li><a href="#"><MdiIcon @name="FormatAlignJustify" @label="Align the paragraph justified"/></a></li>
-            </ul>
+            <AriaMenu>
+              <AriaMenuAction @tabindex="0" @label="Align the paragraph to the left"><MdiIcon @name="FormatAlignLeft"/></AriaMenuAction>
+              <AriaMenuAction @current="true" @label="Align the paragraph to the centre"><MdiIcon @name="FormatAlignCenter"/></AriaMenuAction>
+              <AriaMenuAction @label="Align the paragraph to the right"><MdiIcon @name="FormatAlignRight"/></AriaMenuAction>
+              <AriaMenuAction @label="Align the paragraph justified"><MdiIcon @name="FormatAlignJustify"/></AriaMenuAction>
+            </AriaMenu>
           </dd>
           <dt>Font Styling</dt>
           <dd>
-            <ul class="menu">
+            <AriaMenu>
               <li class="input">
-                <select>
-                  <option>Large Font</option>
+                <select role="menuitem" tabindex="0">
+                  <option>Small Font</option>
+                  <option>Normal Font</option>
+                  <option>Medium Font</option>
+                  <option selected="selected">Large Font</option>
                 </select>
               </li>
-              <li><a href="#"><MdiIcon @name="FormatBold" @label="Bold font"/></a></li>
-              <li><a href="#"><MdiIcon @name="FormatItalic" @label="Italic font"/></a></li>
+              <AriaMenuAction @label="Bold font"><MdiIcon @name="FormatBold"/></AriaMenuAction>
+              <AriaMenuAction @label="Italic font"><MdiIcon @name="FormatItalic"/></AriaMenuAction>
               <li class="input">
-                <select>
+                <select role="menuitem" tabindex="-1">
                   <option>Wide spacing</option>
                 </select>
               </li>
-            </ul>
+            </AriaMenu>
           </dd>
           <dt><label>Page break <MdiIcon @name="CheckboxBlankOutline" @class="small"/></label></dt>
           <dd></dd>
