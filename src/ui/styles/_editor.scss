@@ -1,0 +1,37 @@
+.editor {
+    padding: 0.5rem 1rem;
+    font-size: 11pt;
+
+    span.page-break {
+        font-size: 9pt;
+        font-variant: small-caps;
+    }
+    span.page-break::before {
+        content: '[';
+    }
+    span.page-break::after {
+        content: ']';
+    }
+    span.font-weight-bold {
+        font-weight: 700;
+    }
+    span.font-size-large {
+        font-size: 15pt;
+    }
+    span.font-size-medium {
+        font-size: 13pt;
+    }
+    span.letter-spacing-large {
+        letter-spacing: 4pt;
+    }
+    h1 {
+        font-size: 15pt;
+        font-weight: 700;
+        text-align: center;
+    }
+    h2 {
+        font-size: 13pt;
+        font-weight: 700;
+        text-align: center;
+    }
+}

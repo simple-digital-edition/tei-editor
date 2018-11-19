@@ -1,0 +1,14 @@
+@import 'settings';
+@import 'foundation';
+
+// Global styles
+@include foundation-global-styles;
+@include foundation-forms;
+@include foundation-typography;
+
+// Grids (choose one)
+@include foundation-xy-grid-classes;
+
+@include foundation-menu;
+@include foundation-menu-icon;
+@include foundation-dropdown-menu;
