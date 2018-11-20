@@ -34,10 +34,10 @@
           <dt>Paragraph</dt>
           <dd>
             <AriaMenu>
-              <AriaMenuAction @tabindex="0" @label="Align the paragraph to the left"><MdiIcon @name="FormatAlignLeft"/></AriaMenuAction>
-              <AriaMenuAction @current="true" @label="Align the paragraph to the centre"><MdiIcon @name="FormatAlignCenter"/></AriaMenuAction>
-              <AriaMenuAction @label="Align the paragraph to the right"><MdiIcon @name="FormatAlignRight"/></AriaMenuAction>
-              <AriaMenuAction @label="Align the paragraph justified"><MdiIcon @name="FormatAlignJustify"/></AriaMenuAction>
+              <AriaMenuAction @tabindex="0" @label="Align the paragraph to the left" @action={{action setBlockAttribute "text-align" ""}}><MdiIcon @name="FormatAlignLeft"/></AriaMenuAction>
+              <AriaMenuAction @current="true" @label="Align the paragraph to the centre" @action={{action setBlockAttribute "text-align" "center"}}><MdiIcon @name="FormatAlignCenter"/></AriaMenuAction>
+              <AriaMenuAction @label="Align the paragraph to the right" @action={{action setBlockAttribute "text-align" "right"}}><MdiIcon @name="FormatAlignRight"/></AriaMenuAction>
+              <AriaMenuAction @label="Align the paragraph justified" @action={{action setBlockAttribute "text-align" "justify"}}><MdiIcon @name="FormatAlignJustify"/></AriaMenuAction>
             </AriaMenu>
           </dd>
           <dt>Font Styling</dt>
@@ -51,16 +51,22 @@
                   <option selected="selected">Large Font</option>
                 </select>
               </li>
-              <AriaMenuAction @label="Bold font"><MdiIcon @name="FormatBold"/></AriaMenuAction>
-              <AriaMenuAction @label="Italic font"><MdiIcon @name="FormatItalic"/></AriaMenuAction>
               <li class="input">
                 <select role="menuitem" tabindex="-1">
                   <option>Wide spacing</option>
                 </select>
               </li>
             </AriaMenu>
+            <AriaMenu>
+              <AriaMenuAction @label="Bold font"><MdiIcon @name="FormatBold"/></AriaMenuAction>
+              <AriaMenuAction @label="Italic font"><MdiIcon @name="FormatItalic"/></AriaMenuAction>
+              <AriaMenuAction @label="Superscript text"><MdiIcon @name="FormatSuperscript"/></AriaMenuAction>
+              <AriaMenuAction @label="Subscript text"><MdiIcon @name="FormatSubscript"/></AriaMenuAction>
+            </AriaMenu>
           </dd>
           <dt><label>Page break <MdiIcon @name="CheckboxBlankOutline" @class="small"/></label></dt>
+          <dd></dd>
+          <dt><label>Foreign language <MdiIcon @name="CheckboxBlankOutline" @class="small"/></label></dt>
           <dd></dd>
         </dl>
       </div>
