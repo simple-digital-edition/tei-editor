@@ -4,7 +4,7 @@
       <AriaMenuAction @tabindex="0" @label="Undo"><MdiIcon @name="Undo" @class="small"/></AriaMenuAction>
       <AriaMenuAction @label="Redo"><MdiIcon @name="Redo" @class="small"/></AriaMenuAction>
       <AriaDropdownMenu @title="File">
-        <AriaMenuAction>Load</AriaMenuAction>
+        <AriaMenuAction @action={{action loadFile}}>Load</AriaMenuAction>
         <AriaMenuAction>Save</AriaMenuAction>
       </AriaDropdownMenu>
       <AriaMenuAction>Block</AriaMenuAction>
