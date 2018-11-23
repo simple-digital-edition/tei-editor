@@ -27,7 +27,8 @@ ul[role="menu"] {
             padding: $global-padding;
         }
 
-        a {
+        a[role="menuitem"] {
+
             &:hover, &:focus {
                 background: $medium-gray;
             }
@@ -40,6 +41,29 @@ ul[role="menu"] {
                 svg path {
                     fill: $dark-gray;
                 }
+            }
+        }
+    }
+
+    > li.dropdown {
+        position: relative;
+
+        > ul[role="menu"] {
+            display: none;
+        }
+        > a {
+
+            &::after {
+                @include css-triangle($dropdownmenu-arrow-size, $dropdownmenu-arrow-color, down);
+                display: inline-block;
+                margin-left: $global-padding / 2;
+                vertical-align: middle;
+            }
+            &[aria-expanded="true"] + ul[role="menu"] {
+                display: block;
+                position: absolute;
+                background: $dropdownmenu-submenu-background;
+                border: $dropdownmenu-border;
             }
         }
     }
