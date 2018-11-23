@@ -1,7 +1,7 @@
 <li class="dropdown" onmouseover={{action mouseOver}} onmouseout={{action mouseOut}}>
   <a role="menuitem" aria-haspopup="true" tabindex="-1" aria-expanded={{expanded}} onclick={{action click}} onkeydown={{action keyDown}}>{{@title}}</a>
   {{blabla}}
-  <ul role="menu" class="vertical">
+  <ul role="menu" class="vertical" onkeydown={{action keyDown}}>
     {{yield}}
   </ul>
 </li>
