@@ -47,9 +47,26 @@ ul[role="menu"] {
 
     > li.dropdown {
         position: relative;
+        white-space: nowrap;
 
         > ul[role="menu"] {
             display: none;
+            @include menu-direction('horizontal');
+
+            > li.dropdown {
+                > a {
+                    &::after {
+                        @include css-triangle($dropdownmenu-arrow-size, $dropdownmenu-arrow-color, right);
+                        display: inline-block;
+                        margin-left: $global-padding / 2;
+                        vertical-align: middle;
+                    }
+                    &[aria-expanded="true"] + ul[role="menu"] {
+                        top: 0;
+                        left: 100%;
+                    }
+                }
+            }
         }
         > a {
 
