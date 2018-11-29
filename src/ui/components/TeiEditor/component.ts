@@ -25,8 +25,8 @@ export default class TeiEditor extends Component {
             if (files.length > 0) {
                 let reader = new FileReader();
                 reader.onload = (ev) => {
-                    parse_tei(ev.target.result);
-                    component.file_body = {"type": "doc", "content": [{"type": "paragraph", "content": [{"type": "text", "text": "Bla Bla Bla"}]}]};
+                    let result = parse_tei(ev.target.result);
+                    component.file_body = result.body;
                 }
                 reader.readAsText(files[0]);
             }

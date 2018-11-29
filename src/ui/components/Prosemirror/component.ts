@@ -84,10 +84,10 @@ export default class Prosemirror extends Component {
                         }
                     },
                     defining: true,
-                    toDOM(node) {return ['h' + node.attrs.level.substring(6), 0]},
+                    toDOM(node) {return ['h' + node.attrs.level, 0]},
                     parseDOM: [
-                        {tag: "h1", attrs: {level: 'level-1'}},
-                        {tag: "h2", attrs: {level: 'level-2'}}
+                        {tag: "h1", attrs: {level: '1'}},
+                        {tag: "h2", attrs: {level: '2'}}
                     ]
                 },
                 text: {
@@ -96,7 +96,7 @@ export default class Prosemirror extends Component {
                 }
             },
             marks: {
-                foreign_language: {
+                foreign: {
                     toDOM() {return ['span', {class: 'foreign-language'}, 0]},
                     parseDOM: [{tag: 'span.foreign-language'}]
                 },
