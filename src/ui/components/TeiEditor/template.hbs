@@ -14,9 +14,7 @@
   <div class="cell auto cell-block-container">
     <div class="grid-x">
       <div class="small-8 cell cell-block-y editor">
-        <Prosemirror @document={{file_body}} />
-        {{file_body}}
-        {{something}}
+        <Prosemirror @document={{file_body}} @stateChange={{action editorChange}} />
       </div>
       <div class="small-4 cell cell-block-y sidebar">
         <dl>

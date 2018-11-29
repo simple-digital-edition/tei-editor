@@ -3,10 +3,13 @@ import { tracked } from '@glimmer/component';
 import { parse_tei } from './tei';
 
 export default class TeiEditor extends Component {
-    @tracked file_body: string = 'Start';
+    @tracked file_body: object = null;
 
     public setBlockAttribute(attribute, value, ev) {
         ev.preventDefault();
+    }
+
+    public editorChange(state) {
     }
 
     public loadFile(ev) {
@@ -23,7 +26,7 @@ export default class TeiEditor extends Component {
                 let reader = new FileReader();
                 reader.onload = (ev) => {
                     parse_tei(ev.target.result);
-                    component.file_body = 'Testing';
+                    component.file_body = {"type": "doc", "content": [{"type": "paragraph", "content": [{"type": "text", "text": "Bla Bla Bla"}]}]};
                 }
                 reader.readAsText(files[0]);
             }

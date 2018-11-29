@@ -26,7 +26,7 @@ function paragraph_attrs_to_class(node) {
 
 function paragraph_class_to_attrs(dom) {
     let attrs = {
-        no_indent: False,
+        no_indent: false,
         text_align: 'left'
     }
     if(dom.class) {
@@ -46,16 +46,17 @@ function mark_font_size_attr(dom) {
     let attrs = {
         size: ''
     }
-    console.log('hm')
     return attrs
 }
 
 export default class Prosemirror extends Component {
     id: string = 'prosemirror-editor';
+    schema: Schema = null;
+    view: EditorView = null;
 
     constructor(options: object) {
         super(options);
-        let schema = new Schema({
+        this.schema = new Schema({
             nodes: {
                 doc: {
                     content: 'block+'
@@ -126,19 +127,54 @@ export default class Prosemirror extends Component {
                 },
             }
         });
+    }
+
+    didInsertElement() {
+        let doc = null;
+        if (this.args.document !== null) {
+            doc = this.schema.nodeFromJSON(this.args.document);
+        }
 
         let state = EditorState.create({
-            schema,
-            doc: [],
+            schema: this.schema,
+            doc: doc,
             plugins: [
+                history(),
+                keymap({
+                    'Mod-z': undo,
+                    'Mod-y': redo
+                }),
                 keymap(baseKeymap)
             ]
         });
-
-        let view = new EditorView(this.element.querySelector('#' + this.id), {
+        let component = this;
+        component.view = new EditorView(document.querySelector('#' + this.id), {
             state,
             dispatchTransaction(transaction) {
+                let new_state = component.view.state.apply(transaction);
+                component.args.stateChange(new_state);
+                component.view.updateState(new_state);
             }
         });
+    }
+
+    didUpdate() {
+        let doc = null;
+        if (this.args.document !== null) {
+            doc = this.schema.nodeFromJSON(this.args.document);
+        }
+        let state = EditorState.create({
+            schema: this.schema,
+            doc: doc,
+            plugins: [
+                history(),
+                keymap({
+                    'Mod-z': undo,
+                    'Mod-y': redo
+                }),
+                keymap(baseKeymap)
+            ]
+        });
+        this.view.updateState(state);
     }
 }
