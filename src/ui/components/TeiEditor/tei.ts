@@ -88,9 +88,15 @@ function parse_body(dom) {
     for (let idx = 0; idx < body.children.length; idx++) {
         let child = body.children[idx];
         if (child.localName === 'head') {
-            blocks.push({'type': 'heading', 'attrs': {'level': '1'}, 'content': load_text(child.children)})
+            let block = {'type': 'heading', 'attrs': {'level': '1'}, 'content': load_text(child.children)};
+            if (child.getAttribute('type') === 'level-1') {
+                block.attrs.level = '1';
+            } else if (child.getAttribute('type') === 'level-2') {
+                block.attrs.level = '2';
+            }
+            blocks.push(block);
         } else if (child.localName === 'p') {
-            let block = {'type': 'paragraph', 'attrs': {}, 'content': load_text(child.children)};
+            let block = {'type': 'paragraph', 'attrs': {no_indent: false, text_align: 'left'}, 'content': load_text(child.children)};
             let style = child.getAttribute('style');
             if (style) {
                 style = style.split(' ');
