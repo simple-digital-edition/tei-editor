@@ -15,10 +15,10 @@ export default class TeiEditor extends Component {
         let fileSelector = document.createElement('input');
         fileSelector.setAttribute('type', 'file');
         fileSelector.setAttribute('class', 'hidden');
-        document.querySelector('body').append(fileSelector);
+        document.querySelector('body').appendChild(fileSelector);
         fileSelector.click();
         fileSelector.addEventListener('change', function(ev) {
-            let files = ev.target.files;
+            let files = (<HTMLInputElement>ev.target).files;
             if (files.length > 0) {
                 let reader = new FileReader();
                 reader.onload = (ev) => {
