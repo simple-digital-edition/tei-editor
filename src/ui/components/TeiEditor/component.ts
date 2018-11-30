@@ -10,6 +10,7 @@ export default class TeiEditor extends Component {
     }
 
     public editorChange(state) {
+        console.log(state);
     }
 
     public loadFile(ev) {
@@ -27,8 +28,6 @@ export default class TeiEditor extends Component {
                 reader.onload = (ev) => {
                     let parser = new TEIParser(ev.target.result);
                     component.file_body = parser.body;
-                    //let result = parse_tei(ev.target.result);
-                    //component.file_body = result.body;
                 }
                 reader.readAsText(files[0]);
             }
