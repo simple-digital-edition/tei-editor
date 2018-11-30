@@ -1,4 +1,4 @@
-import config from './config';
+import config from '../config';
 
 function nsResolver(prefix: string) {
     if (prefix === 'tei') {
@@ -101,8 +101,8 @@ export class TEIParser {
             if (child.children.length > 0) {
                 let tmp = this.parseInline(child.children);
                 let inline = tmp[0];
-                for (let inlineKey in config.inline) {
-                    let inlineValues = config.inline[inlineKey];
+                for (let inlineKey in config.parse.inline) {
+                    let inlineValues = config.parse.inline[inlineKey];
                     inlineValues.forEach((inlineValue) => {
                         if (this.xpath.firstNode(child, 'self::' + inlineValue.selector) !== null) {
                             if (inlineValue.marks) {
@@ -113,8 +113,8 @@ export class TEIParser {
                     });
                 }
             } else {
-                for (let inlineKey in config.inline) {
-                    let inlineValues = config.inline[inlineKey];
+                for (let inlineKey in config.parse.inline) {
+                    let inlineValues = config.parse.inline[inlineKey];
                     inlineValues.forEach((inlineValue) => {
                         if (this.xpath.firstNode(child, 'self::' + inlineValue.selector) !== null) {
                             let inline = {
@@ -141,19 +141,21 @@ export class TEIParser {
         let element = elements.iterateNext();
         let blocks = [];
         while (element) {
-            for (let blockKey in config.blocks) {
-                let blockValue = config.blocks[blockKey];
-                if (this.xpath.firstNode(element, 'self::' + blockValue.selector) !== null) {
-                    let block = {
-                        type: blockKey,
-                        attrs: {},
-                        content: this.parseInline(element.children)
-                    };
-                    if (blockValue.attrs) {
-                        this.parseAttrs(element, blockValue.attrs, block.attrs)
+            for (let blockKey in config.parse.blocks) {
+                let blockValue = config.parse.blocks[blockKey];
+                if (blockValue) {
+                    if (this.xpath.firstNode(element, 'self::' + blockValue.selector) !== null) {
+                        let block = {
+                            type: blockKey,
+                            attrs: {},
+                            content: this.parseInline(element.children)
+                        };
+                        if (blockValue.attrs) {
+                            this.parseAttrs(element, blockValue.attrs, block.attrs)
+                        }
+                        blocks.push(block);
+                        break;
                     }
-                    blocks.push(block);
-                    break;
                 }
             }
             element = elements.iterateNext();
