@@ -1,6 +1,6 @@
 import Component from '@glimmer/component';
 import { tracked } from '@glimmer/component';
-import { parse_tei } from './tei';
+import { TEIParser } from './tei';
 
 export default class TeiEditor extends Component {
     @tracked file_body: object = null;
@@ -25,8 +25,10 @@ export default class TeiEditor extends Component {
             if (files.length > 0) {
                 let reader = new FileReader();
                 reader.onload = (ev) => {
-                    let result = parse_tei(ev.target.result);
-                    component.file_body = result.body;
+                    let parser = new TEIParser(ev.target.result);
+                    component.file_body = parser.body;
+                    //let result = parse_tei(ev.target.result);
+                    //component.file_body = result.body;
                 }
                 reader.readAsText(files[0]);
             }
