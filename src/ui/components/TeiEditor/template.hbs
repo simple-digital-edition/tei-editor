@@ -25,7 +25,7 @@
                 {{#each section.entries key="@index" as |entry index|}}
                   {{#if entry.type.select}}
                     <li class="input">
-                      <select role="menuitem" tabindex={{aria-menu-item-tabindex index}} onchange={{action setBlockType 'ev.target'}}>
+                      <select role="menuitem" tabindex={{aria-menu-item-tabindex index}} onchange={{action menuAction entry.action 'ev.target.value'}}>
                         {{#each entry.options key="@index" as |value|}}
                           <option value={{value.key}}>{{value.value}}</option>
                         {{/each}}

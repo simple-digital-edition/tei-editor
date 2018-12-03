@@ -62,9 +62,14 @@ export default class TeiEditor extends Component implements HasGuid {
 
     }
 
-    public setBlockType(param, ev) {
-        console.log(param);
-        console.log(ev);
+    public menuAction(action, key, value) {
+        this.view.focus();
+        if (key === 'ev.target.value') {
+            value = value.target.value;
+        }
+        if (action === 'setBlockType') {
+            setBlockType(this.schema.nodes[value], {})(this.view.state, this.view.dispatch)
+        }
     }
 
     public setBlockAttribute(attribute, value, ev) {
