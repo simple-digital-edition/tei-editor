@@ -16,21 +16,46 @@ export default class TeiEditor extends Component implements HasGuid {
     schema: Schema = null;
     view: EditorView = null;
 
+    // Life-cycle handlers
+
     constructor(options: object) {
         super(options);
         this.schema = new Schema(config.schema);
     }
 
+    didInsertElement() {
+        let state = EditorState.create({
+            schema: this.schema,
+            doc: null,
+            plugins: [
+                history(),
+                keymap({
+                    'Mod-z': undo,
+                    'Mod-y': redo
+                }),
+                keymap(baseKeymap)
+            ]
+        });
+        let component = this;
+        component.view = new EditorView(document.querySelector('#' + this.prosemirrorId), {
+            state,
+            dispatchTransaction(transaction) {
+                let new_state = component.view.state.apply(transaction);
+                component.view.updateState(new_state);
+            }
+        });
+    }
+
+    // Computed properties
+
     get prosemirrorId() {
         return 'teieditor-' + ensureGuid(this);
     }
 
+    // Action handlers
+    
     public setBlockAttribute(attribute, value, ev) {
         ev.preventDefault();
-    }
-
-    public editorChange(state) {
-        console.log(state);
     }
 
     public loadFile(ev) {
@@ -65,29 +90,6 @@ export default class TeiEditor extends Component implements HasGuid {
                 reader.readAsText(files[0]);
             }
             fileSelector.remove();
-        });
-    }
-
-    didInsertElement() {
-        let state = EditorState.create({
-            schema: this.schema,
-            doc: null,
-            plugins: [
-                history(),
-                keymap({
-                    'Mod-z': undo,
-                    'Mod-y': redo
-                }),
-                keymap(baseKeymap)
-            ]
-        });
-        let component = this;
-        component.view = new EditorView(document.querySelector('#' + this.prosemirrorId), {
-            state,
-            dispatchTransaction(transaction) {
-                let new_state = component.view.state.apply(transaction);
-                component.view.updateState(new_state);
-            }
         });
     }
 }
