@@ -52,8 +52,21 @@ export default class TeiEditor extends Component implements HasGuid {
         return 'teieditor-' + ensureGuid(this);
     }
 
+    get sidebarConfig() {
+        return config.ui.sidebar;
+    }
+
     // Action handlers
-    
+
+    private stateChange(state) {
+
+    }
+
+    public setBlockType(param, ev) {
+        console.log(param);
+        console.log(ev);
+    }
+
     public setBlockAttribute(attribute, value, ev) {
         ev.preventDefault();
     }

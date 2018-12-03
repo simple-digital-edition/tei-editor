@@ -201,5 +201,30 @@ export default {
                 }
             ]
         }
+    },
+    ui: {
+        sidebar: [
+            {
+                title: 'Block Type',
+                entries: [
+                    {
+                        type: {
+                            select: true
+                        },
+                        options: [
+                            {
+                                key: 'paragraph',
+                                value: 'Paragraph'
+                            },
+                            {
+                                key: 'heading',
+                                value: 'Heading'
+                            }
+                        ],
+                        action: 'setBlockType'
+                    }
+                ]
+            }
+        ]
     }
 };

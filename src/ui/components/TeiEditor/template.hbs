@@ -18,6 +18,24 @@
       </div>
       <div class="small-4 cell cell-block-y sidebar">
         <dl>
+          {{#each sidebarConfig key="@index" as |section|}}
+            <dt>{{section.title}}</dt>
+            <dd>
+              <AriaMenu>
+                {{#each section.entries key="@index" as |entry index|}}
+                  {{#if entry.type.select}}
+                    <li class="input">
+                      <select role="menuitem" tabindex={{aria-menu-item-tabindex index}} onchange={{action setBlockType 'ev.target'}}>
+                        {{#each entry.options key="@index" as |value|}}
+                          <option value={{value.key}}>{{value.value}}</option>
+                        {{/each}}
+                      </select>
+                    </li>
+                  {{/if}}
+                {{/each}}
+              </AriaMenu>
+            </dd>
+          {{/each}}
           <dt>Block</dt>
           <dd>
             <select>
