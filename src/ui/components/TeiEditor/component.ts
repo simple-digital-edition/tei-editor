@@ -1,9 +1,29 @@
 import Component from '@glimmer/component';
 import { tracked } from '@glimmer/component';
-import { TEIParser } from './tei';
+import { ensureGuid, HasGuid } from '@glimmer/util';
+import {baseKeymap, setBlockType, toggleMark} from 'prosemirror-commands';
+import {undo, redo, history} from 'prosemirror-history';
+import {keymap} from 'prosemirror-keymap';
+import {Schema} from 'prosemirror-model';
+import {EditorState} from 'prosemirror-state';
+import {EditorView} from 'prosemirror-view';
 
-export default class TeiEditor extends Component {
-    @tracked file_body: object = null;
+import { TEIParser } from './tei';
+import config from '../config';
+
+export default class TeiEditor extends Component implements HasGuid {
+    _guid: number = null;
+    schema: Schema = null;
+    view: EditorView = null;
+
+    constructor(options: object) {
+        super(options);
+        this.schema = new Schema(config.schema);
+    }
+
+    get prosemirrorId() {
+        return 'teieditor-' + ensureGuid(this);
+    }
 
     public setBlockAttribute(attribute, value, ev) {
         ev.preventDefault();
@@ -27,11 +47,47 @@ export default class TeiEditor extends Component {
                 let reader = new FileReader();
                 reader.onload = (ev) => {
                     let parser = new TEIParser(ev.target.result);
-                    component.file_body = parser.body;
+                    let doc = component.schema.nodeFromJSON(parser.body);
+                    let state = EditorState.create({
+                        schema: component.schema,
+                        doc: doc,
+                        plugins: [
+                            history(),
+                            keymap({
+                                'Mod-z': undo,
+                                'Mod-y': redo
+                            }),
+                            keymap(baseKeymap)
+                        ]
+                    });
+                    component.view.updateState(state);
                 }
                 reader.readAsText(files[0]);
             }
             fileSelector.remove();
+        });
+    }
+
+    didInsertElement() {
+        let state = EditorState.create({
+            schema: this.schema,
+            doc: null,
+            plugins: [
+                history(),
+                keymap({
+                    'Mod-z': undo,
+                    'Mod-y': redo
+                }),
+                keymap(baseKeymap)
+            ]
+        });
+        let component = this;
+        component.view = new EditorView(document.querySelector('#' + this.prosemirrorId), {
+            state,
+            dispatchTransaction(transaction) {
+                let new_state = component.view.state.apply(transaction);
+                component.view.updateState(new_state);
+            }
         });
     }
 }
