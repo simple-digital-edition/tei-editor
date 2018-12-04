@@ -11,10 +11,77 @@ import {EditorView} from 'prosemirror-view';
 import { TEIParser } from './tei';
 import config from '../config';
 
+function addToSet(set, item) {
+    let found = false;
+    set.forEach((existing) => {
+        if (existing === item) {
+            found = true;
+        }
+    });
+    if (!found) {
+        set.push(item);
+    }
+}
+/**
+ * Returns a list of active mark names
+ */
+function getMarks(state) {
+    let selection = state.selection;
+    let marks = [];
+    if(selection.from === selection.to) {
+        // Get marks at the current cursor position
+        if(state.doc.nodeAt(selection.from)) {
+            state.doc.nodeAt(selection.from).marks.forEach((mark) => {
+                addToSet(marks, mark);
+            });
+        }
+        // Add marks from the previous cursor position if they are inclusive
+        if(state.doc.nodeAt(selection.from - 1)) {
+            state.doc.nodeAt(selection.from - 1).marks.forEach((mark) => {
+                if(mark.type.spec.inclusive || mark.type.spec.inclusive === undefined) {
+                    addToSet(marks, mark);
+                }
+            });
+        }
+        // Add stored marks
+        if(state.storedMarks) {
+            state.storedMarks.forEach((mark) => {
+                addToSet(marks, mark);
+            });
+        }
+    } else {
+        // Add all marks between the selection markers
+        state.doc.nodesBetween(selection.from, selection.to, (node) => {
+            node.marks.forEach((mark) => {
+                addToSet(marks, mark);
+            });
+        });
+    }
+    return marks;
+}
+
+/**
+ * Gets a list of nodes from the current selection.
+ */
+function getBlockHierarchy(state) {
+    let selection = state.selection
+    let blocks = []
+    for(let idx = 0; idx < selection.$anchor.path.length; idx++) {
+        if(typeof(selection.$anchor.path[idx]) === 'object') {
+            let node_type = selection.$anchor.path[idx].type
+            if(node_type.name !== 'doc') {
+                blocks.splice(0, 0, selection.$anchor.path[idx])
+            }
+        }
+    }
+    return blocks
+}
+
 export default class TeiEditor extends Component implements HasGuid {
     _guid: number = null;
     schema: Schema = null;
     view: EditorView = null;
+    @tracked status: object = null;
 
     // Life-cycle handlers
 
@@ -40,8 +107,9 @@ export default class TeiEditor extends Component implements HasGuid {
         component.view = new EditorView(document.querySelector('#' + this.prosemirrorId), {
             state,
             dispatchTransaction(transaction) {
-                let new_state = component.view.state.apply(transaction);
-                component.view.updateState(new_state);
+                let newState = component.view.state.apply(transaction);
+                component.stateChange(newState);
+                component.view.updateState(newState);
             }
         });
     }
@@ -59,16 +127,58 @@ export default class TeiEditor extends Component implements HasGuid {
     // Action handlers
 
     private stateChange(state) {
-
+        let status = {
+            block: null,
+            marks: {}
+        };
+        // Determine most specific active block
+        let blocks = getBlockHierarchy(state);
+        blocks.forEach((node) => {
+            if (node.type.isBlock) {
+                status.block = node;
+            }
+        });
+        // Determine all marks
+        let marks = getMarks(state);
+        marks.forEach((mark) => {
+            console.log(mark);
+            status.marks[mark.type.name] = mark;
+        });
+        console.log(status);
+        this.status = status;
     }
 
-    public menuAction(action, key, value) {
+    public menuAction(...params) {
+        console.log(params);
         this.view.focus();
         if (key === 'ev.target.value') {
             value = value.target.value;
         }
         if (action === 'setBlockType') {
             setBlockType(this.schema.nodes[value], {})(this.view.state, this.view.dispatch)
+        } else if (action === 'setBlockAttribute') {
+            this.view.focus();
+            let {$from} = this.view.state.selection;
+            let attrs = Object.assign({}, $from.parent.attrs);
+            attrs[key] = value;
+            setBlockType(this.schema.nodes[$from.parent.type.name], attrs)(this.view.state, this.view.dispatch)
+        } else if (action === 'toggleBlockAttribute') {
+            this.view.focus();
+            let {$from} = this.view.state.selection;
+            let attrs = Object.assign({}, $from.parent.attrs);
+            attrs[key] = !attrs[key];
+            setBlockType(this.schema.nodes[$from.parent.type.name], attrs)(this.view.state, this.view.dispatch);
+        } else if (action === 'setMarkAttribute') {
+            this.view.focus();
+            let marks = getMarks(this.view.state);
+            marks.forEach((mark) => {
+                if(mark.type.name === attr) {
+                    toggleMark(this.schema.marks[key])(this.view.state, this.view.dispatch);
+                }
+            })
+            if(value !== '') {
+                toggleMark(this.schema.marks[key], {size: value})(this.view.state, this.view.dispatch);
+            }
         }
     }
 

@@ -19,39 +19,28 @@
       <div class="small-4 cell cell-block-y sidebar">
         <dl>
           {{#each sidebarConfig key="@index" as |section|}}
-            <dt>{{section.title}}</dt>
-            <dd>
-              <AriaMenu>
-                {{#each section.entries key="@index" as |entry index|}}
-                  {{#if entry.type.select}}
-                    <li class="input">
-                      <select role="menuitem" tabindex={{aria-menu-item-tabindex index}} onchange={{action menuAction entry.action 'ev.target.value'}}>
-                        {{#each entry.options key="@index" as |value|}}
-                          <option value={{value.key}}>{{value.value}}</option>
-                        {{/each}}
-                      </select>
-                    </li>
-                  {{/if}}
-                {{/each}}
-              </AriaMenu>
-            </dd>
+            {{#if (status-display-entry status section.test)}}
+              <dt>{{section.title}}</dt>
+              <dd>
+                <AriaMenu>
+                  {{#each section.entries key="@index" as |entry index|}}
+                    {{#if entry.type.select}}
+                      <li class="input">
+                        <select role="menuitem" tabindex={{aria-menu-item-tabindex index}} onchange={{action menuAction entry.action 'ev.target.value'}}>
+                          {{#each entry.values key="@index" as |value|}}
+                            <option value={{value.key}} selected={{eq (get status entry.value_key) value.key}}>{{value.value}}</option>
+                          {{/each}}
+                        </select>
+                      </li>
+                    {{/if}}
+                    {{#if entry.type.button}}
+                      <AriaMenuAction @tabindex={{aria-menu-item-tabindex index}} @label={{entry.label}} @action={{action menuAction entry.action entry.attribute entry.value}} @current={{eq (get status entry.value_key) entry.value true}}><MdiIcon @name={{entry.icon}} /></AriaMenuAction>
+                    {{/if}}
+                  {{/each}}
+                </AriaMenu>
+              </dd>
+            {{/if}}
           {{/each}}
-          <dt>Block</dt>
-          <dd>
-            <select>
-              <option>Paragraph</option>
-              <option>Heading</option>
-            </select>
-          </dd>
-          <dt>Paragraph</dt>
-          <dd>
-            <AriaMenu>
-              <AriaMenuAction @tabindex="0" @label="Align the paragraph to the left" @action={{action setBlockAttribute "text-align" ""}}><MdiIcon @name="FormatAlignLeft"/></AriaMenuAction>
-              <AriaMenuAction @current="true" @label="Align the paragraph to the centre" @action={{action setBlockAttribute "text-align" "center"}}><MdiIcon @name="FormatAlignCenter"/></AriaMenuAction>
-              <AriaMenuAction @label="Align the paragraph to the right" @action={{action setBlockAttribute "text-align" "right"}}><MdiIcon @name="FormatAlignRight"/></AriaMenuAction>
-              <AriaMenuAction @label="Align the paragraph justified" @action={{action setBlockAttribute "text-align" "justify"}}><MdiIcon @name="FormatAlignJustify"/></AriaMenuAction>
-            </AriaMenu>
-          </dd>
           <dt>Font Styling</dt>
           <dd>
             <AriaMenu>

@@ -206,12 +206,15 @@ export default {
         sidebar: [
             {
                 title: 'Block Type',
+                test: 'block',
                 entries: [
                     {
                         type: {
                             select: true
                         },
-                        options: [
+                        value_key: 'block.type.name',
+                        action: 'setBlockType',
+                        values: [
                             {
                                 key: 'paragraph',
                                 value: 'Paragraph'
@@ -220,8 +223,124 @@ export default {
                                 key: 'heading',
                                 value: 'Heading'
                             }
-                        ],
-                        action: 'setBlockType'
+                        ]
+                    }
+                ]
+            },
+            {
+                title: 'Paragraph',
+                test: {
+                    key: 'block.type.name',
+                    value: 'paragraph'
+                },
+                entries: [
+                    {
+                        type: {
+                            button: true
+                        },
+                        value_key: 'block.attrs.text_align',
+                        label: 'Left align',
+                        icon: 'FormatAlignLeft',
+                        action: 'setBlockAttribute',
+                        attribute: 'text_align',
+                        value: 'left'
+                    },
+                    {
+                        type: {
+                            button: true
+                        },
+                        value_key: 'block.attrs.text_align',
+                        label: 'Center align',
+                        icon: 'FormatAlignCenter',
+                        action: 'setBlockAttribute',
+                        attribute: 'text_align',
+                        value: 'center'
+                    },
+                    {
+                        type: {
+                            button: true
+                        },
+                        value_key: 'block.attrs.text_align',
+                        label: 'Right align',
+                        icon: 'FormatAlignRight',
+                        action: 'setBlockAttribute',
+                        attribute: 'text_align',
+                        value: 'right'
+                    },
+                    {
+                        type: {
+                            button: true
+                        },
+                        value_key: 'block.attrs.text_align',
+                        label: 'Align justify',
+                        icon: 'FormatAlignJustify',
+                        action: 'setBlockAttribute',
+                        attribute: 'text_align',
+                        value: 'justify'
+                    },
+                    {
+                        type: {
+                            button: true
+                        },
+                        value_key: 'block.attrs.no_indent',
+                        label: 'No indentation',
+                        icon: 'FormatLineSpacing',
+                        action: 'toggleBlockAttribute',
+                        attribute: 'no_indent',
+                        value: false
+                    }
+                ]
+            },
+            {
+                title: 'Font Styles',
+                test: 'marks',
+                entries: [
+                    {
+                        type: {
+                            select: true
+                        },
+                        value_key: 'marks.font_size.attrs.size',
+                        action: 'setMarkAttribute',
+                        values: [
+                            {
+                                key: '',
+                                value: 'Default Size'
+                            },
+                            {
+                                key: 'small',
+                                value: 'Small Font'
+                            },
+                            {
+                                key: 'medium',
+                                value: 'Medium Font'
+                            },
+                            {
+                                key: 'large',
+                                value: 'Large Font'
+                            },
+                        ]
+                    },
+                    {
+                        type: {
+                            button: true
+                        },
+                        value_key: 'marks.letter_sparse',
+                        label: 'Bold Font',
+                        icon: 'FormatLineSpacing',
+                        action: 'toggleMarkAttribute',
+                        attribute: 'letter_sparse',
+                        value: 'toggle'
+                    },
+                    {
+                        type: {
+                            button: true
+                        },
+                        value_key: 'marks.font_weight_bold',
+                        label: 'Bold Font',
+                        icon: 'FormatBold',
+                        action: 'toggleMarkAttribute',
+                        attribute: 'font_weight_bold',
+                        value: 'toggle'
                     }
                 ]
             }
