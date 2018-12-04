@@ -441,9 +441,9 @@
     "@glimmer/util" "^0.34.8"
 
 "@mdi/js@^3.0.39":
-  version "3.0.39"
-  resolved "https://registry.yarnpkg.com/@mdi/js/-/js-3.0.39.tgz#ef12d603d6ee7c34fad6d08c37dfc0376944b269"
-  integrity sha512-GGsJowaILwU+RrAEuOCdh2WOmVXmNYuhNECotKxDyUR2L4+0w2JaYhy8lRJzHBkjejpA+kk/xJLzlDA+gNOGKg==
+  version "3.2.89"
+  resolved "https://registry.yarnpkg.com/@mdi/js/-/js-3.2.89.tgz#71310ff0890cd161ef56407120dda36dbcf1a427"
+  integrity sha512-IpW8oz3HL7rJYCQZUe6Pq4keuzluIQzFSM8yM/dzhPrwF2gM1ZyVo+MSXkP6U5JtGW9r2pFSWyQzeW4Y+R5zIQ==
 
 "@types/acorn@^4.0.3":
   version "4.0.3"
@@ -468,9 +468,9 @@
   integrity sha512-EibsnbJerd0hBFaDjJStFrVbVBAtOy4dgL8zZFw0uOvPqzBAX59Ci8cgjg3+RgJIWhsB5A4c+pi+D4P9tQQh/A==
 
 "@types/node@^9.6.0":
-  version "9.6.39"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-9.6.39.tgz#111cb4f5591cb6945aad34733b4e40bfd59b58fc"
-  integrity sha512-c3OkjgNpSMdHan56WhklP0FMOk5ocilKz2Mpa0NOGzu8jw5YERjCf9FG0epYB1+TxScv/oI4uJ204u2mUg7Hcw==
+  version "9.6.40"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-9.6.40.tgz#2d69cefbc090cb0bb824542a4c575b14dde7d3aa"
+  integrity sha512-M3HHoXXndsho/sTbQML2BJr7/uwNhMg8P0D4lb+UsM65JQZx268faiz9hKpY4FpocWqpwlLwa8vevw8hLtKjOw==
 
 "@types/qunit@^2.0.31":
   version "2.5.3"
@@ -2020,9 +2020,9 @@ can-symlink@^1.0.0:
     tmp "0.0.28"
 
 caniuse-lite@^1.0.30000844:
-  version "1.0.30000912"
-  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30000912.tgz#08e650d4090a9c0ab06bfd2b46b7d3ad6dcaea28"
-  integrity sha512-M3zAtV36U+xw5mMROlTXpAHClmPAor6GPKAMD5Yi7glCB5sbMPFtnQ3rGpk4XqPdUrrTIaVYSJZxREZWNy8QJg==
+  version "1.0.30000913"
+  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30000913.tgz#560311ecf242eaf12159b720e64b11ebd759b5e4"
+  integrity sha512-PP7Ypc35XY1mNduHqweGNOp0qfNUCmaQauGOYDByvirlFjrzRyY72pBRx7jnBidOB8zclg00DAzsy2H475BouQ==
 
 capture-exit@^1.2.0:
   version "1.2.0"
@@ -2592,9 +2592,9 @@ ee-first@1.1.1:
   integrity sha1-WQxhFWsK4vTwJVcyoViyZrxWsh0=
 
 electron-to-chromium@^1.3.47:
-  version "1.3.85"
-  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.3.85.tgz#5c46f790aa96445cabc57eb9d17346b1e46476fe"
-  integrity sha512-kWSDVVF9t3mft2OHVZy4K85X2beP6c6mFm3teFS/mLSDJpQwuFIWHrULCX+w6H1E55ZYmFRlT+ATAFRwhrYzsw==
+  version "1.3.87"
+  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.3.87.tgz#f0481ca84824752bced51673396e9a6c74fe5ec7"
+  integrity sha512-EV5FZ68Hu+n9fHVhOc9AcG3Lvf+E1YqR36ulJUpwaQTkf4LwdvBqmGIazaIrt4kt6J8Gw3Kv7r9F+PQjAkjWeA==
 
 ember-build-utilities@^0.4.0:
   version "0.4.0"
@@ -2872,9 +2872,9 @@ engine.io-parser@~2.1.0, engine.io-parser@~2.1.1:
     has-binary2 "~1.0.2"
 
 engine.io@~3.3.1:
-  version "3.3.1"
-  resolved "https://registry.yarnpkg.com/engine.io/-/engine.io-3.3.1.tgz#e076d9d2d6c075dda4623253b80fa045c81dd3a4"
-  integrity sha512-p0njqQo5QWVxJauKcnp5IO+LBeE5JD1tAf+UxPU8ASEUHSpsSSfYR+kVb8XGGH8AEDUa1Dk5jCvPQShNBL5BdQ==
+  version "3.3.2"
+  resolved "https://registry.yarnpkg.com/engine.io/-/engine.io-3.3.2.tgz#18cbc8b6f36e9461c5c0f81df2b830de16058a59"
+  integrity sha512-AsaA9KG7cWPXWHp5FvHdDWY3AMWeZ8x+2pUVLcn71qE5AtAzgGbxuclOytygskw8XGmiQafTmnI9Bix3uihu2w==
   dependencies:
     accepts "~1.3.4"
     base64id "1.0.0"
@@ -5640,9 +5640,9 @@ pinkie@^2.0.0:
   integrity sha1-clVrgM+g1IqXToDnckjoDtT3+HA=
 
 portfinder@^1.0.15:
-  version "1.0.19"
-  resolved "https://registry.yarnpkg.com/portfinder/-/portfinder-1.0.19.tgz#07e87914a55242dcda5b833d42f018d6875b595f"
-  integrity sha512-23aeQKW9KgHe6citUrG3r9HjeX6vls0h713TAa+CwTKZwNIr/pD2ApaxYF4Um3ZZyq4ar+Siv3+fhoHaIwSOSw==
+  version "1.0.20"
+  resolved "https://registry.yarnpkg.com/portfinder/-/portfinder-1.0.20.tgz#bea68632e54b2e13ab7b0c4775e9b41bf270e44a"
+  integrity sha512-Yxe4mTyDzTd59PZJY4ojZR8F+E5e97iq2ZOHPz3HDgSvYC5siNad2tLooQ5y5QHyQhc3xVqvyk/eNA3wuoa7Sw==
   dependencies:
     async "^1.5.2"
     debug "^2.2.0"
@@ -6736,9 +6736,9 @@ temp@0.8.3:
     rimraf "~2.2.6"
 
 terser@^3.7.5:
-  version "3.10.12"
-  resolved "https://registry.yarnpkg.com/terser/-/terser-3.10.12.tgz#06d40765e40b33fd97977c0896c75b2b5d42142d"
-  integrity sha512-3ODPC1eVt25EVNb04s/PkHxOmzKBQUF6bwwuR6h2DbEF8/j265Y1UkwNtOk9am/pRxfJ5HPapOlUlO6c16mKQQ==
+  version "3.11.0"
+  resolved "https://registry.yarnpkg.com/terser/-/terser-3.11.0.tgz#60782893e1f4d6788acc696351f40636d0e37af0"
+  integrity sha512-5iLMdhEPIq3zFWskpmbzmKwMQixKmTYwY3Ox9pjtSklBLnHiuQ0GKJLhL1HSYtyffHM3/lDIFBnb82m9D7ewwQ==
   dependencies:
     commander "~2.17.1"
     source-map "~0.6.1"
@@ -6874,15 +6874,15 @@ to-regex@^3.0.1, to-regex@^3.0.2:
     safe-regex "^1.1.0"
 
 tree-sync@^1.2.2:
-  version "1.2.2"
-  resolved "https://registry.yarnpkg.com/tree-sync/-/tree-sync-1.2.2.tgz#2cf76b8589f59ffedb58db5a3ac7cb013d0158b7"
-  integrity sha1-LPdrhYn1n/7bWNtaOsfLAT0BWLc=
+  version "1.3.0"
+  resolved "https://registry.yarnpkg.com/tree-sync/-/tree-sync-1.3.0.tgz#328c69686a6a8a50d2a03c5584ac75717396f6a0"
+  integrity sha512-fgiVnM2DdbYSbM9bX4FOGvUNcIP4a8IQb/2sUpTNj6l3i3f9H7zasO0pesvfmcI4QV9wSaBajTgZECr3h17fpg==
   dependencies:
     debug "^2.2.0"
     fs-tree-diff "^0.5.6"
     mkdirp "^0.5.1"
     quick-temp "^0.1.5"
-    walk-sync "^0.2.7"
+    walk-sync "^0.3.3"
 
 trim-newlines@^1.0.0:
   version "1.0.0"
@@ -7095,14 +7095,6 @@ walk-sync@0.3.1:
   version "0.3.1"
   resolved "https://registry.yarnpkg.com/walk-sync/-/walk-sync-0.3.1.tgz#558a16aeac8c0db59c028b73c66f397684ece465"
   integrity sha1-VYoWrqyMDbWcAotzxm85doTs5GU=
-  dependencies:
-    ensure-posix-path "^1.0.0"
-    matcher-collection "^1.0.0"
-
-walk-sync@^0.2.7:
-  version "0.2.7"
-  resolved "https://registry.yarnpkg.com/walk-sync/-/walk-sync-0.2.7.tgz#b49be4ee6867657aeb736978b56a29d10fa39969"
-  integrity sha1-tJvk7mhnZXrrc2l4tWop0Q+jmWk=
   dependencies:
     ensure-posix-path "^1.0.0"
     matcher-collection "^1.0.0"
