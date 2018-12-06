@@ -41,7 +41,7 @@
     "qunitjs": "^2.3.3",
     "rollup-plugin-commonjs": "^9.2.0",
     "sass": "^1.15.1",
-    "typescript": "^3.1.6"
+    "typescript": "^2.1.0"
   },
   "engines": {
     "node": ">= 4.0"

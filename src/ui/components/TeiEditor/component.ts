@@ -1,15 +1,79 @@
 import Component from '@glimmer/component';
 import { tracked } from '@glimmer/component';
-import { parse_tei } from './tei';
+import { ensureGuid, HasGuid } from '@glimmer/util';
+import {baseKeymap, setBlockType, toggleMark} from 'prosemirror-commands';
+import {undo, redo, history} from 'prosemirror-history';
+import {keymap} from 'prosemirror-keymap';
+import {Schema} from 'prosemirror-model';
+import {EditorState} from 'prosemirror-state';
+import {EditorView} from 'prosemirror-view';
 
-export default class TeiEditor extends Component {
-    @tracked file_body: object = null;
+import { TEIParser } from './tei';
+import config from '../config';
+
+export default class TeiEditor extends Component implements HasGuid {
+    _guid: number = null;
+    schema: Schema = null;
+    view: EditorView = null;
+
+    // Life-cycle handlers
+
+    constructor(options: object) {
+        super(options);
+        this.schema = new Schema(config.schema);
+    }
+
+    didInsertElement() {
+        let state = EditorState.create({
+            schema: this.schema,
+            doc: null,
+            plugins: [
+                history(),
+                keymap({
+                    'Mod-z': undo,
+                    'Mod-y': redo
+                }),
+                keymap(baseKeymap)
+            ]
+        });
+        let component = this;
+        component.view = new EditorView(document.querySelector('#' + this.prosemirrorId), {
+            state,
+            dispatchTransaction(transaction) {
+                let new_state = component.view.state.apply(transaction);
+                component.view.updateState(new_state);
+            }
+        });
+    }
+
+    // Computed properties
+
+    get prosemirrorId() {
+        return 'teieditor-' + ensureGuid(this);
+    }
+
+    get sidebarConfig() {
+        return config.ui.sidebar;
+    }
+
+    // Action handlers
+
+    private stateChange(state) {
+
+    }
+
+    public menuAction(action, key, value) {
+        this.view.focus();
+        if (key === 'ev.target.value') {
+            value = value.target.value;
+        }
+        if (action === 'setBlockType') {
+            setBlockType(this.schema.nodes[value], {})(this.view.state, this.view.dispatch)
+        }
+    }
 
     public setBlockAttribute(attribute, value, ev) {
         ev.preventDefault();
-    }
-
-    public editorChange(state) {
     }
 
     public loadFile(ev) {
@@ -25,8 +89,21 @@ export default class TeiEditor extends Component {
             if (files.length > 0) {
                 let reader = new FileReader();
                 reader.onload = (ev) => {
-                    let result = parse_tei(ev.target.result);
-                    component.file_body = result.body;
+                    let parser = new TEIParser(ev.target.result);
+                    let doc = component.schema.nodeFromJSON(parser.body);
+                    let state = EditorState.create({
+                        schema: component.schema,
+                        doc: doc,
+                        plugins: [
+                            history(),
+                            keymap({
+                                'Mod-z': undo,
+                                'Mod-y': redo
+                            }),
+                            keymap(baseKeymap)
+                        ]
+                    });
+                    component.view.updateState(state);
                 }
                 reader.readAsText(files[0]);
             }
