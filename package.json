@@ -30,7 +30,6 @@
     "ember-cli-sass": "^8.0.1",
     "ember-cli-tslint": "^0.1.3",
     "ember-cli-uglify": "^2.0.0-beta.1",
-    "foundation-sites": "^6.5.1",
     "prosemirror-commands": "^1.0.7",
     "prosemirror-history": "^1.0.3",
     "prosemirror-keymap": "^1.0.1",
