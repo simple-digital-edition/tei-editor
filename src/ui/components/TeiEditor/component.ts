@@ -150,6 +150,9 @@ export default class TeiEditor extends Component implements HasGuid {
 
     public menuAction(...params) {
         console.log(params);
+        let action = params[0];
+        let key = params[1];
+        let value = params[2];
         this.view.focus();
         if (key === 'ev.target.value') {
             value = value.target.value;
