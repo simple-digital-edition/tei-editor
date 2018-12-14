@@ -24,7 +24,7 @@
     "@mdi/js": "^3.0.39",
     "@types/qunit": "^2.0.31",
     "broccoli-asset-rev": "^3.0.0",
-    "ember-cli": "^3.5.1",
+    "ember-cli": "^3.6.0",
     "ember-cli-dependency-checker": "^3.0.0",
     "ember-cli-inject-live-reload": "^2.0.1",
     "ember-cli-sass": "^8.0.1",
@@ -39,8 +39,8 @@
     "prosemirror-view": "^1.6.7",
     "qunitjs": "^2.3.3",
     "rollup-plugin-commonjs": "^9.2.0",
-    "sass": "^1.15.1",
-    "typescript": "^2.1.0"
+    "sass": "^1.15.2",
+    "typescript": "^3.2.2"
   },
   "engines": {
     "node": ">= 4.0"
