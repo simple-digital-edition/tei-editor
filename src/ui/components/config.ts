@@ -284,7 +284,7 @@ export default {
                         },
                         value_key: 'block.attrs.no_indent',
                         label: 'No indentation',
-                        icon: 'FormatLineSpacing',
+                        icon: 'FormatIndentIncrease',
                         action: 'toggleBlockAttribute',
                         attribute: 'no_indent',
                         value: false
@@ -326,7 +326,7 @@ export default {
                         },
                         value_key: 'marks.letter_sparse',
                         label: 'Bold Font',
-                        icon: 'FormatLineSpacing',
+                        icon: 'MapMarkerDistance',
                         action: 'toggleMarkAttribute',
                         attribute: 'letter_sparse',
                         value: 'toggle'
