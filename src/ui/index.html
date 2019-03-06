@@ -3542,6 +3542,33 @@
                     ]
                 },
                 {
+                    title: 'Heading',
+                    test: {
+                        key: 'block.type.name',
+                        value: 'heading'
+                    },
+                    entries: [
+                        {
+                            type: {
+                                select: true
+                            },
+                            value_key: 'block.attrs.level',
+                            action: 'setBlockAttribute',
+                            attribute: 'level',
+                            values: [
+                                {
+                                    key: '1',
+                                    value: 'Level 1'
+                                },
+                                {
+                                    key: '2',
+                                    value: 'Level 2'
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
                     title: 'Paragraph',
                     test: {
                         key: 'block.type.name',
@@ -3615,6 +3642,7 @@
                             },
                             value_key: 'marks.font_size.attrs.size',
                             action: 'setMarkAttribute',
+                            attribute: 'font_size.size',
                             values: [
                                 {
                                     key: '',
@@ -3639,9 +3667,9 @@
                                 button: true
                             },
                             value_key: 'marks.letter_sparse',
-                            label: 'Bold Font',
+                            label: 'Sparse Lettering',
                             icon: 'MapMarkerDistance',
-                            action: 'toggleMarkAttribute',
+                            action: 'toggleMark',
                             attribute: 'letter_sparse',
                             value: 'toggle'
                         },
@@ -3652,7 +3680,7 @@
                             value_key: 'marks.font_weight_bold',
                             label: 'Bold Font',
                             icon: 'FormatBold',
-                            action: 'toggleMarkAttribute',
+                            action: 'toggleMark',
                             attribute: 'font_weight_bold',
                             value: 'toggle'
                         }

@@ -6,6 +6,7 @@ import {undo, redo, history} from 'prosemirror-history';
 import {keymap} from 'prosemirror-keymap';
 import {Schema} from 'prosemirror-model';
 import {EditorState} from 'prosemirror-state';
+import {Transform} from 'prosemirror-transform';
 import {EditorView} from 'prosemirror-view';
 
 import { TEIParser } from './tei';
@@ -140,47 +141,42 @@ export default class TeiEditor extends Component implements HasGuid {
         // Determine all marks
         let marks = getMarks(state);
         marks.forEach((mark) => {
-            console.log(mark);
             status.marks[mark.type.name] = mark;
         });
-        console.log(status);
         this.status = status;
     }
 
-    public menuAction(...params) {
-        console.log(params);
-        let action = params[0];
-        let key = params[1];
-        let value = params[2];
+    public menuAction(action, attribute, value, ev) {
         this.view.focus();
-        if (key === 'ev.target.value') {
-            value = value.target.value;
+        if (value === 'ev.target.value') {
+            value = ev.target.value;
         }
         if (action === 'setBlockType') {
             setBlockType(this.schema.nodes[value], {})(this.view.state, this.view.dispatch)
         } else if (action === 'setBlockAttribute') {
-            this.view.focus();
             let {$from} = this.view.state.selection;
             let attrs = Object.assign({}, $from.parent.attrs);
-            attrs[key] = value;
+            attrs[attribute] = value;
             setBlockType(this.schema.nodes[$from.parent.type.name], attrs)(this.view.state, this.view.dispatch)
         } else if (action === 'toggleBlockAttribute') {
-            this.view.focus();
             let {$from} = this.view.state.selection;
             let attrs = Object.assign({}, $from.parent.attrs);
-            attrs[key] = !attrs[key];
+            attrs[attribute] = !attrs[attribute];
             setBlockType(this.schema.nodes[$from.parent.type.name], attrs)(this.view.state, this.view.dispatch);
         } else if (action === 'setMarkAttribute') {
-            this.view.focus();
+            attribute = attribute.split('.');
             let marks = getMarks(this.view.state);
-            marks.forEach((mark) => {
-                if(mark.type.name === attr) {
-                    toggleMark(this.schema.marks[key])(this.view.state, this.view.dispatch);
-                }
-            })
-            if(value !== '') {
-                toggleMark(this.schema.marks[key], {size: value})(this.view.state, this.view.dispatch);
+            let {$from, $to} = this.view.state.selection
+            let transaction = this.view.state.tr;
+            transaction.removeMark($from.pos, $to.pos, this.schema.marks[attribute[0]]);
+            if (value && value.trim() !== '') {
+                let attrs = {}
+                attrs[attribute[1]] = value;
+                transaction.addMark($from.pos, $to.pos, this.schema.marks[attribute[0]].create(attrs));
             }
+            this.view.dispatch(transaction);
+        } else if (action === 'toggleMark') {
+            toggleMark(this.schema.marks[attribute])(this.view.state, this.view.dispatch);
         }
     }
 
