@@ -3407,6 +3407,11 @@
                     parseDOM: [{tag: 'span.font-weight-bold'}]
                 },
                 annotation: {
+                    attrs: {
+                        target: {
+                            default: ''
+                        }
+                    },
                     toDOM() {return ['span', {class: 'annotation'}, 0]},
                     parseDOM: [{tag: 'span.annotation'}]
                 }
