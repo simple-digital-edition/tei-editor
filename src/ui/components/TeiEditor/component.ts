@@ -9,7 +9,6 @@ import {EditorState} from 'prosemirror-state';
 import {EditorView} from 'prosemirror-view';
 
 import { TEIParser } from './tei';
-import config from '../config';
 
 function addToSet(set, item) {
     let found = false;
@@ -87,7 +86,7 @@ export default class TeiEditor extends Component implements HasGuid {
 
     constructor(options: object) {
         super(options);
-        this.schema = new Schema(config.schema);
+        this.schema = new Schema(window.teiEditorConfig.schema);
     }
 
     didInsertElement() {
@@ -121,7 +120,7 @@ export default class TeiEditor extends Component implements HasGuid {
     }
 
     get sidebarConfig() {
-        return config.ui.sidebar;
+        return window.teiEditorConfig.ui.sidebar;
     }
 
     // Action handlers
@@ -202,7 +201,7 @@ export default class TeiEditor extends Component implements HasGuid {
             if (files.length > 0) {
                 let reader = new FileReader();
                 reader.onload = (ev) => {
-                    let parser = new TEIParser(ev.target.result);
+                    let parser = new TEIParser(ev.target.result, window.teiEditorConfig);
                     let doc = component.schema.nodeFromJSON(parser.body);
                     let state = EditorState.create({
                         schema: component.schema,

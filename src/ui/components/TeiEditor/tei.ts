@@ -1,5 +1,3 @@
-import config from '../config';
-
 function nsResolver(prefix: string) {
     if (prefix === 'tei') {
         return 'http://www.tei-c.org/ns/1.0';
@@ -37,12 +35,14 @@ class XPathEvaluator {
 export class TEIParser {
     private dom: XMLDocument;
     private xpath: XPathEvaluator;
+    private config: object;
     private _body: object;
 
-    constructor(data: string) {
+    constructor(data: string, config: object) {
         let parser = new DOMParser();
         this.dom = parser.parseFromString(data, 'application/xml');
         this.xpath = new XPathEvaluator(this.dom);
+        this.config = config;
     }
 
     private parseAttrs(source, conf, target) {
@@ -50,12 +50,16 @@ export class TEIParser {
             let attrsValue = conf[attrsKey];
             let instanceValue = this.xpath.stringValue(source, attrsValue.selector);
             if (instanceValue !== null) {
-                instanceValue = instanceValue.split(' ');
-                instanceValue.forEach((item) => {
-                    if (attrsValue.values[item] !== undefined) {
-                        target[attrsKey] = attrsValue.values[item];
-                    }
-                });
+                if (attrsValue.values) {
+                    instanceValue = instanceValue.split(' ');
+                    instanceValue.forEach((item) => {
+                        if (attrsValue.values[item] !== undefined) {
+                            target[attrsKey] = attrsValue.values[item];
+                        }
+                    });
+                } else {
+                    target[attrsKey] = instanceValue;
+                }
             }
         }
     }
@@ -71,18 +75,29 @@ export class TEIParser {
             } else {
                 let instanceValue = this.xpath.stringValue(element, markValue.selector);
                 if (instanceValue !== null) {
-                    let found = false;
-                    instanceValue = instanceValue.split(' ');
-                    instanceValue.forEach((item) => {
-                        if (markValue.values.indexOf(item) >= 0) {
-                            found = true;
+                    if (markValue.values) {
+                        let found = false;
+                        instanceValue = instanceValue.split(' ');
+                        instanceValue.forEach((item) => {
+                            if (markValue.values.indexOf(item) >= 0) {
+                                found = true;
+                            }
+                        });
+                        if (found) {
+                            let mark = {
+                                type: markKey,
+                                attrs: {}
+                            };
+                            if (markValue.attrs) {
+                                this.parseAttrs(element, markValue.attrs, mark.attrs);
+                            }
+                            marks.push(mark);
                         }
-                    });
-                    if (found) {
+                    } else {
                         let mark = {
                             type: markKey,
                             attrs: {}
-                        };
+                        }
                         if (markValue.attrs) {
                             this.parseAttrs(element, markValue.attrs, mark.attrs);
                         }
@@ -101,20 +116,22 @@ export class TEIParser {
             if (child.children.length > 0) {
                 let tmp = this.parseInline(child.children);
                 let inline = tmp[0];
-                for (let inlineKey in config.parse.inline) {
-                    let inlineValues = config.parse.inline[inlineKey];
+                for (let inlineKey in this.config.parse.inline) {
+                    let inlineValues = this.config.parse.inline[inlineKey];
                     inlineValues.forEach((inlineValue) => {
                         if (this.xpath.firstNode(child, 'self::' + inlineValue.selector) !== null) {
                             if (inlineValue.marks) {
                                 inline.marks = this.parseMarks(child, inlineValue.marks);
                             }
-                            inlines.push(inline);
+                            if (inline.text && inline.text.trim() !== '') {
+                                inlines.push(inline);
+                            }
                         }
                     });
                 }
             } else {
-                for (let inlineKey in config.parse.inline) {
-                    let inlineValues = config.parse.inline[inlineKey];
+                for (let inlineKey in this.config.parse.inline) {
+                    let inlineValues = this.config.parse.inline[inlineKey];
                     inlineValues.forEach((inlineValue) => {
                         if (this.xpath.firstNode(child, 'self::' + inlineValue.selector) !== null) {
                             let inline = {
@@ -128,12 +145,19 @@ export class TEIParser {
                             if (inlineValue.marks) {
                                 inline.marks = this.parseMarks(child, inlineValue.marks);
                             }
-                            inlines.push(inline);
+                            if (inline.text && inline.text.trim() !== '') {
+                                inlines.push(inline);
+                            }
                         }
                     });
                 }
             }
         }
+        inlines.forEach(function(item) {
+            if(!item.text) {
+                console.log(inlines);
+            }
+        });
         return inlines;
     }
 
@@ -141,8 +165,8 @@ export class TEIParser {
         let element = elements.iterateNext();
         let blocks = [];
         while (element) {
-            for (let blockKey in config.parse.blocks) {
-                let blockValue = config.parse.blocks[blockKey];
+            for (let blockKey in this.config.parse.blocks) {
+                let blockValue = this.config.parse.blocks[blockKey];
                 if (blockValue) {
                     if (this.xpath.firstNode(element, 'self::' + blockValue.selector) !== null) {
                         let block = {
