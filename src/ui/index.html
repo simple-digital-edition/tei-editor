@@ -3690,6 +3690,22 @@
                             value: 'toggle'
                         }
                     ]
+                },
+                {
+                    title: 'Annotations',
+                    test: 'marks',
+                    entries: [
+                        {
+                            type: {
+                                select: true
+                            },
+                            value_key: 'marks.annotation.attrs.target',
+                            action: 'setMarkAttribute',
+                            attribute: 'annotation.target',
+                            values: [
+                            ]
+                        }
+                    ]
                 }
             ]
         }
