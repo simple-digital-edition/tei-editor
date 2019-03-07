@@ -14,7 +14,7 @@
         overflow: hidden;
     }
 
-    .tei-editor-main-text {
+    #tei-editor-main-text {
         @include xy-grid('horizontal', false);
         @include xy-cell-block(true);
 

@@ -1,6 +1,9 @@
 @import 'foundation';
 @import 'settings';
 
+@import 'grid';
+@import 'aria-menu';
+
 /**
  * Icons
  */
@@ -9,5 +12,9 @@ svg.mdi-icon {
     height: 24px;
 }
 
-@import 'grid';
-@import 'aria-menu';
+/**
+ * Generic
+ */
+*[aria-hidden="true"] {
+    display: none !important;
+}
