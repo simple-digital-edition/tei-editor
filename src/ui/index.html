@@ -1092,7 +1092,7 @@
                     ]
                 },
                 {
-                    title: 'Font Styles',
+                    title: 'Styling',
                     test: 'marks',
                     entries: [
                         {
@@ -1160,6 +1160,34 @@
                             ]
                         }
                     ]
+                  },
+                  {
+                      title: 'Markup',
+                      test: 'marks',
+                      entries: [
+                          {
+                              type: {
+                                  button: true
+                              },
+                              value_key: 'marks.page_break',
+                              label: 'Page Break',
+                              icon: 'FormatPageBreak',
+                              action: 'toggleMark',
+                              attribute: 'page_break',
+                              value: 'toggle'
+                          },
+                          {
+                              type: {
+                                  button: true
+                              },
+                              value_key: 'marks.foreign',
+                              label: 'Foreign Language',
+                              icon: 'Translate',
+                              action: 'toggleMark',
+                              attribute: 'foreign',
+                              value: 'toggle'
+                          }
+                      ]
                 }
             ]
         }
