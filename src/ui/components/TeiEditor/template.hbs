@@ -7,12 +7,12 @@
         <AriaMenuAction @action={{action loadFile}}>Load</AriaMenuAction>
         <AriaMenuAction>Save</AriaMenuAction>
       </AriaDropdownMenu>
-      <AriaMenuAction @current={{eq currentView '#tei-editor-main-text' true}} @action={{action setView '#tei-editor-main-text'}}>Text</AriaMenuAction>
-      <AriaMenuAction>Annotations</AriaMenuAction>
-      <AriaMenuAction @current={{eq currentView '#tei-editor-metadata' true}} @action={{action setView '#tei-editor-metadata'}}>Metadata</AriaMenuAction>
+      <AriaMenuAction @current={{eq currentView '#tei-editor-main-text' true}} @hidden={{eq loaded false true}} @action={{action setView '#tei-editor-main-text'}}>Text</AriaMenuAction>
+      <AriaMenuAction @hidden={{eq loaded false true}}>Annotations</AriaMenuAction>
+      <AriaMenuAction @current={{eq currentView '#tei-editor-metadata' true}} @hidden={{eq loaded false true}} @action={{action setView '#tei-editor-metadata'}}>Metadata</AriaMenuAction>
     </AriaMenu>
   </div>
-  <div>
+  <div aria-hidden={{eq loaded false true}}>
     <div id="tei-editor-main-text" aria-hidden="false">
       <div>
         <div class="tei-editor-main-text-editor">

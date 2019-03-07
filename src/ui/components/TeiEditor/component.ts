@@ -86,7 +86,8 @@ export default class TeiEditor extends Component implements HasGuid {
     schema: Schema = null;
     mainTextView: EditorView = null;
     @tracked status: object = null;
-    @tracked currentView = '#tei-editor-main-text';
+    @tracked currentView: string = '#tei-editor-main-text';
+    @tracked loaded: boolean = false;
 
     // Life-cycle handlers
 
@@ -232,6 +233,7 @@ export default class TeiEditor extends Component implements HasGuid {
                         ]
                     });
                     component.mainTextView.updateState(state);
+                    component.loaded = true;
                 }
                 reader.readAsText(files[0]);
             }
