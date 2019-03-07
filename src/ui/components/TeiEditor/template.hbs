@@ -28,7 +28,7 @@
                 <dd>
                   <AriaMenu>
                     {{#each section.entries key="@index" as |entry index|}}
-                      {{#if entry.type.select}}
+                      {{#if (eq entry.type 'select')}}
                         <li class="input">
                           <select role="menuitem" tabindex={{aria-menu-item-tabindex index}} onchange={{action menuAction entry.action entry.attribute 'ev.target.value'}}>
                             {{#each entry.values key="@index" as |value|}}
@@ -37,7 +37,7 @@
                           </select>
                         </li>
                       {{/if}}
-                      {{#if entry.type.button}}
+                      {{#if (eq entry.type 'button')}}
                         <AriaMenuAction @tabindex={{aria-menu-item-tabindex index}} @label={{entry.label}} @action={{action menuAction entry.action entry.attribute entry.value}} @current={{eq (get status entry.value_key) entry.value true}}><MdiIcon @name={{entry.icon}} /></AriaMenuAction>
                       {{/if}}
                     {{/each}}

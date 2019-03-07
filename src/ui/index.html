@@ -982,9 +982,7 @@
                     test: 'block',
                     entries: [
                         {
-                            type: {
-                                select: true
-                            },
+                            type: 'select',
                             value_key: 'block.type.name',
                             action: 'setBlockType',
                             values: [
@@ -1008,9 +1006,7 @@
                     },
                     entries: [
                         {
-                            type: {
-                                select: true
-                            },
+                            type: 'select',
                             value_key: 'block.attrs.level',
                             action: 'setBlockAttribute',
                             attribute: 'level',
@@ -1035,9 +1031,7 @@
                     },
                     entries: [
                         {
-                            type: {
-                                button: true
-                            },
+                            type: 'button',
                             value_key: 'block.attrs.text_align',
                             label: 'Left align',
                             icon: 'FormatAlignLeft',
@@ -1046,9 +1040,7 @@
                             value: 'left'
                         },
                         {
-                            type: {
-                                button: true
-                            },
+                            type: 'button',
                             value_key: 'block.attrs.text_align',
                             label: 'Center align',
                             icon: 'FormatAlignCenter',
@@ -1057,9 +1049,7 @@
                             value: 'center'
                         },
                         {
-                            type: {
-                                button: true
-                            },
+                            type: 'button',
                             value_key: 'block.attrs.text_align',
                             label: 'Right align',
                             icon: 'FormatAlignRight',
@@ -1068,9 +1058,7 @@
                             value: 'right'
                         },
                         {
-                            type: {
-                                button: true
-                            },
+                            type: 'button',
                             value_key: 'block.attrs.text_align',
                             label: 'Align justify',
                             icon: 'FormatAlignJustify',
@@ -1079,9 +1067,7 @@
                             value: 'justify'
                         },
                         {
-                            type: {
-                                button: true
-                            },
+                            type: 'button',
                             value_key: 'block.attrs.no_indent',
                             label: 'No indentation',
                             icon: 'FormatIndentIncrease',
@@ -1096,9 +1082,7 @@
                     test: 'marks',
                     entries: [
                         {
-                            type: {
-                                select: true
-                            },
+                            type: 'select',
                             value_key: 'marks.font_size.attrs.size',
                             action: 'setMarkAttribute',
                             attribute: 'font_size.size',
@@ -1122,9 +1106,7 @@
                             ]
                         },
                         {
-                            type: {
-                                button: true
-                            },
+                            type: 'button',
                             value_key: 'marks.letter_sparse',
                             label: 'Sparse Lettering',
                             icon: 'MapMarkerDistance',
@@ -1133,9 +1115,7 @@
                             value: 'toggle'
                         },
                         {
-                            type: {
-                                button: true
-                            },
+                            type: 'button',
                             value_key: 'marks.font_weight_bold',
                             label: 'Bold Font',
                             icon: 'FormatBold',
@@ -1150,9 +1130,7 @@
                     test: 'marks',
                     entries: [
                         {
-                            type: {
-                                select: true
-                            },
+                            type: 'select',
                             value_key: 'marks.annotation.attrs.target',
                             action: 'setMarkAttribute',
                             attribute: 'annotation.target',
@@ -1166,9 +1144,7 @@
                       test: 'marks',
                       entries: [
                           {
-                              type: {
-                                  button: true
-                              },
+                              type: 'button',
                               value_key: 'marks.page_break',
                               label: 'Page Break',
                               icon: 'FormatPageBreak',
@@ -1177,9 +1153,7 @@
                               value: 'toggle'
                           },
                           {
-                              type: {
-                                  button: true
-                              },
+                              type: 'button',
                               value_key: 'marks.foreign',
                               label: 'Foreign Language',
                               icon: 'Translate',
@@ -1191,7 +1165,7 @@
                 }
             ],
             metadata: [
-              
+
             ]
         }
     };
