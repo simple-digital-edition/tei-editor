@@ -135,8 +135,8 @@ export default class TeiEditor extends Component implements HasGuid {
     /**
      * Return the sidebar configuration.
      */
-    get sidebarConfig() {
-        return window.teiEditorConfig.ui.sidebar;
+    get mainTextSidebarConfig() {
+        return window.teiEditorConfig.ui.main_text_sidebar;
     }
 
     // Action handlers
