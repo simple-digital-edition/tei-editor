@@ -1,77 +1,52 @@
-<div class="grid-y grid-frame">
-  <div class="cell shrink">
-    <AriaMenu @class="menubar">
-      <AriaMenuAction @tabindex="0" @label="Undo"><MdiIcon @name="Undo" @class="small"/></AriaMenuAction>
-      <AriaMenuAction @label="Redo"><MdiIcon @name="Redo" @class="small"/></AriaMenuAction>
+<div class="tei-editor">
+  <div>
+    <AriaMenu @class="tei-editor-menubar">
+      <AriaMenuAction @tabindex="0" @label="Undo"><MdiIcon @name="Undo"/></AriaMenuAction>
+      <AriaMenuAction @label="Redo"><MdiIcon @name="Redo"/></AriaMenuAction>
       <AriaDropdownMenu @title="File">
         <AriaMenuAction @action={{action loadFile}}>Load</AriaMenuAction>
         <AriaMenuAction>Save</AriaMenuAction>
       </AriaDropdownMenu>
-      <AriaMenuAction>Block</AriaMenuAction>
-      <AriaMenuAction>Inline</AriaMenuAction>
+      <AriaMenuAction @current="true">Text</AriaMenuAction>
+      <AriaMenuAction>Annotations</AriaMenuAction>
+      <AriaMenuAction>Metadata</AriaMenuAction>
     </AriaMenu>
   </div>
-  <div class="cell auto cell-block-container">
-    <div class="grid-x">
-      <div class="small-8 cell cell-block-y editor">
+  <div>
+    <div class="tei-editor-main-text">
+      <div>
+        <div class="tei-editor-main-text-editor">
           <div id={{prosemirrorId}}></div>
+        </div>
       </div>
-      <div class="small-4 cell cell-block-y sidebar">
-        <dl>
-          {{#each sidebarConfig key="@index" as |section|}}
-            {{#if (status-display-entry status section.test)}}
-              <dt>{{section.title}}</dt>
-              <dd>
-                <AriaMenu>
-                  {{#each section.entries key="@index" as |entry index|}}
-                    {{#if entry.type.select}}
-                      <li class="input">
-                        <select role="menuitem" tabindex={{aria-menu-item-tabindex index}} onchange={{action menuAction entry.action entry.attribute 'ev.target.value'}}>
-                          {{#each entry.values key="@index" as |value|}}
-                            <option value={{value.key}} selected={{eq (get status entry.value_key) value.key}}>{{value.value}}</option>
-                          {{/each}}
-                        </select>
-                      </li>
-                    {{/if}}
-                    {{#if entry.type.button}}
-                      <AriaMenuAction @tabindex={{aria-menu-item-tabindex index}} @label={{entry.label}} @action={{action menuAction entry.action entry.attribute entry.value}} @current={{eq (get status entry.value_key) entry.value true}}><MdiIcon @name={{entry.icon}} /></AriaMenuAction>
-                    {{/if}}
-                  {{/each}}
-                </AriaMenu>
-              </dd>
-            {{/if}}
-          {{/each}}
-          <!--
-          <dt>Font Styling</dt>
-          <dd>
-            <AriaMenu>
-              <li class="input">
-                <select role="menuitem" tabindex="0">
-                  <option>Small Font</option>
-                  <option>Normal Font</option>
-                  <option>Medium Font</option>
-                  <option selected="selected">Large Font</option>
-                </select>
-              </li>
-              <li class="input">
-                <select role="menuitem" tabindex="-1">
-                  <option>Wide spacing</option>
-                </select>
-              </li>
-            </AriaMenu>
-            <AriaMenu>
-              <AriaMenuAction @label="Bold font"><MdiIcon @name="FormatBold"/></AriaMenuAction>
-              <AriaMenuAction @label="Italic font"><MdiIcon @name="FormatItalic"/></AriaMenuAction>
-              <AriaMenuAction @label="Superscript text"><MdiIcon @name="FormatSuperscript"/></AriaMenuAction>
-              <AriaMenuAction @label="Subscript text"><MdiIcon @name="FormatSubscript"/></AriaMenuAction>
-            </AriaMenu>
-          </dd>
-          <dt><label>Page break <MdiIcon @name="CheckboxBlankOutline" @class="small"/></label></dt>
-          <dd></dd>
-          <dt><label>Foreign language <MdiIcon @name="CheckboxBlankOutline" @class="small"/></label></dt>
-          <dd></dd>
-        -->
-        </dl>
+      <div>
+        <div class="tei-editor-main-text-sidebar">
+          <dl>
+            {{#each sidebarConfig key="@index" as |section|}}
+              {{#if (status-display-entry status section.test)}}
+                <dt>{{section.title}}</dt>
+                <dd>
+                  <AriaMenu>
+                    {{#each section.entries key="@index" as |entry index|}}
+                      {{#if entry.type.select}}
+                        <li class="input">
+                          <select role="menuitem" tabindex={{aria-menu-item-tabindex index}} onchange={{action menuAction entry.action entry.attribute 'ev.target.value'}}>
+                            {{#each entry.values key="@index" as |value|}}
+                              <option value={{value.key}} selected={{eq (get status entry.value_key) value.key}}>{{value.value}}</option>
+                            {{/each}}
+                          </select>
+                        </li>
+                      {{/if}}
+                      {{#if entry.type.button}}
+                        <AriaMenuAction @tabindex={{aria-menu-item-tabindex index}} @label={{entry.label}} @action={{action menuAction entry.action entry.attribute entry.value}} @current={{eq (get status entry.value_key) entry.value true}}><MdiIcon @name={{entry.icon}} /></AriaMenuAction>
+                      {{/if}}
+                    {{/each}}
+                  </AriaMenu>
+                </dd>
+              {{/if}}
+            {{/each}}
+          </dl>
+        </div>
       </div>
     </div>
   </div>

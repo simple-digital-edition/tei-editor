@@ -11,9 +11,9 @@ export default class MdiIcon extends Component {
     @tracked
     get class() {
         if (this.args.class !== undefined) {
-            return 'mdi ' + this.args.class;
+            return 'mdi-icon ' + this.args.class;
         } else {
-            return 'mdi';
+            return 'mdi-icon';
         }
     }
 }

@@ -6,6 +6,11 @@ const commonjs = require('rollup-plugin-commonjs');
 
 module.exports = function(defaults) {
     let app = new GlimmerApp(defaults, {
+        sassOptions: {
+            includePaths: [
+                'node_modules/foundation-sites/scss'
+            ]
+        },
         rollup: {
             plugins: [
                 resolve({ module: true }),

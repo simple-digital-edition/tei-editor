@@ -1,0 +1,50 @@
+/*
+ * ARIA Compliant Menu
+ */
+*[role="menu"] {
+    @include menu-base;
+
+    &[aria-orientation="vertical"] {
+        @include menu-direction('vertical');
+
+        li.separator {
+            padding-right: 0;
+            padding-bottom: $global-padding;
+        }
+    }
+
+    li {
+        position: relative;
+
+        &.menu-text {
+            @include menu-text;
+        }
+
+        &.separator {
+            padding-right: $global-padding;
+        }
+
+        *[role="menuitem"] {
+            cursor: pointer;
+            height: 100%;
+        }
+
+        & > *[role="menu"] {
+            display: none;
+            position: absolute;
+            z-index: 1;
+
+            *[role="menu"] {
+                position: absolute;
+                top: 0;
+                left: 100%;
+            }
+        }
+
+        &:hover {
+            & > *[role="menu"] {
+                display: block;
+            }
+        }
+    }
+}

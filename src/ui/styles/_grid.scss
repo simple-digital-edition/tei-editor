@@ -1,0 +1,40 @@
+/**
+ * Grid structure
+ */
+.tei-editor {
+    @include xy-grid('vertical');
+    @include xy-grid-frame(true);
+
+    > div:nth-child(1) {
+        @include xy-cell-base('shrink');
+    }
+
+    > div:nth-child(2) {
+        @include xy-cell-base('auto');
+        overflow: hidden;
+    }
+
+    .tei-editor-main-text {
+        @include xy-grid('horizontal', false);
+        @include xy-cell-block(true);
+
+        > div:nth-child(1) {
+            @include xy-cell-base();
+            @include xy-cell-static(8, false, 0);
+            @include xy-cell-block(true);
+
+            .tei-editor-main-text-editor {
+                @include xy-cell-block(true);
+            }
+        }
+        > div:nth-child(2) {
+            @include xy-cell-base();
+            @include xy-cell-static(4, false, 0);
+            @include xy-cell-block(true);
+
+            .tei-editor-main-text-sidebar {
+                @include xy-cell-block(true);
+            }
+        }
+    }
+}
