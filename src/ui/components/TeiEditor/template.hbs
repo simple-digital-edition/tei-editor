@@ -7,12 +7,12 @@
         <AriaMenuAction @action={{action loadFile}}>Load</AriaMenuAction>
         <AriaMenuAction>Save</AriaMenuAction>
       </AriaDropdownMenu>
-      <AriaMenuAction @current={{eq currentView '#tei-editor-main-text' true}} @hidden={{eq loaded false true}} @action={{action setView '#tei-editor-main-text'}}>Text</AriaMenuAction>
-      <AriaMenuAction @hidden={{eq loaded false true}}>Annotations</AriaMenuAction>
-      <AriaMenuAction @current={{eq currentView '#tei-editor-metadata' true}} @hidden={{eq loaded false true}} @action={{action setView '#tei-editor-metadata'}}>Metadata</AriaMenuAction>
+      <AriaMenuAction @current={{boolean-str (eq currentView '#tei-editor-main-text')}} @hidden={{boolean-str (not loaded)}} @action={{action setView '#tei-editor-main-text'}}>Text</AriaMenuAction>
+      <AriaMenuAction @disabled={{true}} @hidden={{boolean-str (not loaded)}}>Annotations</AriaMenuAction>
+      <AriaMenuAction @current={{boolean-str (eq currentView '#tei-editor-metadata')}} @hidden={{boolean-str (not loaded)}} @action={{action setView '#tei-editor-metadata'}}>Metadata</AriaMenuAction>
     </AriaMenu>
   </div>
-  <div aria-hidden={{eq loaded false true}}>
+  <div aria-hidden={{boolean-str (not loaded)}}>
     <div id="tei-editor-main-text" aria-hidden="false">
       <div>
         <div class="tei-editor-main-text-editor">
@@ -26,7 +26,7 @@
               {{#if (status-display-entry status section.test)}}
                 <dt>{{section.title}}</dt>
                 <dd>
-                  <AriaMenu>
+                  <AriaMenu @label="Main">
                     {{#each section.entries key="@index" as |entry index|}}
                       {{#if (eq entry.type 'select')}}
                         <li class="input">
@@ -38,7 +38,7 @@
                         </li>
                       {{/if}}
                       {{#if (eq entry.type 'button')}}
-                        <AriaMenuAction @tabindex={{aria-menu-item-tabindex index}} @label={{entry.label}} @action={{action menuAction entry.action entry.attribute entry.value}} @current={{eq (get status entry.value_key) entry.value true}}><MdiIcon @name={{entry.icon}} /></AriaMenuAction>
+                        <AriaMenuAction @tabindex={{aria-menu-item-tabindex index}} @label={{entry.label}} @action={{action menuAction entry.action entry.attribute entry.value}} @current={{boolean-str (eq (get status entry.value_key) entry.value)}}><MdiIcon @name={{entry.icon}} /></AriaMenuAction>
                       {{/if}}
                     {{/each}}
                   </AriaMenu>
@@ -49,7 +49,7 @@
         </div>
       </div>
     </div>
-    <div id="tei-editor-metadata" aria-hidden="true">
+    <div id="tei-editor-metadata" aria-hidden={{boolean-str (not loaded)}}>
       <dl>
         {{#each metadataConfig key="@index" as |section|}}
           <dt>{{section.title}}</dt>
