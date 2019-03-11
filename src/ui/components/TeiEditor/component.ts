@@ -3,9 +3,6 @@ import { tracked } from '@glimmer/component';
 import { ensureGuid, HasGuid } from '@glimmer/util';
 
 import { TEIParser } from './tei';
-import deepclone from '../deepclone/helper';
-import get from '../get/helper';
-import set from '../set/helper';
 
 export default class TeiEditor extends Component {
     //schema: Schema = null;
@@ -70,68 +67,7 @@ export default class TeiEditor extends Component {
         document.querySelector(this.currentView).setAttribute('aria-hidden', 'false');
     }
 
-    /**
-     * Sets the content of a single value field, regardless whether it is an attribute or text. Also handles traversal
-     * through array indices.
-     */
-    public setMetadataField(value_key, ev) {
-        ev.preventDefault();
-        let clone = deepclone([this.metadata]);
-        clone = set([clone, value_key, ev.target.value]);
-        this.metadata = clone;
-    }
-
-    /**
-     * Adds a row to a multi-row field.
-     */
-    public addMultiFieldRow(value_key, entries, ev) {
-        ev.preventDefault();
-        let clone = deepclone([this.metadata]);
-        let field = get([clone, value_key]);
-        let new_row = [];
-        entries.forEach((entry) => {
-            let new_column = {};
-            new_column = set([new_column, entry.value_key, '']);
-            new_row.push(new_column);
-        });
-        field.push(new_row);
-        this.metadata = clone;
-    }
-
-    /**
-     * Removes a row from a multi-row field.
-     */
-    public removeMultiFieldRow(value_key, idx, ev) {
-        ev.preventDefault();
-        let clone = deepclone([this.metadata]);
-        let field = get([clone, value_key]);
-        field.splice(idx, 1);
-        this.metadata = clone;
-    }
-
-    /**
-     * Move a row in a multi-row field one row up.
-     */
-    public moveMultiFieldRowUp(value_key, idx, ev) {
-        ev.preventDefault();
-        let clone = deepclone([this.metadata]);
-        let field = get([clone, value_key]);
-        let mover = field[idx];
-        field.splice(idx, 1);
-        field.splice(idx - 1, 0, mover);
-        this.metadata = clone;
-    }
-
-    /**
-     * Move a row in a multi-row field one row down.
-     */
-    public moveMultiFieldRowDown(value_key, idx, ev) {
-        ev.preventDefault();
-        let clone = deepclone([this.metadata]);
-        let field = get([clone, value_key]);
-        let mover = field[idx];
-        field.splice(idx, 1);
-        field.splice(idx + 1, 0, mover);
-        this.metadata = clone;
+    public updateMetadata(metadata) {
+        this.metadata = metadata;
     }
 }
