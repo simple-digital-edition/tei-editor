@@ -14,40 +14,7 @@
   </div>
   <div aria-hidden={{boolean-str (not loaded)}}>
     <div id="tei-editor-main-text" aria-hidden="false">
-      <div>
-        <div class="tei-editor-main-text-editor">
-          <div id={{prosemirrorId}}></div>
-        </div>
-      </div>
-      <div>
-        <div class="tei-editor-main-text-sidebar">
-          <dl>
-            {{#each mainTextSidebarConfig key="@index" as |section|}}
-              {{#if (status-display-entry status section.test)}}
-                <dt>{{section.title}}</dt>
-                <dd>
-                  <AriaMenu @label="Main">
-                    {{#each section.entries key="@index" as |entry index|}}
-                      {{#if (eq entry.type 'select')}}
-                        <li class="input">
-                          <select role="menuitem" tabindex={{aria-menu-item-tabindex index}} onchange={{action menuAction entry.action entry.attribute 'ev.target.value'}}>
-                            {{#each entry.values key="@index" as |value|}}
-                              <option value={{value.key}} selected={{eq (get status entry.value_key) value.key}}>{{value.value}}</option>
-                            {{/each}}
-                          </select>
-                        </li>
-                      {{/if}}
-                      {{#if (eq entry.type 'button')}}
-                        <AriaMenuAction @tabindex={{aria-menu-item-tabindex index}} @label={{entry.label}} @action={{action menuAction entry.action entry.attribute entry.value}} @current={{boolean-str (eq (get status entry.value_key) entry.value)}}><MdiIcon @name={{entry.icon}} /></AriaMenuAction>
-                      {{/if}}
-                    {{/each}}
-                  </AriaMenu>
-                </dd>
-              {{/if}}
-            {{/each}}
-          </dl>
-        </div>
-      </div>
+      <ProsemirrorEditor @schema={{mainTextEditorConfig}} @sidebar={{mainTextSidebarConfig}} @text={{bodyText}}></ProsemirrorEditor>
     </div>
     <div id="tei-editor-metadata" aria-hidden={{boolean-str (not loaded)}}>
       <dl>
