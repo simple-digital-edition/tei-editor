@@ -10,6 +10,9 @@ import {Transform} from 'prosemirror-transform';
 import {EditorView} from 'prosemirror-view';
 
 import { TEIParser } from './tei';
+import deepclone from '../deepclone/helper';
+import get from '../get/helper';
+import set from '../set/helper';
 
 /**
  * Adds an item into an array, treating the array as a set. If the item to add is already contained in the array,
@@ -88,6 +91,7 @@ export default class TeiEditor extends Component implements HasGuid {
     @tracked status: object = null;
     @tracked currentView: string = '#tei-editor-main-text';
     @tracked loaded: boolean = false;
+    @tracked metadata: object = null;
 
     // Life-cycle handlers
 
@@ -133,10 +137,17 @@ export default class TeiEditor extends Component implements HasGuid {
     }
 
     /**
-     * Return the sidebar configuration.
+     * Return the main text sidebar configuration.
      */
     get mainTextSidebarConfig() {
         return window.teiEditorConfig.ui.main_text_sidebar;
+    }
+
+    /**
+     * Return the metadata configuration.
+     */
+    get metadataConfig() {
+        return window.teiEditorConfig.ui.metadata;
     }
 
     // Action handlers
@@ -233,6 +244,7 @@ export default class TeiEditor extends Component implements HasGuid {
                         ]
                     });
                     component.mainTextView.updateState(state);
+                    component.metadata = parser.metadata;
                     component.loaded = true;
                 }
                 reader.readAsText(files[0]);
@@ -246,5 +258,70 @@ export default class TeiEditor extends Component implements HasGuid {
         document.querySelector(this.currentView).setAttribute('aria-hidden', 'true');
         this.currentView = view;
         document.querySelector(this.currentView).setAttribute('aria-hidden', 'false');
+    }
+
+    /**
+     * Sets the content of a single value field, regardless whether it is an attribute or text. Also handles traversal
+     * through array indices.
+     */
+    public setMetadataField(value_key, ev) {
+        ev.preventDefault();
+        let clone = deepclone([this.metadata]);
+        clone = set([clone, value_key, ev.target.value]);
+        this.metadata = clone;
+    }
+
+    /**
+     * Adds a row to a multi-row field.
+     */
+    public addMultiFieldRow(value_key, entries, ev) {
+        ev.preventDefault();
+        let clone = deepclone([this.metadata]);
+        let field = get([clone, value_key]);
+        let new_row = [];
+        entries.forEach((entry) => {
+            let new_column = {};
+            new_column = set([new_column, entry.value_key, '']);
+            new_row.push(new_column);
+        });
+        field.push(new_row);
+        this.metadata = clone;
+    }
+
+    /**
+     * Removes a row from a multi-row field.
+     */
+    public removeMultiFieldRow(value_key, idx, ev) {
+        ev.preventDefault();
+        let clone = deepclone([this.metadata]);
+        let field = get([clone, value_key]);
+        field.splice(idx, 1);
+        this.metadata = clone;
+    }
+
+    /**
+     * Move a row in a multi-row field one row up.
+     */
+    public moveMultiFieldRowUp(value_key, idx, ev) {
+        ev.preventDefault();
+        let clone = deepclone([this.metadata]);
+        let field = get([clone, value_key]);
+        let mover = field[idx];
+        field.splice(idx, 1);
+        field.splice(idx - 1, 0, mover);
+        this.metadata = clone;
+    }
+
+    /**
+     * Move a row in a multi-row field one row down.
+     */
+    public moveMultiFieldRowDown(value_key, idx, ev) {
+        ev.preventDefault();
+        let clone = deepclone([this.metadata]);
+        let field = get([clone, value_key]);
+        let mover = field[idx];
+        field.splice(idx, 1);
+        field.splice(idx + 1, 0, mover);
+        this.metadata = clone;
     }
 }

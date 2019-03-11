@@ -682,6 +682,13 @@
     *[role="menuitem"][aria-current="true"] svg path, *[role="menuitem"][aria-current="true"]:hover svg path {
       fill: #fefefe;
     }
+    *[role="menuitem"][aria-disabled="true"], *[role="menuitem"][aria-disabled="true"]:hover {
+      background: inherit;
+      color: #000000;
+    }
+    *[role="menuitem"][aria-disabled="true"] svg path, *[role="menuitem"][aria-disabled="true"]:hover svg path {
+      fill: #cacaca;
+    }
 
     .tei-editor-main-text-sidebar {
       box-sizing: border-box;
@@ -745,6 +752,14 @@
       font-size: 13pt;
       font-weight: 700;
       text-align: center;
+    }
+
+    #tei-editor-metadata dl dt {
+      margin-bottom: 0.5rem;
+    }
+    #tei-editor-metadata dl dd {
+      margin-bottom: 2rem;
+      margin-left: 0.5rem;
     }
     </style>
     <script>
@@ -1165,7 +1180,113 @@
                 }
             ],
             metadata: [
-
+                {
+                    title: 'Bibliography',
+                    entries: [
+                        {
+                            type: 'single-text',
+                            label: 'Title',
+                            value_key: 'fileDesc.titleStmt.title._text'
+                        },
+                        {
+                            type: 'single-text',
+                            label: 'Author',
+                            value_key: 'fileDesc.titleStmt.author._text'
+                        },
+                        {
+                            type: 'single-text',
+                            label: 'Source',
+                            value_key: 'sourceDesc.bibl._text'
+                        },
+                        {
+                            type: 'single-text',
+                            label: 'Publication Date (machine-readable)',
+                            value_key: 'profileDesc.creation.date._attrs.when'
+                        },
+                        {
+                            type: 'single-text',
+                            label: 'Publication Date (human-readable)',
+                            value_key: 'profileDesc.creation.date._text'
+                        }
+                    ]
+                },
+                {
+                    title: 'Digital Version',
+                    entries: [
+                        {
+                            type: 'single-text',
+                            label: 'Distributor',
+                            value_key: 'fileDesc.publicationStmt.distributor._text'
+                        },
+                        {
+                            type: 'single-text',
+                            label: 'Taxonomy Identifier',
+                            value_key: 'encodingDesc.classDecl.taxonomy._attrs.xml:id'
+                        },
+                        {
+                            type: 'single-text',
+                            label: 'Taxonomy Label',
+                            value_key: 'encodingDesc.classDecl.taxonomy.bibl._text'
+                        },
+                        {
+                            type: 'single-text',
+                            label: 'Categorisation',
+                            value_key: 'profileDesc.textClass.catRef._attrs.target'
+                        }
+                    ]
+                },
+                {
+                    title: 'Responsibilities',
+                    entries: [
+                        {
+                            type: 'multi-field',
+                            value_key: 'fileDesc.titleStmt.respStmt',
+                            entries: [
+                                {
+                                    type: 'single-text',
+                                    label: 'Identifier',
+                                    value_key: '_attrs.xml:id'
+                                },
+                                {
+                                    type: 'single-text',
+                                    label: 'Responsible for',
+                                    value_key: 'resp._text'
+                                },
+                                {
+                                    type: 'single-text',
+                                    label: 'Name',
+                                    value_key: 'name._text'
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    title: 'Revisions',
+                    entries: [
+                        {
+                            type: 'multi-field',
+                            value_key: 'revisionDesc.change',
+                            entries: [
+                                {
+                                    type: 'single-text',
+                                    label: 'Change',
+                                    value_key: '_text'
+                                },
+                                {
+                                    type: 'single-text',
+                                    label: 'Who',
+                                    value_key: '_attrs.who'
+                                },
+                                {
+                                    type: 'single-text',
+                                    label: 'When',
+                                    value_key: '_attrs.when'
+                                }
+                            ]
+                        }
+                    ]
+                }
             ]
         }
     };

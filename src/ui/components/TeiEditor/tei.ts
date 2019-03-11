@@ -37,6 +37,7 @@ export class TEIParser {
     private xpath: XPathEvaluator;
     private config: object;
     private _body: object;
+    private _metadata: object;
 
     constructor(data: string, config: object) {
         let parser = new DOMParser();
@@ -196,6 +197,43 @@ export class TEIParser {
             };
         }
         return this._body;
+    }
+
+    /**
+     * Builds a forest of trees for the given elements. The forest is an object representation of the XML tree,
+     * but without any ordering information.
+     */
+    private buildForest(elements) {
+        let element = elements.iterateNext();
+        let forest = {};
+        while (element) {
+            let tree = Object.assign({
+                _attrs: {},
+                _text: element.children.length === 0 ? this.xpath.stringValue(element, 'text()') : null
+            }, this.buildForest(this.xpath.nodeIterator(element, 'tei:*')));
+            for(let idx = 0; idx < element.attributes.length; idx++) {
+                tree._attrs[element.attributes[idx].name] = element.attributes[idx].value;
+            }
+            if (forest[element.localName]) {
+                if (!Array.isArray(forest[element.localName])) {
+                    forest[element.localName] = [forest[element.localName]];
+                }
+                forest[element.localName].push(tree);
+            } else {
+                forest[element.localName] = tree;
+            }
+            element = elements.iterateNext();
+        }
+        return forest
+    }
+
+    get metadata() {
+        if (!this._metadata) {
+            this._metadata = this.buildForest(this.xpath.nodeIterator(this.dom.documentElement,
+                '/tei:TEI/tei:teiHeader/tei:*'));
+            console.log(this._metadata);
+        }
+        return this._metadata;
     }
 }
 

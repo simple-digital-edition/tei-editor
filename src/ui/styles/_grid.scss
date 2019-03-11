@@ -37,4 +37,35 @@
             }
         }
     }
+
+    #tei-editor-metadata {
+        @include xy-cell-block(true);
+
+        > dl {
+            padding: $global-padding;
+
+            ul li {
+                list-style-type: none;
+
+                &.tei-editor-metadata-single {
+                    max-width: 43rem;
+                }
+                &.tei-editor-metadata-multiple {
+                    > div {
+                        @include xy-grid('horizontal', false);
+
+                        div {
+                            @include xy-cell-base();
+                            @include xy-cell('auto', false, 0);
+                        }
+
+                        nav {
+                            align-self: flex-end;
+                            padding-bottom: $global-padding/2;
+                        }
+                    }
+                }
+            }
+        }
+    }
 }

@@ -27,6 +27,10 @@
         *[role="menuitem"] {
             cursor: pointer;
             height: 100%;
+
+            &[aria-disabled="true"] {
+                cursor: not-allowed;
+            }
         }
 
         & > *[role="menu"] {

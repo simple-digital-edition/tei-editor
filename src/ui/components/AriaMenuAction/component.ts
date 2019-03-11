@@ -10,4 +10,8 @@ export default class AriaMenuAction extends Component {
             return -1;
         }
     }
+
+    public noAction(ev) {
+        ev.preventDefault();
+    }
 }
