@@ -231,7 +231,6 @@ export class TEIParser {
         if (!this._metadata) {
             this._metadata = this.buildForest(this.xpath.nodeIterator(this.dom.documentElement,
                 '/tei:TEI/tei:teiHeader/tei:*'));
-            console.log(this._metadata);
         }
         return this._metadata;
     }
