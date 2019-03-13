@@ -22,19 +22,11 @@
             @include xy-cell-base();
             @include xy-cell-static(8, false, 0);
             @include xy-cell-block(true);
-
-            .tei-editor-main-text-editor {
-                @include xy-cell-block(true);
-            }
         }
         > div:nth-child(2) {
             @include xy-cell-base();
             @include xy-cell-static(4, false, 0);
             @include xy-cell-block(true);
-
-            .tei-editor-main-text-sidebar {
-                @include xy-cell-block(true);
-            }
         }
     }
 
@@ -47,6 +39,16 @@
         }
         > div:nth-child(2) {
             @include xy-cell-base('auto');
+            @include xy-grid('horizontal', false);
+
+            > div:nth-child(1) {
+                @include xy-cell-static(8, false, 0);
+                @include xy-cell-block(true);
+            }
+            > div:nth-child(2) {
+                @include xy-cell-static(4, false, 0);
+                @include xy-cell-block(true);
+            }
         }
     }
 
@@ -79,5 +81,12 @@
                 }
             }
         }
+    }
+
+    .tei-editor-prosemirror-editor {
+        @include xy-cell-block(true);
+    }
+    .tei-editor-prosemirror-sidebar {
+        @include xy-cell-block(true);
     }
 }

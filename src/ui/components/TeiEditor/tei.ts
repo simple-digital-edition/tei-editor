@@ -2,7 +2,7 @@ function nsResolver(prefix: string) {
     if (prefix === 'tei') {
         return 'http://www.tei-c.org/ns/1.0';
     } else if (prefix === 'xml') {
-
+        return 'http://www.w3.org/XML/1998/namespace';
     } else {
         return 'http://www.tei-c.org/ns/1.0';
     }
@@ -37,6 +37,7 @@ export class TEIParser {
     private xpath: XPathEvaluator;
     private parser: object;
     private _body: object;
+    private _individualAnnotations: Array;
     private _metadata: object;
 
     constructor(data: string, parser: object) {
@@ -193,10 +194,27 @@ export class TEIParser {
             this._body = {
                 type: 'doc',
                 content: this.parseBlocks(this.xpath.nodeIterator(this.dom.documentElement,
-                    this.parser.main_text.selector), this.parser.main_text)
+                    this.parser.mainText.selector), this.parser.mainText)
             };
         }
         return this._body;
+    }
+
+    get individualAnnotations() {
+        if (!this._individualAnnotations) {
+            this._individualAnnotations = [];
+            let annotations = this.xpath.nodeIterator(this.dom.documentElement, this.parser.individualAnnotations.selector);
+            let annotation = annotations.iterateNext();
+            while (annotation) {
+                this._individualAnnotations.push({
+                    id: this.xpath.stringValue(annotation, '@xml:id'),
+                    content: this.parseBlocks(this.xpath.nodeIterator(annotation,
+                        this.parser.individualAnnotations.blockSelector), this.parser.individualAnnotations)
+                });
+                annotation = annotations.iterateNext();
+            }
+        }
+        return this._individualAnnotations;
     }
 
     /**

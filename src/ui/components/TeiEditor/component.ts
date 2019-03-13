@@ -14,15 +14,32 @@ export default class TeiEditor extends Component {
 
     // Computed properties
 
+    /**
+     * Return the main text schema.
+     */
     get mainTextEditorConfig() {
-        return window.teiEditorConfig.schema.main_text;
+        return window.teiEditorConfig.schema.mainText;
     }
 
     /**
      * Return the main text sidebar configuration.
      */
     get mainTextSidebarConfig() {
-        return window.teiEditorConfig.ui.main_text.sidebar;
+        return window.teiEditorConfig.ui.mainText.sidebar;
+    }
+
+    /**
+     * Return the individual annotations schema.
+     */
+    get individualAnnotationsConfig() {
+        return window.teiEditorConfig.schema.individualAnnotations;
+    }
+
+    /**
+     * Return the individual annotations sidebar config.
+     */
+    get individualAnnotationsSidebarConfig() {
+        return window.teiEditorConfig.ui.individualAnnotations.sidebar;
     }
 
     /**
@@ -50,7 +67,7 @@ export default class TeiEditor extends Component {
                     let parser = new TEIParser(ev.target.result, window.teiEditorConfig.parser);
                     component.bodyText = parser.body;
                     component.metadata = parser.metadata;
-                    component.individualAnnotations = [];
+                    component.individualAnnotations = parser.individualAnnotations;
                     component.loaded = true;
                 }
                 reader.readAsText(files[0]);

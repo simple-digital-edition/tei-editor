@@ -1,10 +1,20 @@
-<div>
+<nav class="tei-editor-menubar">
   <AriaMenu @label="Individual Annotation">
-    <li role="presentation"><select role="menuitem" tabindex="0" aria-label="Select the annotation to edit"></select></li>
-    <AriaMenuAction @label="Delete this annotation" @disabled={{eq (get @annotations 'length') 0}}><MdiIcon @name="Delete"/></AriaMenuAction>
+    <li role="presentation">
+      <select role="menuitem" tabindex="0" aria-label="Select the annotation to edit" onchange={{action selectAnnotation}}>
+        {{#each annotations key="@index" as |annotation|}}
+          {{#if (eq annotation selectedAnnotation)}}
+            <option value={{annotation.id}} selected="selected">{{annotation.id}}</option>
+          {{else}}
+            <option value={{annotation.id}}>{{annotation.id}}</option>
+          {{/if}}
+        {{/each}}
+      </select>
+    </li>
+    <AriaMenuAction @label="Delete this annotation" @disabled={{eq (get annotations 'length') 0}}><MdiIcon @name="Delete"/></AriaMenuAction>
     <AriaMenuAction @label="Add an annotation"><MdiIcon @name="Plus"/></AriaMenuAction>
   </AriaMenu>
-</div>
+</nav>
 <div>
-  Load the editor (need to pass configs through)
+  <ProsemirrorEditor @schema={{@schema}} @sidebar={{@sidebar}} @text={{bodyText}}></ProsemirrorEditor>
 </div>

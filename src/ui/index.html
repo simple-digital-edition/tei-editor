@@ -663,6 +663,9 @@
       background: #e6e6e6;
       border-bottom: 1px solid #cacaca;
     }
+    #tei-editor-individual-annotations .tei-editor-menubar {
+      background: #f3f3f3;
+    }
     .tei-editor-menubar svg.mdi-icon {
       width: 18px;
       height: 18px;
@@ -690,65 +693,75 @@
       fill: #cacaca;
     }
 
-    .tei-editor-main-text-sidebar {
+    .tei-editor-prosemirror-sidebar {
       box-sizing: border-box;
       padding: 1rem;
       background: #f3f3f3;
       border-left: 1px solid #cacaca;
     }
-    .tei-editor-main-text-sidebar dl dt {
+    .tei-editor-prosemirror-sidebar dl dt {
       font-weight: normal;
       font-variant: small-caps;
     }
-    .tei-editor-main-text-sidebar dl dt label {
+    .tei-editor-prosemirror-sidebar dl dt label {
       font-size: 100%;
       cursor: pointer;
     }
-    .tei-editor-main-text-sidebar dl dd {
+    .tei-editor-prosemirror-sidebar dl dd {
       margin-left: 0;
       margin-bottom: 1rem;
     }
 
-    .tei-editor-main-text-editor {
+    .tei-editor-prosemirror-editor {
       box-sizing: border-box;
       padding: 0.5rem 1rem;
       font-size: 11pt;
     }
-    .tei-editor-main-text-editor span.page-break {
+    .tei-editor-prosemirror-editor span.page-break {
       font-size: 9pt;
       font-variant: small-caps;
     }
-    .tei-editor-main-text-editor span.page-break::before {
+    .tei-editor-prosemirror-editor span.page-break::before {
       content: "[";
     }
-    .tei-editor-main-text-editor span.page-break::after {
+    .tei-editor-prosemirror-editor span.page-break::after {
       content: "]";
     }
-    .tei-editor-main-text-editor span.font-weight-bold {
+    .tei-editor-prosemirror-editor span.font-weight-bold {
       font-weight: 700;
     }
-    .tei-editor-main-text-editor span.font-size-large {
+    .tei-editor-prosemirror-editor span.font-size-large {
       font-size: 15pt;
     }
-    .tei-editor-main-text-editor span.font-size-medium {
+    .tei-editor-prosemirror-editor span.font-size-medium {
       font-size: 13pt;
     }
-    .tei-editor-main-text-editor span.letter-sparse {
+    .tei-editor-prosemirror-editor span.letter-sparse {
       letter-spacing: 4pt;
     }
-    .tei-editor-main-text-editor span.foreign-language {
+    .tei-editor-prosemirror-editor span.foreign-language {
       font-weight: 300;
       font-style: italic;
     }
-    .tei-editor-main-text-editor span.annotation {
+    .tei-editor-prosemirror-editor span.annotation {
       text-decoration: underline dotted;
     }
-    .tei-editor-main-text-editor h1 {
+    .tei-editor-prosemirror-editor span.page-line-range {
+      font-weight: bold;
+      padding-right: 0.5rem;
+    }
+    .tei-editor-prosemirror-editor span.word-range {
+      text-decoration: underline;
+    }
+    .tei-editor-prosemirror-editor span.quotation {
+      font-style: italic;
+    }
+    .tei-editor-prosemirror-editor h1 {
       font-size: 15pt;
       font-weight: 700;
       text-align: center;
     }
-    .tei-editor-main-text-editor h2 {
+    .tei-editor-prosemirror-editor h2 {
       font-size: 13pt;
       font-weight: 700;
       text-align: center;
@@ -807,7 +820,7 @@
 
     window.teiEditorConfig = {
         schema: {
-            main_text: {
+            mainText: {
                 nodes: {
                     doc: {
                         content: 'block+'
@@ -886,10 +899,78 @@
                         parseDOM: [{tag: 'span.annotation'}]
                     }
                 }
+            },
+            individualAnnotations: {
+                nodes: {
+                    doc: {
+                        content: 'block+'
+                    },
+                    paragraph: {
+                        group: 'block',
+                        content: 'inline*',
+                        attrs: {
+                            no_indent: {
+                                default: false
+                            },
+                            text_align: {
+                                default: 'left'
+                            }
+                        },
+                        toDOM(node) {return ['p', {class: paragraph_attrs_to_class(node)}, 0]},
+                        parseDOM: [{tag: 'p', paragraph_class_to_attrs}]
+                    },
+                    text: {
+                        group: 'inline',
+                        inline: true
+                    }
+                },
+                marks: {
+                    foreign: {
+                        toDOM() {return ['span', {class: 'foreign-language'}, 0]},
+                        parseDOM: [{tag: 'span.foreign-language'}]
+                    },
+                    letter_sparse: {
+                        toDOM() {return ['span', {class: 'letter-sparse'}, 0]},
+                        parseDOM: [{tag: 'span.letter-sparse'}]
+                    },
+                    sup: {
+                        toDOM() {return ['sup', 0]},
+                        parseDOM: [{tag: 'sup'}]
+                    },
+                    font_size: {
+                        attrs: {
+                            size: {
+                                default: ''
+                            }
+                        },
+                        toDOM(mark) {return ['span', {class: 'font-size-' + mark.attrs.size}]},
+                        parseDOM: [{tag: 'span.font-size', mark_font_size_attr}]
+                    },
+                    page_break: {
+                        toDOM() {return ['span', {class: 'page-break'}, 0]},
+                        parseDOM: [{tag: 'span.page-break'}]
+                    },
+                    font_weight_bold: {
+                        toDOM() {return ['span', {class: 'font-weight-bold'}, 0]},
+                        parseDOM: [{tag: 'span.font-weight-bold'}]
+                    },
+                    pageLineRange: {
+                        toDOM() {return ['span', {class: 'page-line-range'}, 0]},
+                        parseDOM: [{tag: 'span.page-line-range'}]
+                    },
+                    wordRange: {
+                        toDOM() {return ['span', {class: 'word-range'}, 0]},
+                        parseDOM: [{tag: 'span.word-range'}]
+                    },
+                    quotation: {
+                        toDOM() {return ['span', {class: 'quotation'}, 0]},
+                        parseDOM: [{tag: 'span.quotation'}]
+                    }
+              }
             }
         },
         parser: {
-            main_text: {
+            mainText: {
                 selector: '/tei:TEI/tei:text/tei:body/tei:*',
                 blocks: {
                     paragraph: {
@@ -976,6 +1057,86 @@
                             marks: {
                                 page_break: true
                             }
+                        }
+                    ]
+                }
+            },
+            individualAnnotations: {
+                selector: '/tei:TEI/tei:text/tei:interpGrp[@type="individual"]/tei:interp',
+                blockSelector: 'tei:*',
+                blocks: {
+                    paragraph: {
+                        selector: 'tei:p',
+                        attrs: {
+                            no_indent: {
+                                selector: '@style',
+                                values: {
+                                    'no-indent': true
+                                }
+                            },
+                            text_align: {
+                                selector: '@style',
+                                values: {
+                                    'text-left': 'left',
+                                    'text-center': 'center',
+                                    'text-right': 'right',
+                                    'text-justify': 'justify'
+                                }
+                            }
+                        }
+                    }
+                },
+                inline: {
+                    text: [
+                        {
+                            selector: 'tei:seg',
+                            text: 'text()'
+                        },
+                        {
+                            selector: 'tei:hi',
+                            text: 'text()',
+                            marks: {
+                                font_size: {
+                                    selector: '@style',
+                                    values: ['font-size-small', 'font-size-medium', 'font-size-large'],
+                                    attrs: {
+                                        size: {
+                                            selector: '@style',
+                                            values: {
+                                                'font-size-small': 'small',
+                                                'font-size-medium': 'medium',
+                                                'font-size-large': 'large'
+                                            }
+                                        }
+                                    }
+                                },
+                                font_weight_bold: {
+                                    selector: '@style',
+                                    values: ['font-weight-bold']
+                                },
+                                letter_sparse: {
+                                    selector: '@style',
+                                    values: ['letter-sparse']
+                                },
+                                sup: {
+                                    selector: '@style',
+                                    values: ['sup']
+                                }
+                            }
+                        },
+                        {
+                            selector: 'tei:foreign',
+                            text: 'text()',
+                            marks: {
+                                foreign: true
+                            }
+                        },
+                        {
+                            selector: 'tei:pb',
+                            text: '@n',
+                            marks: {
+                                page_break: true
+                            }
                         },
                         {
                             selector: 'tei:ref',
@@ -990,13 +1151,34 @@
                                     }
                                 }
                             }
+                        },
+                        {
+                            selector: 'tei:citedRange[@type="page-line-ref"]',
+                            text: 'text()',
+                            marks: {
+                                pageLineRange: true
+                            }
+                        },
+                        {
+                            selector: 'tei:citedRange[@type="word-range"]',
+                            text: 'text()',
+                            marks: {
+                                wordRange: true
+                            }
+                        },
+                        {
+                            selector: 'tei:q',
+                            text: 'text()',
+                            marks: {
+                                quotation: true
+                            }
                         }
                     ]
                 }
             }
         },
         ui: {
-            main_text: {
+            mainText: {
                 sidebar: [
                     {
                         title: 'Block Type',
@@ -1183,6 +1365,145 @@
                                   value: 'toggle'
                               }
                           ]
+                     }
+                ]
+            },
+            individualAnnotations: {
+                sidebar: [
+                    {
+                        title: 'Paragraph',
+                        test: {
+                            key: 'block.type.name',
+                            value: 'paragraph'
+                        },
+                        entries: [
+                            {
+                                type: 'button',
+                                value_key: 'block.attrs.text_align',
+                                label: 'Left align',
+                                icon: 'FormatAlignLeft',
+                                action: 'setBlockAttribute',
+                                attribute: 'text_align',
+                                value: 'left'
+                            },
+                            {
+                                type: 'button',
+                                value_key: 'block.attrs.text_align',
+                                label: 'Center align',
+                                icon: 'FormatAlignCenter',
+                                action: 'setBlockAttribute',
+                                attribute: 'text_align',
+                                value: 'center'
+                            },
+                            {
+                                type: 'button',
+                                value_key: 'block.attrs.text_align',
+                                label: 'Right align',
+                                icon: 'FormatAlignRight',
+                                action: 'setBlockAttribute',
+                                attribute: 'text_align',
+                                value: 'right'
+                            },
+                            {
+                                type: 'button',
+                                value_key: 'block.attrs.text_align',
+                                label: 'Align justify',
+                                icon: 'FormatAlignJustify',
+                                action: 'setBlockAttribute',
+                                attribute: 'text_align',
+                                value: 'justify'
+                            }
+                        ]
+                    },
+                    {
+                        title: 'Styling',
+                        test: 'marks',
+                        entries: [
+                            {
+                                type: 'select',
+                                value_key: 'marks.font_size.attrs.size',
+                                action: 'setMarkAttribute',
+                                attribute: 'font_size.size',
+                                values: [
+                                    {
+                                        key: '',
+                                        value: 'Default Size'
+                                    },
+                                    {
+                                        key: 'small',
+                                        value: 'Small Font'
+                                    },
+                                    {
+                                        key: 'medium',
+                                        value: 'Medium Font'
+                                    },
+                                    {
+                                        key: 'large',
+                                        value: 'Large Font'
+                                    },
+                                ]
+                            },
+                            {
+                                type: 'button',
+                                value_key: 'marks.letter_sparse',
+                                label: 'Sparse Lettering',
+                                icon: 'MapMarkerDistance',
+                                action: 'toggleMark',
+                                attribute: 'letter_sparse',
+                                value: 'toggle'
+                            },
+                            {
+                                type: 'button',
+                                value_key: 'marks.font_weight_bold',
+                                label: 'Bold Font',
+                                icon: 'FormatBold',
+                                action: 'toggleMark',
+                                attribute: 'font_weight_bold',
+                                value: 'toggle'
+                            }
+                        ]
+                    },
+                    {
+                        title: 'Markup',
+                        test: 'marks',
+                        entries: [
+                            {
+                                type: 'button',
+                                value_key: 'marks.pageLineRange',
+                                label: 'Annotation page and line range',
+                                icon: 'PagePreviousOutline',
+                                action: 'toggleMark',
+                                attribute: 'pageLineRange',
+                                value: 'toggle'
+                            },
+                            {
+                                type: 'button',
+                                value_key: 'marks.wordRange',
+                                label: 'Annotation word range',
+                                icon: 'FileWordBox',
+                                action: 'toggleMark',
+                                attribute: 'wordRange',
+                                value: 'toggle'
+                            },
+                            {
+                                type: 'button',
+                                value_key: 'marks.quotation',
+                                label: 'Quotation from the text',
+                                icon: 'FormatQuoteClose',
+                                action: 'toggleMark',
+                                attribute: 'quotation',
+                                value: 'toggle'
+                            },
+                            {
+                                type: 'button',
+                                value_key: 'marks.foreign',
+                                label: 'Foreign Language',
+                                icon: 'Translate',
+                                action: 'toggleMark',
+                                attribute: 'foreign',
+                                value: 'toggle'
+                            }
+                        ]
                     }
                 ]
             },

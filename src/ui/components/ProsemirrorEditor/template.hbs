@@ -1,10 +1,10 @@
 <div>
-  <div class="tei-editor-main-text-editor">
+  <div class="tei-editor-prosemirror-editor">
     <div id={{prosemirrorId}}></div>
   </div>
 </div>
 <div>
-  <div class="tei-editor-main-text-sidebar">
+  <div class="tei-editor-prosemirror-sidebar">
     <dl>
       {{#each @sidebar key="@index" as |section|}}
         {{#if (status-display-entry status section.test)}}
@@ -22,7 +22,11 @@
                   </li>
                 {{/if}}
                 {{#if (eq entry.type 'button')}}
-                  <AriaMenuAction @tabindex={{aria-menu-item-tabindex index}} @label={{entry.label}} @action={{action menuAction entry.action entry.attribute entry.value}} @current={{boolean-str (eq (get status entry.value_key) entry.value)}}><MdiIcon @name={{entry.icon}} /></AriaMenuAction>
+                  {{#if (eq entry.value 'toggle')}}
+                    <AriaMenuAction @tabindex={{aria-menu-item-tabindex index}} @label={{entry.label}} @action={{action menuAction entry.action entry.attribute entry.value}} @current={{boolean-str (get status entry.value_key)}}><MdiIcon @name={{entry.icon}} /></AriaMenuAction>
+                  {{else}}
+                    <AriaMenuAction @tabindex={{aria-menu-item-tabindex index}} @label={{entry.label}} @action={{action menuAction entry.action entry.attribute entry.value}} @current={{boolean-str (eq (get status entry.value_key) entry.value)}}><MdiIcon @name={{entry.icon}} /></AriaMenuAction>
+                  {{/if}}
                 {{/if}}
               {{/each}}
             </AriaMenu>
