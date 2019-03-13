@@ -807,378 +807,385 @@
 
     window.teiEditorConfig = {
         schema: {
-            nodes: {
-                doc: {
-                    content: 'block+'
-                },
-                paragraph: {
-                    group: 'block',
-                    content: 'inline*',
-                    attrs: {
-                        no_indent: {
-                            default: false
+            main_text: {
+                nodes: {
+                    doc: {
+                        content: 'block+'
+                    },
+                    paragraph: {
+                        group: 'block',
+                        content: 'inline*',
+                        attrs: {
+                            no_indent: {
+                                default: false
+                            },
+                            text_align: {
+                                default: 'left'
+                            }
                         },
-                        text_align: {
-                            default: 'left'
-                        }
+                        toDOM(node) {return ['p', {class: paragraph_attrs_to_class(node)}, 0]},
+                        parseDOM: [{tag: 'p', paragraph_class_to_attrs}]
                     },
-                    toDOM(node) {return ['p', {class: paragraph_attrs_to_class(node)}, 0]},
-                    parseDOM: [{tag: 'p', paragraph_class_to_attrs}]
-                },
-                heading: {
-                    group: 'block',
-                    content: 'inline*',
-                    attrs: {
-                        level: {
-                            default: 1
-                        }
+                    heading: {
+                        group: 'block',
+                        content: 'inline*',
+                        attrs: {
+                            level: {
+                                default: 1
+                            }
+                        },
+                        defining: true,
+                        toDOM(node) {return ['h' + node.attrs.level, 0]},
+                        parseDOM: [
+                            {tag: 'h1', attrs: {level: '1'}},
+                            {tag: 'h2', attrs: {level: '2'}}
+                        ]
                     },
-                    defining: true,
-                    toDOM(node) {return ['h' + node.attrs.level, 0]},
-                    parseDOM: [
-                        {tag: 'h1', attrs: {level: '1'}},
-                        {tag: 'h2', attrs: {level: '2'}}
-                    ]
+                    text: {
+                        group: 'inline',
+                        inline: true
+                    }
                 },
-                text: {
-                    group: 'inline',
-                    inline: true
-                }
-            },
-            marks: {
-                foreign: {
-                    toDOM() {return ['span', {class: 'foreign-language'}, 0]},
-                    parseDOM: [{tag: 'span.foreign-language'}]
-                },
-                letter_sparse: {
-                    toDOM() {return ['span', {class: 'letter-sparse'}, 0]},
-                    parseDOM: [{tag: 'span.letter-sparse'}]
-                },
-                sup: {
-                    toDOM() {return ['sup', 0]},
-                    parseDOM: [{tag: 'sup'}]
-                },
-                font_size: {
-                    attrs: {
-                        size: {
-                            default: ''
-                        }
+                marks: {
+                    foreign: {
+                        toDOM() {return ['span', {class: 'foreign-language'}, 0]},
+                        parseDOM: [{tag: 'span.foreign-language'}]
                     },
-                    toDOM(mark) {return ['span', {class: 'font-size-' + mark.attrs.size}]},
-                    parseDOM: [{tag: 'span.font-size', mark_font_size_attr}]
-                },
-                page_break: {
-                    toDOM() {return ['span', {class: 'page-break'}, 0]},
-                    parseDOM: [{tag: 'span.page-break'}]
-                },
-                font_weight_bold: {
-                    toDOM() {return ['span', {class: 'font-weight-bold'}, 0]},
-                    parseDOM: [{tag: 'span.font-weight-bold'}]
-                },
-                annotation: {
-                    attrs: {
-                        target: {
-                            default: ''
-                        }
+                    letter_sparse: {
+                        toDOM() {return ['span', {class: 'letter-sparse'}, 0]},
+                        parseDOM: [{tag: 'span.letter-sparse'}]
                     },
-                    toDOM() {return ['span', {class: 'annotation'}, 0]},
-                    parseDOM: [{tag: 'span.annotation'}]
+                    sup: {
+                        toDOM() {return ['sup', 0]},
+                        parseDOM: [{tag: 'sup'}]
+                    },
+                    font_size: {
+                        attrs: {
+                            size: {
+                                default: ''
+                            }
+                        },
+                        toDOM(mark) {return ['span', {class: 'font-size-' + mark.attrs.size}]},
+                        parseDOM: [{tag: 'span.font-size', mark_font_size_attr}]
+                    },
+                    page_break: {
+                        toDOM() {return ['span', {class: 'page-break'}, 0]},
+                        parseDOM: [{tag: 'span.page-break'}]
+                    },
+                    font_weight_bold: {
+                        toDOM() {return ['span', {class: 'font-weight-bold'}, 0]},
+                        parseDOM: [{tag: 'span.font-weight-bold'}]
+                    },
+                    annotation: {
+                        attrs: {
+                            target: {
+                                default: ''
+                            }
+                        },
+                        toDOM() {return ['span', {class: 'annotation'}, 0]},
+                        parseDOM: [{tag: 'span.annotation'}]
+                    }
                 }
             }
         },
-        parse: {
-            blocks: {
-                paragraph: {
-                    selector: 'tei:p',
-                    attrs: {
-                        no_indent: {
-                            selector: '@style',
-                            values: {
-                                'no-indent': true
+        parser: {
+            main_text: {
+                selector: '/tei:TEI/tei:text/tei:body/tei:*',
+                blocks: {
+                    paragraph: {
+                        selector: 'tei:p',
+                        attrs: {
+                            no_indent: {
+                                selector: '@style',
+                                values: {
+                                    'no-indent': true
+                                }
+                            },
+                            text_align: {
+                                selector: '@style',
+                                values: {
+                                    'text-left': 'left',
+                                    'text-center': 'center',
+                                    'text-right': 'right',
+                                    'text-justify': 'justify'
+                                }
                             }
-                        },
-                        text_align: {
-                            selector: '@style',
-                            values: {
-                                'text-left': 'left',
-                                'text-center': 'center',
-                                'text-right': 'right',
-                                'text-justify': 'justify'
+                        }
+                    },
+                    heading: {
+                        selector: 'tei:head',
+                        attrs: {
+                            level: {
+                                selector: '@type',
+                                values: {
+                                    'level-1': '1',
+                                    'level-2': '2'
+                                }
                             }
                         }
                     }
                 },
-                heading: {
-                    selector: 'tei:head',
-                    attrs: {
-                        level: {
-                            selector: '@type',
-                            values: {
-                                'level-1': '1',
-                                'level-2': '2'
+                inline: {
+                    text: [
+                        {
+                            selector: 'tei:seg',
+                            text: 'text()'
+                        },
+                        {
+                            selector: 'tei:hi',
+                            text: 'text()',
+                            marks: {
+                                font_size: {
+                                    selector: '@style',
+                                    values: ['font-size-small', 'font-size-medium', 'font-size-large'],
+                                    attrs: {
+                                        size: {
+                                            selector: '@style',
+                                            values: {
+                                                'font-size-small': 'small',
+                                                'font-size-medium': 'medium',
+                                                'font-size-large': 'large'
+                                            }
+                                        }
+                                    }
+                                },
+                                font_weight_bold: {
+                                    selector: '@style',
+                                    values: ['font-weight-bold']
+                                },
+                                letter_sparse: {
+                                    selector: '@style',
+                                    values: ['letter-sparse']
+                                },
+                                sup: {
+                                    selector: '@style',
+                                    values: ['sup']
+                                }
                             }
-                        }
-                    }
-                }
-            },
-            inline: {
-                text: [
-                    {
-                        selector: 'tei:seg',
-                        text: 'text()'
-                    },
-                    {
-                        selector: 'tei:hi',
-                        text: 'text()',
-                        marks: {
-                            font_size: {
-                                selector: '@style',
-                                values: ['font-size-small', 'font-size-medium', 'font-size-large'],
-                                attrs: {
-                                    size: {
-                                        selector: '@style',
-                                        values: {
-                                            'font-size-small': 'small',
-                                            'font-size-medium': 'medium',
-                                            'font-size-large': 'large'
+                        },
+                        {
+                            selector: 'tei:foreign',
+                            text: 'text()',
+                            marks: {
+                                foreign: true
+                            }
+                        },
+                        {
+                            selector: 'tei:pb',
+                            text: '@n',
+                            marks: {
+                                page_break: true
+                            }
+                        },
+                        {
+                            selector: 'tei:ref',
+                            text: 'text()',
+                            marks: {
+                                annotation: {
+                                    selector: '@target',
+                                    attrs: {
+                                        target: {
+                                            selector: '@target',
                                         }
                                     }
                                 }
-                            },
-                            font_weight_bold: {
-                                selector: '@style',
-                                values: ['font-weight-bold']
-                            },
-                            letter_sparse: {
-                                selector: '@style',
-                                values: ['letter-sparse']
-                            },
-                            sup: {
-                                selector: '@style',
-                                values: ['sup']
                             }
                         }
-                    },
-                    {
-                        selector: 'tei:foreign',
-                        text: 'text()',
-                        marks: {
-                            foreign: true
-                        }
-                    },
-                    {
-                        selector: 'tei:pb',
-                        text: '@n',
-                        marks: {
-                            page_break: true
-                        }
-                    },
-                    {
-                        selector: 'tei:ref',
-                        text: 'text()',
-                        marks: {
-                            annotation: {
-                                selector: '@target',
-                                attrs: {
-                                    target: {
-                                        selector: '@target',
-                                    }
-                                }
-                            }
-                        }
-                    }
-                ]
+                    ]
+                }
             }
         },
         ui: {
-            main_text_sidebar: [
-                {
-                    title: 'Block Type',
-                    test: 'block',
-                    entries: [
-                        {
-                            type: 'select',
-                            value_key: 'block.type.name',
-                            action: 'setBlockType',
-                            values: [
-                                {
-                                    key: 'paragraph',
-                                    value: 'Paragraph'
-                                },
-                                {
-                                    key: 'heading',
-                                    value: 'Heading'
-                                }
-                            ]
-                        }
-                    ]
-                },
-                {
-                    title: 'Heading',
-                    test: {
-                        key: 'block.type.name',
-                        value: 'heading'
+            main_text: {
+                sidebar: [
+                    {
+                        title: 'Block Type',
+                        test: 'block',
+                        entries: [
+                            {
+                                type: 'select',
+                                value_key: 'block.type.name',
+                                action: 'setBlockType',
+                                values: [
+                                    {
+                                        key: 'paragraph',
+                                        value: 'Paragraph'
+                                    },
+                                    {
+                                        key: 'heading',
+                                        value: 'Heading'
+                                    }
+                                ]
+                            }
+                        ]
                     },
-                    entries: [
-                        {
-                            type: 'select',
-                            value_key: 'block.attrs.level',
-                            action: 'setBlockAttribute',
-                            attribute: 'level',
-                            values: [
-                                {
-                                    key: '1',
-                                    value: 'Level 1'
-                                },
-                                {
-                                    key: '2',
-                                    value: 'Level 2'
-                                }
-                            ]
-                        }
-                    ]
-                },
-                {
-                    title: 'Paragraph',
-                    test: {
-                        key: 'block.type.name',
-                        value: 'paragraph'
+                    {
+                        title: 'Heading',
+                        test: {
+                            key: 'block.type.name',
+                            value: 'heading'
+                        },
+                        entries: [
+                            {
+                                type: 'select',
+                                value_key: 'block.attrs.level',
+                                action: 'setBlockAttribute',
+                                attribute: 'level',
+                                values: [
+                                    {
+                                        key: '1',
+                                        value: 'Level 1'
+                                    },
+                                    {
+                                        key: '2',
+                                        value: 'Level 2'
+                                    }
+                                ]
+                            }
+                        ]
                     },
-                    entries: [
-                        {
-                            type: 'button',
-                            value_key: 'block.attrs.text_align',
-                            label: 'Left align',
-                            icon: 'FormatAlignLeft',
-                            action: 'setBlockAttribute',
-                            attribute: 'text_align',
-                            value: 'left'
+                    {
+                        title: 'Paragraph',
+                        test: {
+                            key: 'block.type.name',
+                            value: 'paragraph'
                         },
-                        {
-                            type: 'button',
-                            value_key: 'block.attrs.text_align',
-                            label: 'Center align',
-                            icon: 'FormatAlignCenter',
-                            action: 'setBlockAttribute',
-                            attribute: 'text_align',
-                            value: 'center'
-                        },
-                        {
-                            type: 'button',
-                            value_key: 'block.attrs.text_align',
-                            label: 'Right align',
-                            icon: 'FormatAlignRight',
-                            action: 'setBlockAttribute',
-                            attribute: 'text_align',
-                            value: 'right'
-                        },
-                        {
-                            type: 'button',
-                            value_key: 'block.attrs.text_align',
-                            label: 'Align justify',
-                            icon: 'FormatAlignJustify',
-                            action: 'setBlockAttribute',
-                            attribute: 'text_align',
-                            value: 'justify'
-                        },
-                        {
-                            type: 'button',
-                            value_key: 'block.attrs.no_indent',
-                            label: 'No indentation',
-                            icon: 'FormatIndentIncrease',
-                            action: 'toggleBlockAttribute',
-                            attribute: 'no_indent',
-                            value: false
-                        }
-                    ]
-                },
-                {
-                    title: 'Styling',
-                    test: 'marks',
-                    entries: [
-                        {
-                            type: 'select',
-                            value_key: 'marks.font_size.attrs.size',
-                            action: 'setMarkAttribute',
-                            attribute: 'font_size.size',
-                            values: [
-                                {
-                                    key: '',
-                                    value: 'Default Size'
-                                },
-                                {
-                                    key: 'small',
-                                    value: 'Small Font'
-                                },
-                                {
-                                    key: 'medium',
-                                    value: 'Medium Font'
-                                },
-                                {
-                                    key: 'large',
-                                    value: 'Large Font'
-                                },
-                            ]
-                        },
-                        {
-                            type: 'button',
-                            value_key: 'marks.letter_sparse',
-                            label: 'Sparse Lettering',
-                            icon: 'MapMarkerDistance',
-                            action: 'toggleMark',
-                            attribute: 'letter_sparse',
-                            value: 'toggle'
-                        },
-                        {
-                            type: 'button',
-                            value_key: 'marks.font_weight_bold',
-                            label: 'Bold Font',
-                            icon: 'FormatBold',
-                            action: 'toggleMark',
-                            attribute: 'font_weight_bold',
-                            value: 'toggle'
-                        }
-                    ]
-                },
-                {
-                    title: 'Annotations',
-                    test: 'marks',
-                    entries: [
-                        {
-                            type: 'select',
-                            value_key: 'marks.annotation.attrs.target',
-                            action: 'setMarkAttribute',
-                            attribute: 'annotation.target',
-                            values: [
-                            ]
-                        }
-                    ]
-                  },
-                  {
-                      title: 'Markup',
-                      test: 'marks',
-                      entries: [
-                          {
-                              type: 'button',
-                              value_key: 'marks.page_break',
-                              label: 'Page Break',
-                              icon: 'FormatPageBreak',
-                              action: 'toggleMark',
-                              attribute: 'page_break',
-                              value: 'toggle'
-                          },
-                          {
-                              type: 'button',
-                              value_key: 'marks.foreign',
-                              label: 'Foreign Language',
-                              icon: 'Translate',
-                              action: 'toggleMark',
-                              attribute: 'foreign',
-                              value: 'toggle'
-                          }
-                      ]
-                }
-            ],
+                        entries: [
+                            {
+                                type: 'button',
+                                value_key: 'block.attrs.text_align',
+                                label: 'Left align',
+                                icon: 'FormatAlignLeft',
+                                action: 'setBlockAttribute',
+                                attribute: 'text_align',
+                                value: 'left'
+                            },
+                            {
+                                type: 'button',
+                                value_key: 'block.attrs.text_align',
+                                label: 'Center align',
+                                icon: 'FormatAlignCenter',
+                                action: 'setBlockAttribute',
+                                attribute: 'text_align',
+                                value: 'center'
+                            },
+                            {
+                                type: 'button',
+                                value_key: 'block.attrs.text_align',
+                                label: 'Right align',
+                                icon: 'FormatAlignRight',
+                                action: 'setBlockAttribute',
+                                attribute: 'text_align',
+                                value: 'right'
+                            },
+                            {
+                                type: 'button',
+                                value_key: 'block.attrs.text_align',
+                                label: 'Align justify',
+                                icon: 'FormatAlignJustify',
+                                action: 'setBlockAttribute',
+                                attribute: 'text_align',
+                                value: 'justify'
+                            },
+                            {
+                                type: 'button',
+                                value_key: 'block.attrs.no_indent',
+                                label: 'No indentation',
+                                icon: 'FormatIndentIncrease',
+                                action: 'toggleBlockAttribute',
+                                attribute: 'no_indent',
+                                value: false
+                            }
+                        ]
+                    },
+                    {
+                        title: 'Styling',
+                        test: 'marks',
+                        entries: [
+                            {
+                                type: 'select',
+                                value_key: 'marks.font_size.attrs.size',
+                                action: 'setMarkAttribute',
+                                attribute: 'font_size.size',
+                                values: [
+                                    {
+                                        key: '',
+                                        value: 'Default Size'
+                                    },
+                                    {
+                                        key: 'small',
+                                        value: 'Small Font'
+                                    },
+                                    {
+                                        key: 'medium',
+                                        value: 'Medium Font'
+                                    },
+                                    {
+                                        key: 'large',
+                                        value: 'Large Font'
+                                    },
+                                ]
+                            },
+                            {
+                                type: 'button',
+                                value_key: 'marks.letter_sparse',
+                                label: 'Sparse Lettering',
+                                icon: 'MapMarkerDistance',
+                                action: 'toggleMark',
+                                attribute: 'letter_sparse',
+                                value: 'toggle'
+                            },
+                            {
+                                type: 'button',
+                                value_key: 'marks.font_weight_bold',
+                                label: 'Bold Font',
+                                icon: 'FormatBold',
+                                action: 'toggleMark',
+                                attribute: 'font_weight_bold',
+                                value: 'toggle'
+                            }
+                        ]
+                    },
+                    {
+                        title: 'Annotations',
+                        test: 'marks',
+                        entries: [
+                            {
+                                type: 'select',
+                                value_key: 'marks.annotation.attrs.target',
+                                action: 'setMarkAttribute',
+                                attribute: 'annotation.target',
+                                values: [
+                                ]
+                            }
+                        ]
+                      },
+                      {
+                          title: 'Markup',
+                          test: 'marks',
+                          entries: [
+                              {
+                                  type: 'button',
+                                  value_key: 'marks.page_break',
+                                  label: 'Page Break',
+                                  icon: 'FormatPageBreak',
+                                  action: 'toggleMark',
+                                  attribute: 'page_break',
+                                  value: 'toggle'
+                              },
+                              {
+                                  type: 'button',
+                                  value_key: 'marks.foreign',
+                                  label: 'Foreign Language',
+                                  icon: 'Translate',
+                                  action: 'toggleMark',
+                                  attribute: 'foreign',
+                                  value: 'toggle'
+                              }
+                          ]
+                    }
+                ]
+            },
             metadata: [
                 {
                     title: 'Bibliography',

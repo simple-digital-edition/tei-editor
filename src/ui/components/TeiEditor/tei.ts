@@ -35,15 +35,15 @@ class XPathEvaluator {
 export class TEIParser {
     private dom: XMLDocument;
     private xpath: XPathEvaluator;
-    private config: object;
+    private parser: object;
     private _body: object;
     private _metadata: object;
 
-    constructor(data: string, config: object) {
-        let parser = new DOMParser();
-        this.dom = parser.parseFromString(data, 'application/xml');
+    constructor(data: string, parser: object) {
+        let domParser = new DOMParser();
+        this.dom = domParser.parseFromString(data, 'application/xml');
         this.xpath = new XPathEvaluator(this.dom);
-        this.config = config;
+        this.parser = parser;
     }
 
     private parseAttrs(source, conf, target) {
@@ -110,15 +110,15 @@ export class TEIParser {
         return marks;
     }
 
-    private parseInline(elements) {
+    private parseInline(elements, parser) {
         let inlines = [];
         for (let idx = 0; idx < elements.length; idx++) {
             let child = elements[idx];
             if (child.children.length > 0) {
-                let tmp = this.parseInline(child.children);
+                let tmp = this.parseInline(child.children, parser);
                 let inline = tmp[0];
-                for (let inlineKey in this.config.parse.inline) {
-                    let inlineValues = this.config.parse.inline[inlineKey];
+                for (let inlineKey in parser.inline) {
+                    let inlineValues = parser.inline[inlineKey];
                     inlineValues.forEach((inlineValue) => {
                         if (this.xpath.firstNode(child, 'self::' + inlineValue.selector) !== null) {
                             if (inlineValue.marks) {
@@ -131,8 +131,8 @@ export class TEIParser {
                     });
                 }
             } else {
-                for (let inlineKey in this.config.parse.inline) {
-                    let inlineValues = this.config.parse.inline[inlineKey];
+                for (let inlineKey in parser.inline) {
+                    let inlineValues = parser.inline[inlineKey];
                     inlineValues.forEach((inlineValue) => {
                         if (this.xpath.firstNode(child, 'self::' + inlineValue.selector) !== null) {
                             let inline = {
@@ -162,18 +162,18 @@ export class TEIParser {
         return inlines;
     }
 
-    private parseBlocks(elements) {
+    private parseBlocks(elements, parser) {
         let element = elements.iterateNext();
         let blocks = [];
         while (element) {
-            for (let blockKey in this.config.parse.blocks) {
-                let blockValue = this.config.parse.blocks[blockKey];
+            for (let blockKey in parser.blocks) {
+                let blockValue = parser.blocks[blockKey];
                 if (blockValue) {
                     if (this.xpath.firstNode(element, 'self::' + blockValue.selector) !== null) {
                         let block = {
                             type: blockKey,
                             attrs: {},
-                            content: this.parseInline(element.children)
+                            content: this.parseInline(element.children, parser)
                         };
                         if (blockValue.attrs) {
                             this.parseAttrs(element, blockValue.attrs, block.attrs)
@@ -193,7 +193,7 @@ export class TEIParser {
             this._body = {
                 type: 'doc',
                 content: this.parseBlocks(this.xpath.nodeIterator(this.dom.documentElement,
-                    '/tei:TEI/tei:text/tei:body/tei:*'))
+                    this.parser.main_text.selector), this.parser.main_text)
             };
         }
         return this._body;

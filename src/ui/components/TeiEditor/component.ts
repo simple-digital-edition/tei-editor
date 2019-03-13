@@ -15,14 +15,14 @@ export default class TeiEditor extends Component {
     // Computed properties
 
     get mainTextEditorConfig() {
-        return window.teiEditorConfig.schema;
+        return window.teiEditorConfig.schema.main_text;
     }
 
     /**
      * Return the main text sidebar configuration.
      */
     get mainTextSidebarConfig() {
-        return window.teiEditorConfig.ui.main_text_sidebar;
+        return window.teiEditorConfig.ui.main_text.sidebar;
     }
 
     /**
@@ -47,7 +47,7 @@ export default class TeiEditor extends Component {
             if (files.length > 0) {
                 let reader = new FileReader();
                 reader.onload = (ev) => {
-                    let parser = new TEIParser(ev.target.result, window.teiEditorConfig);
+                    let parser = new TEIParser(ev.target.result, window.teiEditorConfig.parser);
                     component.bodyText = parser.body;
                     component.metadata = parser.metadata;
                     component.individualAnnotations = [];
