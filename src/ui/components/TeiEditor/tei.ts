@@ -37,6 +37,7 @@ export class TEIParser {
     private xpath: XPathEvaluator;
     private parser: object;
     private _body: object;
+    private _globalAnnotationText: object;
     private _individualAnnotations: Array;
     private _metadata: object;
 
@@ -198,6 +199,17 @@ export class TEIParser {
             };
         }
         return this._body;
+    }
+
+    get globalAnnotationText() {
+        if (!this._globalAnnotationText) {
+            this._globalAnnotationText = {
+                type: 'doc',
+                content: this.parseBlocks(this.xpath.nodeIterator(this.dom.documentElement,
+                    this.parser.globalAnnotations.selector), this.parser.globalAnnotations)
+            };
+        }
+        return this._globalAnnotationText;
     }
 
     get individualAnnotations() {

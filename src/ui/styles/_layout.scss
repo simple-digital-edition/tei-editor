@@ -30,6 +30,22 @@
         }
     }
 
+    #tei-editor-global-annotations {
+        @include xy-grid('horizontal', false);
+        @include xy-cell-block(true);
+
+        > div:nth-child(1) {
+            @include xy-cell-base();
+            @include xy-cell-static(8, false, 0);
+            @include xy-cell-block(true);
+        }
+        > div:nth-child(2) {
+            @include xy-cell-base();
+            @include xy-cell-static(4, false, 0);
+            @include xy-cell-block(true);
+        }
+    }
+
     #tei-editor-individual-annotations {
         @include xy-grid('vertical');
         @include xy-cell-block(true);

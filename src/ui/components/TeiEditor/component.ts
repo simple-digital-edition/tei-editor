@@ -8,7 +8,8 @@ export default class TeiEditor extends Component {
     //schema: Schema = null;
     @tracked currentView: string = '#tei-editor-main-text';
     @tracked loaded: boolean = false;
-    @tracked bodyText: object = null;
+    @tracked mainText: object = null;
+    @tracked globalAnnotationText: object = null;
     @tracked metadata: object = null;
     @tracked individualAnnotations: object = null;
 
@@ -26,6 +27,20 @@ export default class TeiEditor extends Component {
      */
     get mainTextSidebarConfig() {
         return window.teiEditorConfig.ui.mainText.sidebar;
+    }
+
+    /**
+     * Return the main text schema.
+     */
+    get globalAnnotationConfig() {
+        return window.teiEditorConfig.schema.globalAnnotations;
+    }
+
+    /**
+     * Return the main text sidebar configuration.
+     */
+    get globalAnnotationSidebarConfig() {
+        return window.teiEditorConfig.ui.globalAnnotations.sidebar;
     }
 
     /**
@@ -65,8 +80,9 @@ export default class TeiEditor extends Component {
                 let reader = new FileReader();
                 reader.onload = (ev) => {
                     let parser = new TEIParser(ev.target.result, window.teiEditorConfig.parser);
-                    component.bodyText = parser.body;
+                    component.mainText = parser.body;
                     component.metadata = parser.metadata;
+                    component.globalAnnotationText = parser.globalAnnotationText;
                     component.individualAnnotations = parser.individualAnnotations;
                     component.loaded = true;
                 }
