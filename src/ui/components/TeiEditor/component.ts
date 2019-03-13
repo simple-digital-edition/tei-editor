@@ -10,6 +10,7 @@ export default class TeiEditor extends Component {
     @tracked loaded: boolean = false;
     @tracked bodyText: object = null;
     @tracked metadata: object = null;
+    @tracked individualAnnotations: object = null;
 
     // Computed properties
 
@@ -49,6 +50,7 @@ export default class TeiEditor extends Component {
                     let parser = new TEIParser(ev.target.result, window.teiEditorConfig);
                     component.bodyText = parser.body;
                     component.metadata = parser.metadata;
+                    component.individualAnnotations = [];
                     component.loaded = true;
                 }
                 reader.readAsText(files[0]);

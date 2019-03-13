@@ -38,6 +38,18 @@
         }
     }
 
+    #tei-editor-individual-annotations {
+        @include xy-grid('vertical');
+        @include xy-cell-block(true);
+
+        > div:nth-child(1) {
+            @include xy-cell-base('shrink');
+        }
+        > div:nth-child(2) {
+            @include xy-cell-base('auto');
+        }
+    }
+
     #tei-editor-metadata {
         @include xy-cell-block(true);
 

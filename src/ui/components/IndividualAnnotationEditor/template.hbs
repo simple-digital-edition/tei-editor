@@ -1,0 +1,10 @@
+<div>
+  <AriaMenu @label="Individual Annotation">
+    <li role="presentation"><select role="menuitem" tabindex="0" aria-label="Select the annotation to edit"></select></li>
+    <AriaMenuAction @label="Delete this annotation" @disabled={{eq (get @annotations 'length') 0}}><MdiIcon @name="Delete"/></AriaMenuAction>
+    <AriaMenuAction @label="Add an annotation"><MdiIcon @name="Plus"/></AriaMenuAction>
+  </AriaMenu>
+</div>
+<div>
+  Load the editor (need to pass configs through)
+</div>

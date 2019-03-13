@@ -8,7 +8,7 @@
         <AriaMenuAction>Save</AriaMenuAction>
       </AriaDropdownMenu>
       <AriaMenuAction @current={{boolean-str (eq currentView '#tei-editor-main-text')}} @hidden={{boolean-str (not loaded)}} @action={{action setView '#tei-editor-main-text'}}>Text</AriaMenuAction>
-      <AriaMenuAction @disabled={{true}} @hidden={{boolean-str (not loaded)}}>Annotations</AriaMenuAction>
+      <AriaMenuAction @current={{boolean-str (eq currentView '#tei-editor-individual-annotations')}} @hidden={{boolean-str (not loaded)}} @action={{action setView '#tei-editor-individual-annotations'}}>Individual Annotations</AriaMenuAction>
       <AriaMenuAction @current={{boolean-str (eq currentView '#tei-editor-metadata')}} @hidden={{boolean-str (not loaded)}} @action={{action setView '#tei-editor-metadata'}}>Metadata</AriaMenuAction>
     </AriaMenu>
   </div>
@@ -16,7 +16,10 @@
     <div id="tei-editor-main-text" aria-hidden="false">
       <ProsemirrorEditor @schema={{mainTextEditorConfig}} @sidebar={{mainTextSidebarConfig}} @text={{bodyText}}></ProsemirrorEditor>
     </div>
-    <div id="tei-editor-metadata" aria-hidden={{boolean-str (not loaded)}}>
+    <div id="tei-editor-individual-annotations" aria-hidden="true">
+      <IndividualAnnotationEditor @annotations={{individualAnnotations}}></IndividualAnnotationEditor>
+    </div>
+    <div id="tei-editor-metadata" aria-hidden="true">
       <MetadataEditor @config={{metadataConfig}} @metadata={{metadata}} @update={{action updateMetadata}}></MetadataEditor>
     </div>
   </div>
