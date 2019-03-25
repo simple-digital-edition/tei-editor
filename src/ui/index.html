@@ -632,21 +632,21 @@
     }
 
     h3, .h3 {
-      font-size: 1.1875rem;
-      line-height: 1.4;
-      margin-top: 0;
-      margin-bottom: 0.5rem;
-    }
-
-    h4, .h4 {
       font-size: 1.125rem;
       line-height: 1.4;
       margin-top: 0;
       margin-bottom: 0.5rem;
     }
 
-    h5, .h5 {
+    h4, .h4 {
       font-size: 1.0625rem;
+      line-height: 1.4;
+      margin-top: 0;
+      margin-bottom: 0.5rem;
+    }
+
+    h5, .h5 {
+      font-size: 1rem;
       line-height: 1.4;
       margin-top: 0;
       margin-bottom: 0.5rem;
@@ -717,6 +717,17 @@
       padding: 0.5rem 1rem;
       font-size: 11pt;
     }
+    .tei-editor-prosemirror-editor p.left {
+    }
+    .tei-editor-prosemirror-editor p.text-center {
+      text-align: center;
+    }
+    .tei-editor-prosemirror-editor p.text-right {
+      text-align: right;
+    }
+    .tei-editor-prosemirror-editor p.text-justify {
+      text-align: justify;
+    }
     .tei-editor-prosemirror-editor span.page-break {
       font-size: 9pt;
       font-variant: small-caps;
@@ -766,6 +777,11 @@
       font-weight: 700;
       text-align: center;
     }
+    .tei-editor-prosemirror-editor h3 {
+      font-size: 11pt;
+      font-weight: 700;
+      text-align: center;
+    }
 
     #tei-editor-metadata dl dt {
       margin-bottom: 0.5rem;
@@ -785,6 +801,8 @@
             classes.push('text-center')
         } else if(node.attrs.text_align === 'right') {
             classes.push('text-right')
+        } else if(node.attrs.text_align === 'justify') {
+            classes.push('text-justify')
         }
         if(classes.length > 0) {
             return classes.join(' ')
@@ -806,6 +824,8 @@
                 attrs.text_align = 'center'
             } else if(dom.class.indexOf('text-right') >= 0) {
                 attrs.text_align = 'right'
+            } else if(dom.class.indexOf('text-justify') >= 0) {
+                attrs.text_align = 'justify'
             }
         }
         return attrs
@@ -864,6 +884,9 @@
                 group: 'block',
                 content: 'inline*',
                 attrs: {
+                    heading_id: {
+                        default: null
+                    },
                     level: {
                         default: 1
                     }
@@ -1023,8 +1046,12 @@
                         selector: '@type',
                         values: {
                             'level-1': '1',
-                            'level-2': '2'
+                            'level-2': '2',
+                            'level-3': '3'
                         }
+                    },
+                    heading_id: {
+                        selector: '@data-heading-id'
                     }
                 }
             }
@@ -1064,6 +1091,20 @@
                         sup: {
                             selector: '@style',
                             values: ['sup']
+                        }
+                    }
+                },
+                {
+                    selector: 'tei:ref',
+                    text: 'text()',
+                    marks: {
+                        annotation: {
+                            selector: '@target',
+                            attrs: {
+                                target: {
+                                    selector: '@target',
+                                }
+                            }
                         }
                     }
                 },
@@ -1163,20 +1204,6 @@
                     }
                 },
                 {
-                    selector: 'tei:ref',
-                    text: 'text()',
-                    marks: {
-                        annotation: {
-                            selector: '@target',
-                            attrs: {
-                                target: {
-                                    selector: '@target',
-                                }
-                            }
-                        }
-                    }
-                },
-                {
                     selector: 'tei:citedRange[@type="page-line-ref"]',
                     text: 'text()',
                     marks: {
@@ -1245,6 +1272,10 @@
                             {
                                 key: '2',
                                 value: 'Level 2'
+                            },
+                            {
+                                key: '3',
+                                value: 'Level 3'
                             }
                         ]
                     }
@@ -1300,7 +1331,7 @@
                         icon: 'FormatIndentIncrease',
                         action: 'toggleBlockAttribute',
                         attribute: 'no_indent',
-                        value: false
+                        value: true
                     }
                 ]
             },
@@ -1353,8 +1384,41 @@
                 ]
             },
             {
-                title: 'Annotations',
+                title: 'Markup',
                 test: 'marks',
+                entries: [
+                    {
+                        type: 'button',
+                        value_key: 'marks.page_break',
+                        label: 'Page Break',
+                        icon: 'FormatPageBreak',
+                        action: 'toggleMark',
+                        attribute: 'page_break',
+                        value: 'toggle'
+                    },
+                    {
+                        type: 'button',
+                        value_key: 'marks.foreign',
+                        label: 'Foreign Language',
+                        icon: 'Translate',
+                        action: 'toggleMark',
+                        attribute: 'foreign',
+                        value: 'toggle'
+                    },
+                    {
+                        type: 'button',
+                        value_key: 'marks.annotation',
+                        label: 'Annotation',
+                        icon: 'MessageBulleted',
+                        action: 'toggleMark',
+                        attribute: 'annotation',
+                        value: 'toggle'
+                    }
+                ]
+            },
+            {
+                title: 'Annotations',
+                test: 'marks.annotation',
                 entries: [
                     {
                         type: 'select',
@@ -1365,31 +1429,7 @@
                         ]
                     }
                 ]
-              },
-              {
-                  title: 'Markup',
-                  test: 'marks',
-                  entries: [
-                      {
-                          type: 'button',
-                          value_key: 'marks.page_break',
-                          label: 'Page Break',
-                          icon: 'FormatPageBreak',
-                          action: 'toggleMark',
-                          attribute: 'page_break',
-                          value: 'toggle'
-                      },
-                      {
-                          type: 'button',
-                          value_key: 'marks.foreign',
-                          label: 'Foreign Language',
-                          icon: 'Translate',
-                          action: 'toggleMark',
-                          attribute: 'foreign',
-                          value: 'toggle'
-                      }
-                  ]
-             }
+            }
         ]
     };
 
@@ -1645,6 +1685,243 @@
         }
     ];
 
+    // Serializer for the metadata block
+    var metadataSerializer = {
+        node: 'tei:teiHeader',
+        type: 'container',
+        children: [
+            {
+                node: 'tei:fileDesc',
+                children: [
+                    {
+                        node: 'tei:titleStmt',
+                        children: [
+                            {
+                                node: 'tei:title',
+                                text: 'fileDesc.titleStmt.title._text'
+                            },
+                            {
+                                node: 'tei:author',
+                                text: 'fileDesc.titleStmt.author._text'
+                            },
+                            {
+                                node: 'tei:respStmt',
+                                multiple: 'fileDesc.titleStmt.respStmt',
+                                attrs: {
+                                    'xml:id': '_attrs.xml:id'
+                                },
+                                children: [
+                                    {
+                                        node: 'tei:resp',
+                                        text: 'resp._text'
+                                    },
+                                    {
+                                        node: 'tei:name',
+                                        text: 'name._text'
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        node: 'tei:publicationStmt',
+                        children: [
+                            {
+                                node: 'tei:distributor',
+                                text: 'fileDesc.publicationStmt.distributor._text'
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                node: 'tei:encodingDesc',
+                children: [
+                    {
+                        node: 'tei:classDecl',
+                        children: [
+                            {
+                                node: 'tei:taxonomy',
+                                attrs: {
+                                    'xml:id': 'encodingDesc.classDecl.taxonomy._attrs.xml:id'
+                                },
+                                children: [
+                                    {
+                                        node: 'tei:bibl',
+                                        text: 'encodingDesc.classDecl.taxonomy.bibl._text'
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                node: 'tei:sourceDesc',
+                children: [
+                    {
+                        node: 'tei:bibl',
+                        text: 'sourceDesc.bibl._text'
+                    }
+                ]
+            },
+            {
+                node: 'tei:profileDesc',
+                children: [
+                    {
+                        node: 'tei:creation',
+                        children: [
+                            {
+                                node: 'tei:date',
+                                attrs: {
+                                    when: 'profileDesc.creation.date._attrs.when'
+                                },
+                                text: 'profileDesc.creation.date._text'
+                            }
+                        ]
+                    },
+                    {
+                        node: 'tei:textClass',
+                        children: [
+                            {
+                                node: 'tei:catRef',
+                                attrs: {
+                                    target: 'profileDesc.textClass.catRef._attrs.target'
+                                },
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                node: 'tei:revisionDesc',
+                children: [
+                    {
+                        node: 'tei:change',
+                        multiple: 'revisionDesc.change',
+                        attrs: {
+                            when: '_attrs.when',
+                            who: '_attrs.who'
+                        },
+                        text: '_text'
+                    }
+                ]
+            }
+        ]
+    }
+
+    // Serialize for the main text block
+    var fullTextSerializer = {
+        doc: {
+            node: 'tei:body'
+        },
+        heading: {
+            node: 'tei:head',
+            attrs: [
+                {
+                    name: 'type',
+                    selector: 'level',
+                    values: {
+                        '1': 'level-1',
+                        '2': 'level-2',
+                        '3': 'level-3'
+                    }
+                },
+                {
+                    name: 'data-heading-id',
+                    selector: 'heading_id',
+                    value: '${value}'
+                }
+            ]
+        },
+        paragraph: {
+            node: 'tei:p',
+            attrs: [
+                {
+                    name: 'style',
+                    selector: 'no_indent',
+                    values: {
+                        true: 'no-indent'
+                    }
+                },
+                {
+                    name: 'style',
+                    selector: 'text_align',
+                    values: {
+                        left: 'text-left',
+                        center: 'text-center',
+                        right: 'text-right',
+                        justify: 'text-justify'
+                    }
+                }
+            ]
+        },
+        text: {
+            node: 'tei:seg',
+            inline: true,
+            marks: {
+              foreign: {
+                  node: 'tei:foreign'
+              },
+              letter_sparse: {
+                  node: 'tei:hi',
+                  attrs: [
+                      {
+                          name: 'style',
+                          value: 'letter-sparse'
+                      }
+                  ]
+              },
+              sup: {
+                  node: 'tei:hi'
+              },
+              font_size: {
+                  node: 'tei:hi',
+                  attrs: [
+                      {
+                          name: 'style',
+                          selector: 'size',
+                          values: {
+                              small: 'font-size-small',
+                              medium: 'font-size-medium',
+                              large: 'font-size-large'
+                          }
+                      }
+                  ]
+              },
+              page_break: {
+                  node: 'tei:pb',
+                  attrs: [
+                      {
+                          name: 'n',
+                          selector: 'text()'
+                      }
+                  ],
+                  text: null
+              },
+              font_weight_bold: {
+                  node: 'tei:hi',
+                  attrs: [
+                      {
+                          name: 'style',
+                          value: 'font-weight-bold'
+                      }
+                  ]
+              },
+              annotation: {
+                  node: 'tei:ref',
+                  attrs: [
+                      {
+                          name: 'target',
+                          selector: 'target',
+                          value: '${value}'
+                      }
+                  ]
+              }
+            }
+        }
+    }
+
     window.teiEditorConfig = {
         schema: {
             mainText: fullTextSchema,
@@ -1655,6 +1932,10 @@
             mainText: fullTextParser,
             globalAnnotations: recursive_clone(fullTextParser),
             individualAnnotations: individualAnnotationsParser
+        },
+        serializer: {
+            metadata: metadataSerializer,
+            mainText: fullTextSerializer
         },
         ui: {
             mainText: fullTextUI,

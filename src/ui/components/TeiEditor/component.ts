@@ -2,7 +2,7 @@ import Component from '@glimmer/component';
 import { tracked } from '@glimmer/component';
 import { ensureGuid, HasGuid } from '@glimmer/util';
 
-import { TEIParser } from './tei';
+import { TEIParser, TEISerializer } from './tei';
 
 export default class TeiEditor extends Component {
     //schema: Schema = null;
@@ -90,6 +90,19 @@ export default class TeiEditor extends Component {
             }
             fileSelector.remove();
         });
+    }
+
+    public saveFile(ev) {
+        ev.preventDefault();
+        let serializer = new TEISerializer(window.teiEditorConfig.serializer);
+        let content = serializer.serialize(this.metadata, this.mainText, this.globalAnnotationText, this.individualAnnotations);
+        let blob = new Blob([content], {type: 'text/xml;charset=utf-8'});
+        let link = document.createElement('a');
+        link.setAttribute('href', URL.createObjectURL(blob));
+        link.setAttribute('download', 'download.tei');
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     }
 
     /**

@@ -5,7 +5,7 @@
       <AriaMenuAction @label="Redo"><MdiIcon @name="Redo"/></AriaMenuAction>
       <AriaDropdownMenu @title="File">
         <AriaMenuAction @action={{action loadFile}}>Load</AriaMenuAction>
-        <AriaMenuAction>Save</AriaMenuAction>
+        <AriaMenuAction @action={{action saveFile}}>Save</AriaMenuAction>
       </AriaDropdownMenu>
       <AriaMenuAction @current={{boolean-str (eq currentView '#tei-editor-main-text')}} @hidden={{boolean-str (not loaded)}} @action={{action setView '#tei-editor-main-text'}}>Text</AriaMenuAction>
       <AriaMenuAction @current={{boolean-str (eq currentView '#tei-editor-global-annotations')}} @hidden={{boolean-str (not loaded)}} @action={{action setView '#tei-editor-global-annotations'}}>Global Annotations</AriaMenuAction>

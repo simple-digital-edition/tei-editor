@@ -1,3 +1,5 @@
+import get from '../get/helper';
+
 function nsResolver(prefix: string) {
     if (prefix === 'tei') {
         return 'http://www.tei-c.org/ns/1.0';
@@ -126,7 +128,7 @@ export class TEIParser {
                             if (inlineValue.marks) {
                                 inline.marks = this.parseMarks(child, inlineValue.marks);
                             }
-                            if (inline.text && inline.text.trim() !== '') {
+                            if (inline.text !== null && inline.text !== undefined && inline.text !== '') {
                                 inlines.push(inline);
                             }
                         }
@@ -148,7 +150,7 @@ export class TEIParser {
                             if (inlineValue.marks) {
                                 inline.marks = this.parseMarks(child, inlineValue.marks);
                             }
-                            if (inline.text && inline.text.trim() !== '') {
+                            if (inline.text !== null && inline.text !== undefined && inline.text !== '') {
                                 inlines.push(inline);
                             }
                         }
@@ -263,6 +265,261 @@ export class TEIParser {
                 '/tei:TEI/tei:teiHeader/tei:*'));
         }
         return this._metadata;
+    }
+}
+
+export class TEISerializer {
+    private serializer: object = null;
+
+    constructor(serializer: object) {
+        this.serializer = serializer;
+    }
+
+    public serialize(metadata, mainText, globalAnnotationText, individualAnnotations) {
+        let lines = [
+            '<?xml version="1.0" encoding="UTF-8"?>',
+            '<tei:TEI xmlns:tei="http://www.tei-c.org/ns/1.0">'
+        ];
+        lines = lines.concat(this.serializeMetadata(metadata));
+        lines = lines.concat(this.serializeText(mainText, globalAnnotationText, individualAnnotations));
+        lines.push('</tei:TEI>');
+        return lines.join('\n') + '\n';
+    }
+
+    /**
+     * Generate the metadata TEI header.
+     */
+    private serializeMetadata(metadata) {
+        let lines = [];
+        // Write the opening tag, including optional attributes and self-closing, if set
+        function generateOpeningTag(confObj, data, selfClosing) {
+            let parts = [
+                '<',
+                confObj.node
+            ];
+            if (confObj.attrs) {
+                Object.keys(confObj.attrs).forEach((attr) => {
+                    parts.push(' ');
+                    parts.push(attr);
+                    parts.push('="');
+                    parts.push(get([data, confObj.attrs[attr]]));
+                    parts.push('"');
+                });
+            }
+            if (selfClosing) {
+                parts.push('/');
+            }
+            parts.push('>');
+            return parts.join('');
+        }
+        // Recursively serialise the metadata configuration
+        function recursiveSerialize(confObj, data, indent) {
+            if (confObj.multiple) {
+                // This is a multiple-instance node
+                get([data, confObj.multiple]).forEach((item) => {
+                    if (confObj.children) {
+                        lines.push(indent + generateOpeningTag(confObj, item, false));
+                        confObj.children.forEach((child) => {
+                            recursiveSerialize(child, item, indent + '  ');
+                        });
+                        lines.push(indent + '</' + confObj.node + '>');
+                    } else if (confObj.text) {
+                        lines.push(indent + generateOpeningTag(confObj, item, false) + get([item, confObj.text]) + '</' + confObj.node + '>');
+                    } else {
+                        lines.push(indent + generateOpeningTag(confObj, item, true));
+                    }
+                });
+            } else if (confObj.children) {
+                // This is a container tag with fixed children
+                lines.push(indent + generateOpeningTag(confObj, data, false));
+                confObj.children.forEach((child) => {
+                    recursiveSerialize(child, data, indent + '  ');
+                });
+                lines.push(indent + '</' + confObj.node + '>');
+            } else if (confObj.text) {
+                // This is a text tag
+                lines.push(indent + generateOpeningTag(confObj, data, false) + get([data, confObj.text]) + '</' + confObj.node + '>');
+            } else {
+                // This is an empty tag (might have attributes)
+                lines.push(indent + generateOpeningTag(confObj, data, true));
+            }
+        }
+        recursiveSerialize(this.serializer.metadata, metadata, '  ');
+        return lines;
+    }
+
+    private serializeText(mainText, globalAnnotationText, individualAnnotations) {
+        let lines = [
+            '  <tei:text>',
+        ];
+        lines = lines.concat(this.serializeTextElement(mainText, '    '));
+        lines.push('  </tei:text>');
+        return lines;
+    }
+
+    private serializeTextAttributes(dataAttrs, confAttrs) {
+        let parts = [];
+        let attrs = {};
+        confAttrs.forEach((confAttr) => {
+            if (confAttr.selector) {
+                if (dataAttrs[confAttr.selector]) {
+                    if (confAttr.values && confAttr.values[dataAttrs[confAttr.selector]]) {
+                        if (attrs[confAttr.name]) {
+                            attrs[confAttr.name] = attrs[confAttr.name] + ' ' + confAttr.values[dataAttrs[confAttr.selector]];
+                        } else {
+                            attrs[confAttr.name] = confAttr.values[dataAttrs[confAttr.selector]];
+                        }
+                    } else if (confAttr.value && dataAttrs[confAttr.selector]) {
+                        if (attrs[confAttr.name]) {
+                            attrs[confAttr.name] = attrs[confAttr.name] + ' ' + confAttr.value.replace('${value}', dataAttrs[confAttr.selector]);
+                        } else {
+                            attrs[confAttr.name] = confAttr.value.replace('${value}', dataAttrs[confAttr.selector]);
+                        }
+                    }
+                }
+            } else {
+                if (attrs[confAttr.name]) {
+                    attrs[confAttr.name] = attrs[confAttr.name] + ' ' + confAttr.value;
+                } else {
+                    attrs[confAttr.name] = confAttr.value
+                }
+            }
+        });
+        return attrs;
+    }
+
+    private serializeOpeningTag(element, elementConf) {
+        let parts = [
+            '<',
+            elementConf.node
+        ];
+        if (elementConf.attrs && element.attrs) {
+            let attrs = this.serializeTextAttributes(element.attrs, elementConf.attrs);
+            Object.keys(attrs).forEach((attrName) => {
+                parts.push(' ');
+                parts.push(attrName);
+                parts.push('="')
+                parts.push(attrs[attrName]);
+                parts.push('"')
+            });
+        }
+        parts.push('>');
+        return parts.join('');
+    }
+
+    private serializeBlockTextElement(block, blockConf, indent) {
+        let lines = [
+            indent + this.serializeOpeningTag(block, blockConf)
+        ];
+        if (block.content) {
+            block.content.forEach((child) => {
+                lines = lines.concat(this.serializeTextElement(child, indent + '  '));
+            });
+        }
+        lines.push(indent + '</' + blockConf.node + '>');
+        return lines;
+    }
+
+    private serializeInlineTextElement(inline, inlineConf, indent) {
+        // Process element marks
+        let targetNode = undefined;
+        let attrs = {};
+        let text = undefined;
+        inline.marks.forEach((mark) => {
+            if (inlineConf.marks[mark.type]) {
+                if (targetNode === undefined) {
+                    // Set the target node if desired
+                    targetNode = inlineConf.marks[mark.type].node;
+                }
+                if (inlineConf.marks[mark.type].attrs) {
+                    // Extract attributes
+                    let confAttrs = inlineConf.marks[mark.type].attrs;
+                    confAttrs.forEach((confAttr) => {
+                        if (confAttr.selector) {
+                            if (confAttr.selector === 'text()') {
+                                // Extract text value
+                                if (attrs[confAttr.name]) {
+                                    attrs[confAttr.name] = attrs[confAttr.name] + ' ' + inline.text;
+                                } else {
+                                    attrs[confAttr.name] = inline.text;
+                                }
+                            } else if (mark.attrs) {
+                                if (confAttr.values && mark.attrs[confAttr.selector] && confAttr.values[mark.attrs[confAttr.selector]]) {
+                                    // Extract via mapping attribute
+                                    if (attrs[confAttr.name]) {
+                                        attrs[confAttr.name] = attrs[confAttr.name] + ' ' + confAttr.values[mark.attrs[confAttr.selector]];
+                                    } else {
+                                        attrs[confAttr.name] = confAttr.values[mark.attrs[confAttr.selector]];
+                                    }
+                                } else if (confAttr.value && mark.attrs[confAttr.selector]) {
+                                    // Extract via string replacement
+                                    if (attrs[confAttr.name]) {
+                                        attrs[confAttr.name] = attrs[confAttr.name] + ' ' + confAttr.value.replace('${value}', mark.attrs[confAttr.selector]);
+                                    } else {
+                                        attrs[confAttr.name] = confAttr.value.replace('${value}', mark.attrs[confAttr.selector]);
+                                    }
+                                }
+                            }
+                        } else {
+                            // Hard-coded attribute value
+                            if (attrs[confAttr.name]) {
+                                attrs[confAttr.name] = attrs[confAttr.name] + ' ' + confAttr.value;
+                            } else {
+                                attrs[confAttr.name] = confAttr.value
+                            }
+                        }
+                    });
+                }
+                if (inlineConf.marks[mark.type].text !== undefined) {
+                    // Update the displayed text
+                    text = inlineConf.marks[mark.type].text;
+                }
+            }
+        });
+        if (targetNode === undefined) {
+            // Fallback target node is set in the configuration for the inline element
+            targetNode = inlineConf.node;
+        }
+        if (text === undefined) {
+            // Fallback text is the text of the inline element
+            text = inline.text;
+        }
+        // Build the tag
+        let parts = [
+            indent,
+            '<',
+            targetNode
+        ];
+        Object.keys(attrs).forEach((attrName) => {
+            parts.push(' ');
+            parts.push(attrName);
+            parts.push('="')
+            parts.push(attrs[attrName]);
+            parts.push('"')
+        });
+        if (text !== undefined && text !== null) {
+            parts.push('>');
+            parts.push(text);
+            parts.push('</' + targetNode + '>');
+        } else {
+            parts.push('/>');
+        }
+        return [parts.join('')];
+    }
+
+    private serializeTextElement(element, indent) {
+        let lines = [];
+        Object.keys(this.serializer.mainText).forEach((elementType) => {
+            if (element.type === elementType) {
+                let elementConf = this.serializer.mainText[elementType];
+                if (elementConf.inline) {
+                    lines = lines.concat(this.serializeInlineTextElement(element, elementConf, indent));
+                } else {
+                    lines = lines.concat(this.serializeBlockTextElement(element, elementConf, indent));
+                }
+            }
+        })
+        return lines;
     }
 }
 
