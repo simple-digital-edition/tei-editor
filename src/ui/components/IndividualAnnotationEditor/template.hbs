@@ -11,10 +11,10 @@
         {{/each}}
       </select>
     </li>
-    <AriaMenuAction @label="Delete this annotation" @disabled={{eq (get annotations 'length') 0}}><MdiIcon @name="Delete"/></AriaMenuAction>
-    <AriaMenuAction @label="Add an annotation"><MdiIcon @name="Plus"/></AriaMenuAction>
+    <AriaMenuAction @label="Delete this annotation" @disabled={{eq (get annotations 'length') 0}} @action={{action deleteAnnotation}}><MdiIcon @name="Delete"/></AriaMenuAction>
+    <AriaMenuAction @label="Add an annotation" @action={{action addAnnotation}}><MdiIcon @name="Plus"/></AriaMenuAction>
   </AriaMenu>
 </nav>
 <div>
-  <ProsemirrorEditor @schema={{@schema}} @sidebar={{@sidebar}} @text={{displayedBodyText}} @update={{action updateAnnotationText}}></ProsemirrorEditor>
+  <ProsemirrorEditor @schema={{@schema}} @sidebar={{@sidebar}} @text={{bodyText}} @update={{action updateAnnotationText}}></ProsemirrorEditor>
 </div>

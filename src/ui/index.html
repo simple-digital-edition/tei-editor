@@ -1455,6 +1455,17 @@
     var individualAnnotationsUI = {
         sidebar: [
             {
+                title: 'Identifier',
+                entries: [
+                    {
+                        type: 'text',
+                        value_key: 'block.type.xml:id',
+                        action: 'setBlockAttribute',
+                        attribute: 'xml:id'
+                    }
+                ]
+            },
+            {
                 title: 'Paragraph',
                 test: {
                     key: 'block.type.name',

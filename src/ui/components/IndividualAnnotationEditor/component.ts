@@ -14,7 +14,6 @@ export default class IndividualAnnotationEditor extends Component {
             if (this.annotations && this.annotations.length > 0) {
                 this.selectedAnnotation = this.annotations[0];
                 this.bodyText = this.selectedAnnotation;
-                this.displayedBodyText = this.selectedAnnotation;
             } else {
                 this.selectedAnnotation = null;
             }
@@ -32,17 +31,34 @@ export default class IndividualAnnotationEditor extends Component {
             if (this.annotations[idx].attrs.id === ev.target.value) {
                 this.selectedAnnotation = this.annotations[idx];
                 this.bodyText = this.selectedAnnotation;
-                this.displayedBodyText = this.selectedAnnotation;
                 break;
             }
         }
     }
 
+    /**
+     * Update the text of an annotation
+     */
     public updateAnnotationText(annotationText) {
         for(let idx = 0; idx < this.annotations.length; idx++) {
             if (this.annotations[idx].attrs.id === this.selectedAnnotation.attrs.id) {
                 this.annotations[idx] = annotationText;
             }
         }
+    }
+
+    public deleteAnnotation() {
+        for(let idx = 0; idx < this.annotations.length; idx++) {
+            if (this.annotations[idx].attrs.id === this.selectedAnnotation.attrs.id) {
+                let annotations = this.annotations.slice();
+                annotations.splice(idx, 1);
+                this.args.update(annotations);
+                break;
+            }
+        }
+    }
+
+    public addAnnotation() {
+
     }
 }

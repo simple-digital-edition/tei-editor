@@ -130,4 +130,8 @@ export default class TeiEditor extends Component {
     public updateMetadata(metadata) {
         this.metadata = metadata;
     }
+
+    public updateIndividualAnnotations(individualAnnotations) {
+        this.individualAnnotations = individualAnnotations;
+    }
 }

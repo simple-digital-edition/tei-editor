@@ -9,6 +9,8 @@ export default function statusDisplayEntry(params) {
         } else if(test.key && test.value) {
             return get([status, test.key]) === test.value;
         }
+    } else if (status && !test) {
+        return true;
     }
     return false;
 }
