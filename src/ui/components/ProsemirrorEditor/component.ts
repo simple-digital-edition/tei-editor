@@ -9,6 +9,8 @@ import {EditorState} from 'prosemirror-state';
 import {Transform} from 'prosemirror-transform';
 import {EditorView} from 'prosemirror-view';
 
+import SetDocAttr from './set-doc-attr';
+
 /**
  * Adds an item into an array, treating the array as a set. If the item to add is already contained in the array,
  * then nothing is changed.
@@ -70,10 +72,7 @@ function getBlockHierarchy(state) {
     let blocks = []
     for(let idx = 0; idx < selection.$anchor.path.length; idx++) {
         if(typeof(selection.$anchor.path[idx]) === 'object') {
-            let node_type = selection.$anchor.path[idx].type
-            if(node_type.name !== 'doc') {
-                blocks.splice(0, 0, selection.$anchor.path[idx])
-            }
+            blocks.push(selection.$anchor.path[idx]);
         }
     }
     return blocks
@@ -155,13 +154,18 @@ export default class ProsemirrorEditor extends Component implements HasGuid {
     private stateChange(state) {
         let status = {
             block: null,
+            blocks: null,
             marks: {}
         };
         // Determine most specific active block
         let blocks = getBlockHierarchy(state);
         blocks.forEach((node) => {
             if (node.type.isBlock) {
-                status.block = node;
+                if (status.blocks === null) {
+                    status.blocks = {};
+                }
+                status.blocks[node.type.name] = node
+                status.block = node
             }
         });
         // Determine all marks
@@ -181,7 +185,11 @@ export default class ProsemirrorEditor extends Component implements HasGuid {
         if (value === 'ev.target.value') {
             value = ev.target.value;
         }
-        if (action === 'setBlockType') {
+        if (action === 'setDocAttribute') {
+            let transaction = this.editorView.state.tr;
+            transaction.step(new SetDocAttr(attribute, value));
+            this.editorView.dispatch(transaction);
+        } else if (action === 'setBlockType') {
             setBlockType(this.schema.nodes[value], {})(this.editorView.state, this.editorView.dispatch)
         } else if (action === 'setBlockAttribute') {
             let {$from} = this.editorView.state.selection;

@@ -29,6 +29,7 @@ export default class IndividualAnnotationEditor extends Component {
         ev.preventDefault();
         for(let idx = 0; idx < this.annotations.length; idx++) {
             if (this.annotations[idx].attrs.id === ev.target.value) {
+                console.log(this.annotations[idx]);
                 this.selectedAnnotation = this.annotations[idx];
                 this.bodyText = this.selectedAnnotation;
                 break;
@@ -41,12 +42,20 @@ export default class IndividualAnnotationEditor extends Component {
      */
     public updateAnnotationText(annotationText) {
         for(let idx = 0; idx < this.annotations.length; idx++) {
-            if (this.annotations[idx].attrs.id === this.selectedAnnotation.attrs.id) {
+            if (this.annotations[idx].attrs.id === annotationText.attrs.id) {
                 this.annotations[idx] = annotationText;
+                if (this.selectedAnnotation.attrs.id !== annotationText.attrs.id) {
+                    let annotations = this.annotations.slice();
+                    this.args.update(annotations);
+                }
+                break;
             }
         }
     }
 
+    /**
+     * Delete the currently selected annotation
+     */
     public deleteAnnotation() {
         for(let idx = 0; idx < this.annotations.length; idx++) {
             if (this.annotations[idx].attrs.id === this.selectedAnnotation.attrs.id) {
@@ -58,7 +67,23 @@ export default class IndividualAnnotationEditor extends Component {
         }
     }
 
+    /**
+     * Add a new annotation
+     */
     public addAnnotation() {
-
+        /*let annotations = this.annotations.slice();
+        annotations.push({
+            type: 'doc',
+            attrs: {
+                id: 'new'
+            }
+            content: [
+                {
+                    type: 'paragraph',
+                    content: []
+                }
+            ]
+        });
+        this.args.update(annotations);*/
     }
 }
