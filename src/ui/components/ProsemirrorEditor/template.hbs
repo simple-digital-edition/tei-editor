@@ -21,6 +21,16 @@
                     </select>
                   </li>
                 {{/if}}
+                {{#if (eq entry.type 'select-annotation')}}
+                  <li class="input">
+                    <select role="menuitem" tabindex={{aria-menu-item-tabindex index}} onchange={{action menuAction entry.action entry.attribute 'ev.target.value'}}>
+                      <option value="">--- Please select ---</option>
+                      {{#each @annotations key="@index" as |value|}}
+                        <option value={{value.attrs.id}} selected={{eq (get status entry.value_key) value.attrs.id}}>{{value.attrs.id}}</option>
+                      {{/each}}
+                    </select>
+                  </li>
+                {{/if}}
                 {{#if (eq entry.type 'button')}}
                   {{#if (eq entry.value 'toggle')}}
                     <AriaMenuAction @tabindex={{aria-menu-item-tabindex index}} @label={{entry.label}} @action={{action menuAction entry.action entry.attribute entry.value}} @current={{boolean-str (get status entry.value_key)}}><MdiIcon @name={{entry.icon}} /></AriaMenuAction>

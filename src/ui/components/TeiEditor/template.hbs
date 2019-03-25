@@ -15,7 +15,7 @@
   </div>
   <div aria-hidden={{boolean-str (not loaded)}}>
     <div id="tei-editor-main-text" aria-hidden="false">
-      <ProsemirrorEditor @schema={{mainTextEditorConfig}} @sidebar={{mainTextSidebarConfig}} @text={{displayedMainText}} @update={{action updateMainText}}></ProsemirrorEditor>
+      <ProsemirrorEditor @schema={{mainTextEditorConfig}} @sidebar={{mainTextSidebarConfig}} @text={{displayedMainText}} @annotations={{individualAnnotations}} @update={{action updateMainText}}></ProsemirrorEditor>
     </div>
     <div id="tei-editor-global-annotations" aria-hidden="true">
       <ProsemirrorEditor @schema={{globalAnnotationConfig}} @sidebar={{globalAnnotationSidebarConfig}} @text={{displayedGlobalAnnotationText}} @update={{action updateGlobalAnnotationText}}></ProsemirrorEditor>
