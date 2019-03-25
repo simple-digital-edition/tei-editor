@@ -352,7 +352,8 @@ export class TEISerializer {
         let lines = [
             '  <tei:text>',
         ];
-        lines = lines.concat(this.serializeTextElement(mainText, '    '));
+        lines = lines.concat(this.serializeTextElement(mainText, this.serializer.mainText, '    '));
+        lines = lines.concat(this.serializeTextElement(globalAnnotationText, this.serializer.globalAnnotations, '    '));
         lines.push('  </tei:text>');
         return lines;
     }
@@ -362,7 +363,7 @@ export class TEISerializer {
         let attrs = {};
         confAttrs.forEach((confAttr) => {
             if (confAttr.selector) {
-                if (dataAttrs[confAttr.selector]) {
+                if (dataAttrs && dataAttrs[confAttr.selector]) {
                     if (confAttr.values && confAttr.values[dataAttrs[confAttr.selector]]) {
                         if (attrs[confAttr.name]) {
                             attrs[confAttr.name] = attrs[confAttr.name] + ' ' + confAttr.values[dataAttrs[confAttr.selector]];
@@ -388,13 +389,16 @@ export class TEISerializer {
         return attrs;
     }
 
-    private serializeOpeningTag(element, elementConf) {
+    private serializeBlockTextElement(block, config, indent) {
+        let blockConf = config[block.type];
         let parts = [
+            indent,
             '<',
-            elementConf.node
+            blockConf.node
         ];
-        if (elementConf.attrs && element.attrs) {
-            let attrs = this.serializeTextAttributes(element.attrs, elementConf.attrs);
+        if (blockConf.attrs) {
+            let attrs = this.serializeTextAttributes(block.attrs, blockConf.attrs);
+            console.log(attrs);
             Object.keys(attrs).forEach((attrName) => {
                 parts.push(' ');
                 parts.push(attrName);
@@ -404,16 +408,12 @@ export class TEISerializer {
             });
         }
         parts.push('>');
-        return parts.join('');
-    }
-
-    private serializeBlockTextElement(block, blockConf, indent) {
         let lines = [
-            indent + this.serializeOpeningTag(block, blockConf)
+            parts.join('');
         ];
         if (block.content) {
             block.content.forEach((child) => {
-                lines = lines.concat(this.serializeTextElement(child, indent + '  '));
+                lines = lines.concat(this.serializeTextElement(child, config, indent + '  '));
             });
         }
         lines.push(indent + '</' + blockConf.node + '>');
@@ -507,15 +507,15 @@ export class TEISerializer {
         return [parts.join('')];
     }
 
-    private serializeTextElement(element, indent) {
+    private serializeTextElement(element, config, indent) {
         let lines = [];
-        Object.keys(this.serializer.mainText).forEach((elementType) => {
+        Object.keys(config).forEach((elementType) => {
             if (element.type === elementType) {
-                let elementConf = this.serializer.mainText[elementType];
+                let elementConf = config[elementType];
                 if (elementConf.inline) {
                     lines = lines.concat(this.serializeInlineTextElement(element, elementConf, indent));
                 } else {
-                    lines = lines.concat(this.serializeBlockTextElement(element, elementConf, indent));
+                    lines = lines.concat(this.serializeBlockTextElement(element, config, indent));
                 }
             }
         })
