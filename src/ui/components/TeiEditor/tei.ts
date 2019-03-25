@@ -158,11 +158,11 @@ export class TEIParser {
                 }
             }
         }
-        inlines.forEach(function(item) {
+        /*inlines.forEach(function(item) {
             if(!item.text) {
                 console.log(inlines);
             }
-        });
+        });*/
         return inlines;
     }
 
@@ -398,7 +398,6 @@ export class TEISerializer {
         ];
         if (blockConf.attrs) {
             let attrs = this.serializeTextAttributes(block.attrs, blockConf.attrs);
-            console.log(attrs);
             Object.keys(attrs).forEach((attrName) => {
                 parts.push(' ');
                 parts.push(attrName);
