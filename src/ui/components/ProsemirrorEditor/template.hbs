@@ -28,6 +28,9 @@
                     <AriaMenuAction @tabindex={{aria-menu-item-tabindex index}} @label={{entry.label}} @action={{action menuAction entry.action entry.attribute entry.value}} @current={{boolean-str (eq (get status entry.value_key) entry.value)}}><MdiIcon @name={{entry.icon}} /></AriaMenuAction>
                   {{/if}}
                 {{/if}}
+                {{#if (eq entry.type 'text')}}
+                  <input type="text" value={{get status entry.value_key}} onchange={{action menuAction entry.action entry.attribute 'ev.target.value'}}/>
+                {{/if}}
               {{/each}}
             </AriaMenu>
           </dd>

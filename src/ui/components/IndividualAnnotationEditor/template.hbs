@@ -16,5 +16,5 @@
   </AriaMenu>
 </nav>
 <div>
-  <ProsemirrorEditor @schema={{@schema}} @sidebar={{@sidebar}} @text={{bodyText}}></ProsemirrorEditor>
+  <ProsemirrorEditor @schema={{@schema}} @sidebar={{@sidebar}} @text={{displayedBodyText}} @update={{action updateAnnotationText}}></ProsemirrorEditor>
 </div>

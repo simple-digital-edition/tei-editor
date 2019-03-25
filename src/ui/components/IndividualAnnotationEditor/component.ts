@@ -3,6 +3,7 @@ import { tracked } from '@glimmer/component';
 
 export default class IndividualAnnotationEditor extends Component {
     @tracked bodyText: object = null;
+    @tracked displayedBodyText: object = null;
     @tracked selectedAnnotation: object = null;
     @tracked annotations: object = null;
 
@@ -13,6 +14,7 @@ export default class IndividualAnnotationEditor extends Component {
             if (this.annotations && this.annotations.length > 0) {
                 this.selectedAnnotation = this.annotations[0];
                 this.bodyText = this.selectedAnnotation;
+                this.displayedBodyText = this.selectedAnnotation;
             } else {
                 this.selectedAnnotation = null;
             }
@@ -29,11 +31,17 @@ export default class IndividualAnnotationEditor extends Component {
         for(let idx = 0; idx < this.annotations.length; idx++) {
             if (this.annotations[idx].attrs.id === ev.target.value) {
                 this.selectedAnnotation = this.annotations[idx];
-                this.bodyText = {
-                    type: 'doc',
-                    content: this.selectedAnnotation.content
-                };
+                this.bodyText = this.selectedAnnotation;
+                this.displayedBodyText = this.selectedAnnotation;
                 break;
+            }
+        }
+    }
+
+    public updateAnnotationText(annotationText) {
+        for(let idx = 0; idx < this.annotations.length; idx++) {
+            if (this.annotations[idx].attrs.id === this.selectedAnnotation.attrs.id) {
+                this.annotations[idx] = annotationText;
             }
         }
     }

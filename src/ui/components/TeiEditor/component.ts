@@ -9,7 +9,9 @@ export default class TeiEditor extends Component {
     @tracked currentView: string = '#tei-editor-main-text';
     @tracked loaded: boolean = false;
     @tracked mainText: object = null;
+    @tracked displayedMainText: object = null;
     @tracked globalAnnotationText: object = null;
+    @tracked displayedGlobalAnnotationText: object = null;
     @tracked metadata: object = null;
     @tracked individualAnnotations: object = null;
 
@@ -81,8 +83,10 @@ export default class TeiEditor extends Component {
                 reader.onload = (ev) => {
                     let parser = new TEIParser(ev.target.result, window.teiEditorConfig.parser);
                     component.mainText = parser.body;
+                    component.displayedMainText = parser.body;
                     component.metadata = parser.metadata;
                     component.globalAnnotationText = parser.globalAnnotationText;
+                    component.displayedGlobalAnnotationText = parser.globalAnnotationText;
                     component.individualAnnotations = parser.individualAnnotations;
                     component.loaded = true;
                 }
@@ -113,6 +117,14 @@ export default class TeiEditor extends Component {
         document.querySelector(this.currentView).setAttribute('aria-hidden', 'true');
         this.currentView = view;
         document.querySelector(this.currentView).setAttribute('aria-hidden', 'false');
+    }
+
+    public updateMainText(mainText) {
+        this.mainText = mainText;
+    }
+
+    public updateGlobalAnnotationText(globalAnnotationText) {
+        this.globalAnnotationText = globalAnnotationText;
     }
 
     public updateMetadata(metadata) {

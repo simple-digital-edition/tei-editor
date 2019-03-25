@@ -365,35 +365,20 @@ export class TEISerializer {
         return lines;
     }
 
-    private serializeTextAttributes(dataAttrs, confAttrs) {
+    private serializeTextAttributes(attrs) {
         let parts = [];
-        let attrs = {};
-        confAttrs.forEach((confAttr) => {
-            if (confAttr.selector) {
-                if (dataAttrs && dataAttrs[confAttr.selector]) {
-                    if (confAttr.values && confAttr.values[dataAttrs[confAttr.selector]]) {
-                        if (attrs[confAttr.name]) {
-                            attrs[confAttr.name] = attrs[confAttr.name] + ' ' + confAttr.values[dataAttrs[confAttr.selector]];
-                        } else {
-                            attrs[confAttr.name] = confAttr.values[dataAttrs[confAttr.selector]];
-                        }
-                    } else if (confAttr.value && dataAttrs[confAttr.selector]) {
-                        if (attrs[confAttr.name]) {
-                            attrs[confAttr.name] = attrs[confAttr.name] + ' ' + confAttr.value.replace('${value}', dataAttrs[confAttr.selector]);
-                        } else {
-                            attrs[confAttr.name] = confAttr.value.replace('${value}', dataAttrs[confAttr.selector]);
-                        }
-                    }
-                }
-            } else {
-                if (attrs[confAttr.name]) {
-                    attrs[confAttr.name] = attrs[confAttr.name] + ' ' + confAttr.value;
-                } else {
-                    attrs[confAttr.name] = confAttr.value
-                }
-            }
+        let keys = Object.keys(attrs);
+        keys.sort();
+        keys.forEach((attrName) => {
+            parts.push(' ');
+            parts.push(attrName);
+            parts.push('="')
+            let values = attrs[attrName].split(' ');
+            values.sort();
+            parts.push(values.join(' '));
+            parts.push('"')
         });
-        return attrs;
+        return parts;
     }
 
     private serializeBlockTextElement(block, config, indent) {
@@ -404,14 +389,35 @@ export class TEISerializer {
             blockConf.node
         ];
         if (blockConf.attrs) {
-            let attrs = this.serializeTextAttributes(block.attrs, blockConf.attrs);
-            Object.keys(attrs).forEach((attrName) => {
-                parts.push(' ');
-                parts.push(attrName);
-                parts.push('="')
-                parts.push(attrs[attrName]);
-                parts.push('"')
+            let dataAttrs = block.attrs;
+            let confAttrs = blockConf.attrs;
+            let attrs = {};
+            confAttrs.forEach((confAttr) => {
+                if (confAttr.selector) {
+                    if (dataAttrs && dataAttrs[confAttr.selector]) {
+                        if (confAttr.values && confAttr.values[dataAttrs[confAttr.selector]]) {
+                            if (attrs[confAttr.name]) {
+                                attrs[confAttr.name] = attrs[confAttr.name] + ' ' + confAttr.values[dataAttrs[confAttr.selector]];
+                            } else {
+                                attrs[confAttr.name] = confAttr.values[dataAttrs[confAttr.selector]];
+                            }
+                        } else if (confAttr.value && dataAttrs[confAttr.selector]) {
+                            if (attrs[confAttr.name]) {
+                                attrs[confAttr.name] = attrs[confAttr.name] + ' ' + confAttr.value.replace('${value}', dataAttrs[confAttr.selector]);
+                            } else {
+                                attrs[confAttr.name] = confAttr.value.replace('${value}', dataAttrs[confAttr.selector]);
+                            }
+                        }
+                    }
+                } else {
+                    if (attrs[confAttr.name]) {
+                        attrs[confAttr.name] = attrs[confAttr.name] + ' ' + confAttr.value;
+                    } else {
+                        attrs[confAttr.name] = confAttr.value
+                    }
+                }
             });
+            parts = parts.concat(this.serializeTextAttributes(attrs));
         }
         parts.push('>');
         let lines = [
@@ -431,57 +437,59 @@ export class TEISerializer {
         let targetNode = undefined;
         let attrs = {};
         let text = undefined;
-        inline.marks.forEach((mark) => {
-            if (inlineConf.marks[mark.type]) {
-                if (targetNode === undefined) {
-                    // Set the target node if desired
-                    targetNode = inlineConf.marks[mark.type].node;
-                }
-                if (inlineConf.marks[mark.type].attrs) {
-                    // Extract attributes
-                    let confAttrs = inlineConf.marks[mark.type].attrs;
-                    confAttrs.forEach((confAttr) => {
-                        if (confAttr.selector) {
-                            if (confAttr.selector === 'text()') {
-                                // Extract text value
-                                if (attrs[confAttr.name]) {
-                                    attrs[confAttr.name] = attrs[confAttr.name] + ' ' + inline.text;
-                                } else {
-                                    attrs[confAttr.name] = inline.text;
-                                }
-                            } else if (mark.attrs) {
-                                if (confAttr.values && mark.attrs[confAttr.selector] && confAttr.values[mark.attrs[confAttr.selector]]) {
-                                    // Extract via mapping attribute
+        if (inline.marks) {
+            inline.marks.forEach((mark) => {
+                if (inlineConf.marks[mark.type]) {
+                    if (targetNode === undefined) {
+                        // Set the target node if desired
+                        targetNode = inlineConf.marks[mark.type].node;
+                    }
+                    if (inlineConf.marks[mark.type].attrs) {
+                        // Extract attributes
+                        let confAttrs = inlineConf.marks[mark.type].attrs;
+                        confAttrs.forEach((confAttr) => {
+                            if (confAttr.selector) {
+                                if (confAttr.selector === 'text()') {
+                                    // Extract text value
                                     if (attrs[confAttr.name]) {
-                                        attrs[confAttr.name] = attrs[confAttr.name] + ' ' + confAttr.values[mark.attrs[confAttr.selector]];
+                                        attrs[confAttr.name] = attrs[confAttr.name] + ' ' + inline.text;
                                     } else {
-                                        attrs[confAttr.name] = confAttr.values[mark.attrs[confAttr.selector]];
+                                        attrs[confAttr.name] = inline.text;
                                     }
-                                } else if (confAttr.value && mark.attrs[confAttr.selector]) {
-                                    // Extract via string replacement
-                                    if (attrs[confAttr.name]) {
-                                        attrs[confAttr.name] = attrs[confAttr.name] + ' ' + confAttr.value.replace('${value}', mark.attrs[confAttr.selector]);
-                                    } else {
-                                        attrs[confAttr.name] = confAttr.value.replace('${value}', mark.attrs[confAttr.selector]);
+                                } else if (mark.attrs) {
+                                    if (confAttr.values && mark.attrs[confAttr.selector] && confAttr.values[mark.attrs[confAttr.selector]]) {
+                                        // Extract via mapping attribute
+                                        if (attrs[confAttr.name]) {
+                                            attrs[confAttr.name] = attrs[confAttr.name] + ' ' + confAttr.values[mark.attrs[confAttr.selector]];
+                                        } else {
+                                            attrs[confAttr.name] = confAttr.values[mark.attrs[confAttr.selector]];
+                                        }
+                                    } else if (confAttr.value && mark.attrs[confAttr.selector]) {
+                                        // Extract via string replacement
+                                        if (attrs[confAttr.name]) {
+                                            attrs[confAttr.name] = attrs[confAttr.name] + ' ' + confAttr.value.replace('${value}', mark.attrs[confAttr.selector]);
+                                        } else {
+                                            attrs[confAttr.name] = confAttr.value.replace('${value}', mark.attrs[confAttr.selector]);
+                                        }
                                     }
                                 }
-                            }
-                        } else {
-                            // Hard-coded attribute value
-                            if (attrs[confAttr.name]) {
-                                attrs[confAttr.name] = attrs[confAttr.name] + ' ' + confAttr.value;
                             } else {
-                                attrs[confAttr.name] = confAttr.value
+                                // Hard-coded attribute value
+                                if (attrs[confAttr.name]) {
+                                    attrs[confAttr.name] = attrs[confAttr.name] + ' ' + confAttr.value;
+                                } else {
+                                    attrs[confAttr.name] = confAttr.value
+                                }
                             }
-                        }
-                    });
+                        });
+                    }
+                    if (inlineConf.marks[mark.type].text !== undefined) {
+                        // Update the displayed text
+                        text = inlineConf.marks[mark.type].text;
+                    }
                 }
-                if (inlineConf.marks[mark.type].text !== undefined) {
-                    // Update the displayed text
-                    text = inlineConf.marks[mark.type].text;
-                }
-            }
-        });
+            });
+        }
         if (targetNode === undefined) {
             // Fallback target node is set in the configuration for the inline element
             targetNode = inlineConf.node;
@@ -496,13 +504,7 @@ export class TEISerializer {
             '<',
             targetNode
         ];
-        Object.keys(attrs).forEach((attrName) => {
-            parts.push(' ');
-            parts.push(attrName);
-            parts.push('="')
-            parts.push(attrs[attrName]);
-            parts.push('"')
-        });
+        parts = parts.concat(this.serializeTextAttributes(attrs));
         if (text !== undefined && text !== null) {
             parts.push('>');
             parts.push(text);
