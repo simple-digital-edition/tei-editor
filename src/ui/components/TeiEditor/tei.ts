@@ -221,7 +221,10 @@ export class TEIParser {
             let annotation = annotations.iterateNext();
             while (annotation) {
                 this._individualAnnotations.push({
-                    id: this.xpath.stringValue(annotation, '@xml:id'),
+                    type: 'doc',
+                    attrs: {
+                        id: this.xpath.stringValue(annotation, '@xml:id'),
+                    },
                     content: this.parseBlocks(this.xpath.nodeIterator(annotation,
                         this.parser.individualAnnotations.blockSelector), this.parser.individualAnnotations)
                 });
@@ -354,6 +357,10 @@ export class TEISerializer {
         ];
         lines = lines.concat(this.serializeTextElement(mainText, this.serializer.mainText, '    '));
         lines = lines.concat(this.serializeTextElement(globalAnnotationText, this.serializer.globalAnnotations, '    '));
+        lines = lines.concat(this.serializeTextElement({
+            type: '_collection',
+            content: individualAnnotations
+        }, this.serializer.individualAnnotations, '    '));
         lines.push('  </tei:text>');
         return lines;
     }

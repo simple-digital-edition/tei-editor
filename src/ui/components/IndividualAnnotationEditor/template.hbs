@@ -4,9 +4,9 @@
       <select role="menuitem" tabindex="0" aria-label="Select the annotation to edit" onchange={{action selectAnnotation}}>
         {{#each annotations key="@index" as |annotation|}}
           {{#if (eq annotation selectedAnnotation)}}
-            <option value={{annotation.id}} selected="selected">{{annotation.id}}</option>
+            <option value={{annotation.attrs.id}} selected="selected">{{annotation.attrs.id}}</option>
           {{else}}
-            <option value={{annotation.id}}>{{annotation.id}}</option>
+            <option value={{annotation.attrs.id}}>{{annotation.attrs.id}}</option>
           {{/if}}
         {{/each}}
       </select>

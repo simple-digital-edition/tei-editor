@@ -12,10 +12,7 @@ export default class IndividualAnnotationEditor extends Component {
             this.annotations = this.args.annotations;
             if (this.annotations && this.annotations.length > 0) {
                 this.selectedAnnotation = this.annotations[0];
-                this.bodyText = {
-                    type: 'doc',
-                    content: this.selectedAnnotation.content
-                };
+                this.bodyText = this.selectedAnnotation;
             } else {
                 this.selectedAnnotation = null;
             }
@@ -30,7 +27,7 @@ export default class IndividualAnnotationEditor extends Component {
     public selectAnnotation(ev) {
         ev.preventDefault();
         for(let idx = 0; idx < this.annotations.length; idx++) {
-            if (this.annotations[idx].id === ev.target.value) {
+            if (this.annotations[idx].attrs.id === ev.target.value) {
                 this.selectedAnnotation = this.annotations[idx];
                 this.bodyText = {
                     type: 'doc',

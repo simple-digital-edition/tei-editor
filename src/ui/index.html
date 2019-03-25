@@ -949,7 +949,12 @@
     var individualAnnotationSchema = {
         nodes: {
             doc: {
-                content: 'block+'
+                content: 'block+',
+                attrs: {
+                    id: {
+                        default: ''
+                    }
+                }
             },
             paragraph: {
                 group: 'block',
@@ -1000,7 +1005,7 @@
                 toDOM() {return ['span', {class: 'font-weight-bold'}, 0]},
                 parseDOM: [{tag: 'span.font-weight-bold'}]
             },
-            pageLineRange: {
+            pageLineRef: {
                 toDOM() {return ['span', {class: 'page-line-range'}, 0]},
                 parseDOM: [{tag: 'span.page-line-range'}]
             },
@@ -1207,7 +1212,7 @@
                     selector: 'tei:citedRange[@type="page-line-ref"]',
                     text: 'text()',
                     marks: {
-                        pageLineRange: true
+                        pageLineRef: true
                     }
                 },
                 {
@@ -1535,11 +1540,11 @@
                 entries: [
                     {
                         type: 'button',
-                        value_key: 'marks.pageLineRange',
+                        value_key: 'marks.pageLineRef',
                         label: 'Annotation page and line range',
                         icon: 'PagePreviousOutline',
                         action: 'toggleMark',
-                        attribute: 'pageLineRange',
+                        attribute: 'pageLineRef',
                         value: 'toggle'
                     },
                     {
@@ -1860,67 +1865,196 @@
             node: 'tei:seg',
             inline: true,
             marks: {
-              foreign: {
-                  node: 'tei:foreign'
-              },
-              letter_sparse: {
-                  node: 'tei:hi',
-                  attrs: [
-                      {
-                          name: 'style',
-                          value: 'letter-sparse'
-                      }
-                  ]
-              },
-              sup: {
-                  node: 'tei:hi'
-              },
-              font_size: {
-                  node: 'tei:hi',
-                  attrs: [
-                      {
-                          name: 'style',
-                          selector: 'size',
-                          values: {
-                              small: 'font-size-small',
-                              medium: 'font-size-medium',
-                              large: 'font-size-large'
-                          }
-                      }
-                  ]
-              },
-              page_break: {
-                  node: 'tei:pb',
-                  attrs: [
-                      {
-                          name: 'n',
-                          selector: 'text()'
-                      }
-                  ],
-                  text: null
-              },
-              font_weight_bold: {
-                  node: 'tei:hi',
-                  attrs: [
-                      {
-                          name: 'style',
-                          value: 'font-weight-bold'
-                      }
-                  ]
-              },
-              annotation: {
-                  node: 'tei:ref',
-                  attrs: [
-                      {
-                          name: 'target',
-                          selector: 'target',
-                          value: '${value}'
-                      }
-                  ]
-              }
+                foreign: {
+                    node: 'tei:foreign'
+                },
+                letter_sparse: {
+                    node: 'tei:hi',
+                    attrs: [
+                        {
+                            name: 'style',
+                            value: 'letter-sparse'
+                        }
+                    ]
+                },
+                sup: {
+                    node: 'tei:hi'
+                },
+                font_size: {
+                    node: 'tei:hi',
+                    attrs: [
+                        {
+                            name: 'style',
+                            selector: 'size',
+                            values: {
+                                small: 'font-size-small',
+                                medium: 'font-size-medium',
+                                large: 'font-size-large'
+                            }
+                        }
+                    ]
+                },
+                page_break: {
+                    node: 'tei:pb',
+                    attrs: [
+                        {
+                            name: 'n',
+                            selector: 'text()'
+                        }
+                    ],
+                    text: null
+                },
+                font_weight_bold: {
+                    node: 'tei:hi',
+                    attrs: [
+                        {
+                            name: 'style',
+                            value: 'font-weight-bold'
+                        }
+                    ]
+                },
+                annotation: {
+                    node: 'tei:ref',
+                    attrs: [
+                        {
+                            name: 'target',
+                            selector: 'target',
+                            value: '${value}'
+                        }
+                    ]
+                }
             }
         }
     }
+
+    // Serialize for the main text block
+    var individualAnnotationsSerializer = {
+        '_collection': {
+            node: 'tei:interpGrp',
+            attrs: [
+                {
+                    name: 'type',
+                    value: 'individual'
+                }
+            ]
+        },
+        doc: {
+            node: 'tei:interp',
+            attrs: [
+                {
+                    name: 'xml:id',
+                    selector: 'id',
+                    value: '${value}'
+                }
+            ]
+        },
+        heading: {
+            node: 'tei:head',
+            attrs: [
+                {
+                    name: 'type',
+                    selector: 'level',
+                    values: {
+                        '1': 'level-1',
+                        '2': 'level-2',
+                        '3': 'level-3'
+                    }
+                },
+                {
+                    name: 'data-heading-id',
+                    selector: 'heading_id',
+                    value: '${value}'
+                }
+            ]
+        },
+        paragraph: {
+            node: 'tei:p',
+            attrs: [
+                {
+                    name: 'style',
+                    selector: 'no_indent',
+                    values: {
+                        true: 'no-indent'
+                    }
+                },
+                {
+                    name: 'style',
+                    selector: 'text_align',
+                    values: {
+                        left: 'text-left',
+                        center: 'text-center',
+                        right: 'text-right',
+                        justify: 'text-justify'
+                    }
+                }
+            ]
+        },
+        text: {
+            node: 'tei:seg',
+            inline: true,
+            marks: {
+                foreign: {
+                    node: 'tei:foreign'
+                },
+                letter_sparse: {
+                    node: 'tei:hi',
+                    attrs: [
+                        {
+                            name: 'style',
+                            value: 'letter-sparse'
+                        }
+                    ]
+                },
+                sup: {
+                    node: 'tei:hi'
+                },
+                font_size: {
+                    node: 'tei:hi',
+                    attrs: [
+                        {
+                            name: 'style',
+                            selector: 'size',
+                            values: {
+                                small: 'font-size-small',
+                                medium: 'font-size-medium',
+                                large: 'font-size-large'
+                            }
+                        }
+                    ]
+                },
+                font_weight_bold: {
+                    node: 'tei:hi',
+                    attrs: [
+                        {
+                            name: 'style',
+                            value: 'font-weight-bold'
+                        }
+                    ]
+                },
+                pageLineRef: {
+                    node: 'tei:citedRange',
+                    attrs: [
+                        {
+                            name: 'type',
+                            value: 'page-line-ref'
+                        }
+                    ]
+                },
+                wordRange: {
+                    node: 'tei:citedRange',
+                    attrs: [
+                        {
+                            name: 'type',
+                            value: 'word-range'
+                        }
+                    ]
+                },
+                quotation: {
+                    node: 'tei:q'
+                }
+            }
+        }
+    };
 
     window.teiEditorConfig = {
         schema: {
@@ -1937,6 +2071,7 @@
             metadata: metadataSerializer,
             mainText: fullTextSerializer,
             globalAnnotations: recursive_clone(fullTextSerializer),
+            individualAnnotations: individualAnnotationsSerializer
         },
         ui: {
             mainText: fullTextUI,
