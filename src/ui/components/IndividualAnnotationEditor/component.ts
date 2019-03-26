@@ -1,21 +1,35 @@
 import Component from '@glimmer/component';
 import { tracked } from '@glimmer/component';
 
+import deepclone from '../deepclone/helper';
+
 export default class IndividualAnnotationEditor extends Component {
     @tracked bodyText: object = null;
-    @tracked displayedBodyText: object = null;
     @tracked selectedAnnotation: object = null;
+    @tracked selectedId: string = null;
     @tracked annotations: object = null;
+    nextAnnotationId: number = 0;
 
     // Lifecycle events
     public didUpdate() {
         if (this.annotations !== this.args.annotations) {
             this.annotations = this.args.annotations;
             if (this.annotations && this.annotations.length > 0) {
-                this.selectedAnnotation = this.annotations[0];
-                this.bodyText = this.selectedAnnotation;
+                if (this.selectedId) {
+                    for (let idx = 0; idx < this.annotations.length; idx++) {
+                        if (this.annotations[idx].attrs.id === this.selectedId) {
+                            this.bodyText = this.annotations[idx];
+                            break
+                        }
+                    }
+                } else {
+                    this.bodyText = this.annotations[0];
+                    console.log(this.bodyText);
+                    this.selectedId = this.annotations[0].attrs.id;
+                }
             } else {
-                this.selectedAnnotation = null;
+                this.bodyText = null;
+                this.selectedId = null;
             }
         }
     }
@@ -27,11 +41,10 @@ export default class IndividualAnnotationEditor extends Component {
      */
     public selectAnnotation(ev) {
         ev.preventDefault();
+        this.selectedId = ev.target.value;
         for(let idx = 0; idx < this.annotations.length; idx++) {
-            if (this.annotations[idx].attrs.id === ev.target.value) {
-                console.log(this.annotations[idx]);
-                this.selectedAnnotation = this.annotations[idx];
-                this.bodyText = this.selectedAnnotation;
+            if (this.annotations[idx].attrs.id === this.selectedId) {
+                this.bodyText = this.annotations[idx];
                 break;
             }
         }
@@ -43,12 +56,15 @@ export default class IndividualAnnotationEditor extends Component {
     public updateAnnotationText(annotationText) {
         for(let idx = 0; idx < this.annotations.length; idx++) {
             if (this.annotations[idx].attrs.id === annotationText.attrs.id) {
-                this.annotations[idx] = annotationText;
-                if (this.selectedAnnotation.attrs.id !== annotationText.attrs.id) {
+                if (annotationText.attrs.id !== this.selectedId) {
                     let annotations = this.annotations.slice();
+                    annotations[idx] = annotationText;
+                    this.selectedId = annotationText.attrs.id;
                     this.args.update(annotations);
+                    break
+                } else {
+                    this.annotations[idx] = annotationText;
                 }
-                break;
             }
         }
     }
@@ -71,19 +87,12 @@ export default class IndividualAnnotationEditor extends Component {
      * Add a new annotation
      */
     public addAnnotation() {
-        /*let annotations = this.annotations.slice();
-        annotations.push({
-            type: 'doc',
-            attrs: {
-                id: 'new'
-            }
-            content: [
-                {
-                    type: 'paragraph',
-                    content: []
-                }
-            ]
-        });
-        this.args.update(annotations);*/
+        let annotations = this.annotations.slice();
+        let defaultDoc = deepclone([this.args.default]);
+        this.nextAnnotationId++;
+        defaultDoc.attrs.id = 'new' + this.nextAnnotationId;
+        annotations.push(defaultDoc);
+        this.selectedId = 'new' + this.nextAnnotationId;
+        this.args.update(annotations);
     }
 }

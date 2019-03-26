@@ -21,7 +21,7 @@
       <ProsemirrorEditor @schema={{globalAnnotationConfig}} @sidebar={{globalAnnotationSidebarConfig}} @text={{displayedGlobalAnnotationText}} @update={{action updateGlobalAnnotationText}}></ProsemirrorEditor>
     </div>
     <div id="tei-editor-individual-annotations" aria-hidden="true">
-      <IndividualAnnotationEditor @schema={{individualAnnotationsConfig}} @sidebar={{individualAnnotationsSidebarConfig}} @annotations={{individualAnnotations}} @update={{action updateIndividualAnnotations}}></IndividualAnnotationEditor>
+      <IndividualAnnotationEditor @schema={{individualAnnotationsConfig}} @sidebar={{individualAnnotationsSidebarConfig}} @annotations={{individualAnnotations}} @default={{individualAnnotationsDefault}} @update={{action updateIndividualAnnotations}}></IndividualAnnotationEditor>
     </div>
     <div id="tei-editor-metadata" aria-hidden="true">
       <MetadataEditor @config={{metadataConfig}} @metadata={{metadata}} @update={{action updateMetadata}}></MetadataEditor>

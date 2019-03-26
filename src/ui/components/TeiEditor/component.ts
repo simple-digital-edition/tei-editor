@@ -66,6 +66,13 @@ export default class TeiEditor extends Component {
         return window.teiEditorConfig.ui.metadata;
     }
 
+    /**
+     * Returns the default document for individual annotations.
+     */
+    get individualAnnotationsDefault() {
+        return window.teiEditorConfig.default.individualAnnotations;
+    }
+
     // Action handlers
 
     public loadFile(ev) {

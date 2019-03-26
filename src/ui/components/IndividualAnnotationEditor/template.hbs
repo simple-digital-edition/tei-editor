@@ -3,7 +3,7 @@
     <li role="presentation">
       <select role="menuitem" tabindex="0" aria-label="Select the annotation to edit" onchange={{action selectAnnotation}}>
         {{#each annotations key="@index" as |annotation|}}
-          {{#if (eq annotation selectedAnnotation)}}
+          {{#if (eq annotation.attrs.id selectedId)}}
             <option value={{annotation.attrs.id}} selected="selected">{{annotation.attrs.id}}</option>
           {{else}}
             <option value={{annotation.attrs.id}}>{{annotation.attrs.id}}</option>
