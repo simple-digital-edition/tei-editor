@@ -40,7 +40,7 @@ export class TEIParser {
     private parser: object;
     private _body: object;
     private _globalAnnotationText: object;
-    private _individualAnnotations: Array;
+    private _individualAnnotations: object[];
     private _metadata: object;
 
     constructor(data: string, parser: object) {
@@ -421,7 +421,7 @@ export class TEISerializer {
         }
         parts.push('>');
         let lines = [
-            parts.join('');
+            parts.join('')
         ];
         if (block.content) {
             block.content.forEach((child) => {

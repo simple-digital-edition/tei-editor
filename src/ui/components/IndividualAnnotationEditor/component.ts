@@ -7,7 +7,7 @@ export default class IndividualAnnotationEditor extends Component {
     @tracked bodyText: object = null;
     @tracked selectedAnnotation: object = null;
     @tracked selectedId: string = null;
-    @tracked annotations: object = null;
+    @tracked annotations: object[] = null;
     nextAnnotationId: number = 0;
 
     // Lifecycle events
@@ -24,7 +24,6 @@ export default class IndividualAnnotationEditor extends Component {
                     }
                 } else {
                     this.bodyText = this.annotations[0];
-                    console.log(this.bodyText);
                     this.selectedId = this.annotations[0].attrs.id;
                 }
             } else {

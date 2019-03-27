@@ -1,7 +1,12 @@
 import { Step, StepResult } from 'prosemirror-transform';
 
 export default class SetDocAttr extends Step {
-    constructor(key: string, value: any, stepType?: string = 'SetDocAttr') {
+    private stepType: string;
+    private key: string;
+    private value: any;
+    private prevValue: any;
+    
+    constructor(key: string, value: any, stepType: string = 'SetDocAttr') {
         super();
         this.stepType = stepType;
         this.key = key;
