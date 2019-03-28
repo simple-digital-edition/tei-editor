@@ -6,6 +6,7 @@ const commonjs = require('rollup-plugin-commonjs');
 
 module.exports = function(defaults) {
     let app = new GlimmerApp(defaults, {
+        fingerprint: false,
         sassOptions: {
             includePaths: [
                 'node_modules/foundation-sites/scss'
