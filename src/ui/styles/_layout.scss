@@ -3,7 +3,7 @@
  */
 .tei-editor {
     @include xy-grid('vertical');
-    @include xy-grid-frame(true);
+    height: 100%;
 
     > div:nth-child(1) {
         @include xy-cell-base('shrink');
