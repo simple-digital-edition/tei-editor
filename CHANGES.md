@@ -1,12 +1,9 @@
 # Changes
 
-## 0.0.4
+## 0.0.3
 
 * **NEW**: Added action callbacks to handle load/save functionality.
 * **NEW**: Made the load menu item configurable.
-
-## 0.0.3
-
 * **UPDATE**: Remove the undo/redo UI elements.
 
 ## 0.0.2
