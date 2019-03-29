@@ -15,7 +15,31 @@ export default class TeiEditor extends Component {
     @tracked metadata: object = null;
     @tracked individualAnnotations: object = null;
 
+    public constructor(options: object) {
+        super(options);
+        if (window.teiEditorConfig.actions && window.teiEditorConfig.actions.initLoad) {
+            let component = this;
+            window.teiEditorConfig.actions.initLoad().then(function(data) {
+                let parser = new TEIParser(data, window.teiEditorConfig.parser);
+                component.mainText = parser.body;
+                component.displayedMainText = parser.body;
+                component.metadata = parser.metadata;
+                component.globalAnnotationText = parser.globalAnnotationText;
+                component.displayedGlobalAnnotationText = parser.globalAnnotationText;
+                component.individualAnnotations = parser.individualAnnotations;
+                component.loaded = true;
+            });
+        }
+    }
+
     // Computed properties
+
+    /**
+     * Returns the main UI config
+     */
+    get mainUIConfig() {
+        return window.teiEditorConfig.ui.main;
+    }
 
     /**
      * Return the main text schema.
@@ -78,42 +102,59 @@ export default class TeiEditor extends Component {
     public loadFile(ev) {
         ev.preventDefault();
         let component = this;
-        let fileSelector = document.createElement('input');
-        fileSelector.setAttribute('type', 'file');
-        fileSelector.setAttribute('class', 'hidden');
-        document.querySelector('body').appendChild(fileSelector);
-        fileSelector.click();
-        fileSelector.addEventListener('change', function(ev) {
-            let files = (<HTMLInputElement>ev.target).files;
-            if (files.length > 0) {
-                let reader = new FileReader();
-                reader.onload = (ev) => {
-                    let parser = new TEIParser(ev.target.result, window.teiEditorConfig.parser);
-                    component.mainText = parser.body;
-                    component.displayedMainText = parser.body;
-                    component.metadata = parser.metadata;
-                    component.globalAnnotationText = parser.globalAnnotationText;
-                    component.displayedGlobalAnnotationText = parser.globalAnnotationText;
-                    component.individualAnnotations = parser.individualAnnotations;
-                    component.loaded = true;
+        if (window.teiEditorConfig.actions && window.teiEditorConfig.actions.load) {
+            window.teiEditorConfig.actions.load().then(function(data) {
+                let parser = new TEIParser(data, window.teiEditorConfig.parser);
+                component.mainText = parser.body;
+                component.displayedMainText = parser.body;
+                component.metadata = parser.metadata;
+                component.globalAnnotationText = parser.globalAnnotationText;
+                component.displayedGlobalAnnotationText = parser.globalAnnotationText;
+                component.individualAnnotations = parser.individualAnnotations;
+                component.loaded = true;
+            });
+        } else {
+            let fileSelector = document.createElement('input');
+            fileSelector.setAttribute('type', 'file');
+            fileSelector.setAttribute('class', 'hidden');
+            document.querySelector('body').appendChild(fileSelector);
+            fileSelector.click();
+            fileSelector.addEventListener('change', function(ev) {
+                let files = (<HTMLInputElement>ev.target).files;
+                if (files.length > 0) {
+                    let reader = new FileReader();
+                    reader.onload = (ev) => {
+                        let parser = new TEIParser(ev.target.result, window.teiEditorConfig.parser);
+                        component.mainText = parser.body;
+                        component.displayedMainText = parser.body;
+                        component.metadata = parser.metadata;
+                        component.globalAnnotationText = parser.globalAnnotationText;
+                        component.displayedGlobalAnnotationText = parser.globalAnnotationText;
+                        component.individualAnnotations = parser.individualAnnotations;
+                        component.loaded = true;
+                    }
+                    reader.readAsText(files[0]);
                 }
-                reader.readAsText(files[0]);
-            }
-            fileSelector.remove();
-        });
+                fileSelector.remove();
+            });
+        }
     }
 
     public saveFile(ev) {
         ev.preventDefault();
         let serializer = new TEISerializer(window.teiEditorConfig.serializer);
         let content = serializer.serialize(this.metadata, this.mainText, this.globalAnnotationText, this.individualAnnotations);
-        let blob = new Blob([content], {type: 'text/xml;charset=utf-8'});
-        let link = document.createElement('a');
-        link.setAttribute('href', URL.createObjectURL(blob));
-        link.setAttribute('download', 'download.tei');
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+        if (window.teiEditorConfig.actions && window.teiEditorConfig.actions.save) {
+            window.teiEditorConfig.actions.save(content);
+        } else {
+            let blob = new Blob([content], {type: 'text/xml;charset=utf-8'});
+            let link = document.createElement('a');
+            link.setAttribute('href', URL.createObjectURL(blob));
+            link.setAttribute('download', 'download.tei');
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
     }
 
     /**

@@ -2,7 +2,9 @@
   <div>
     <AriaMenu @class="tei-editor-menubar">
       <AriaDropdownMenu @title="File">
-        <AriaMenuAction @action={{action loadFile}}>Load</AriaMenuAction>
+        {{#if (get mainUIConfig 'menu.file.load')}}
+          <AriaMenuAction @action={{action loadFile}}>Load</AriaMenuAction>
+        {{/if}}
         <AriaMenuAction @action={{action saveFile}}>Save</AriaMenuAction>
       </AriaDropdownMenu>
       <AriaMenuAction @current={{boolean-str (eq currentView '#tei-editor-main-text')}} @hidden={{boolean-str (not loaded)}} @action={{action setView '#tei-editor-main-text'}}>Text</AriaMenuAction>
