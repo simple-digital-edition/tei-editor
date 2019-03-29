@@ -1,8 +1,6 @@
 <div class="tei-editor">
   <div>
     <AriaMenu @class="tei-editor-menubar">
-      <AriaMenuAction @tabindex="0" @label="Undo"><MdiIcon @name="Undo"/></AriaMenuAction>
-      <AriaMenuAction @label="Redo"><MdiIcon @name="Redo"/></AriaMenuAction>
       <AriaDropdownMenu @title="File">
         <AriaMenuAction @action={{action loadFile}}>Load</AriaMenuAction>
         <AriaMenuAction @action={{action saveFile}}>Save</AriaMenuAction>
