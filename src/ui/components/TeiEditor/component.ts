@@ -15,8 +15,7 @@ export default class TeiEditor extends Component {
     @tracked metadata: object = null;
     @tracked individualAnnotations: object = null;
 
-    public constructor(options: object) {
-        super(options);
+    public didInsertElement() {
         if (window.teiEditorConfig.actions && window.teiEditorConfig.actions.initLoad) {
             let component = this;
             window.teiEditorConfig.actions.initLoad().then(function(data) {

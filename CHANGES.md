@@ -1,5 +1,9 @@
 # Changes
 
+## 0.0.4
+
+* **UPDATE**: Run the initLoad action when the component is inserted.
+
 ## 0.0.3
 
 * **NEW**: Added action callbacks to handle load/save functionality.
