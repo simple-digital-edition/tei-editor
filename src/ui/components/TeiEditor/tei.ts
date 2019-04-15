@@ -62,6 +62,8 @@ export class TEIParser {
                             target[attrsKey] = attrsValue.values[item];
                         }
                     });
+                } else if (attrsValue.strip_id) {
+                    target[attrsKey] = instanceValue.substring(1);
                 } else {
                     target[attrsKey] = instanceValue;
                 }

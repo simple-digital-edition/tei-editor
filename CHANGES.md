@@ -1,5 +1,9 @@
 # Changes
 
+## 0.0.5
+
+* **UPDATE**: Added option to strip id values
+
 ## 0.0.4
 
 * **UPDATE**: Run the initLoad action when the component is inserted.
