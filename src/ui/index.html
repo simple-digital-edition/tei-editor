@@ -697,6 +697,16 @@
       fill: #cacaca;
     }
 
+    .tei-editor-view-single-text {
+      display: flex;
+      flex-direction: row;
+    }
+    .tei-editor-view-single-text .tei-editor-prosemirror-editor {
+      width: 66.666666%;
+    }
+    .tei-editor-view-single-text .tei-editor-prosemirror-sidebar {
+      width: 33.333333%;
+    }
     .tei-editor-prosemirror-sidebar {
       box-sizing: border-box;
       padding: 1rem;
@@ -721,70 +731,28 @@
       padding: 0.5rem 1rem;
       font-size: 11pt;
     }
-    .tei-editor-prosemirror-editor p.left {
+    .tei-editor-prosemirror-editor div.tei-editor-heading[data-level="1"] {
+        font-size: 16pt;
+        font-weight: bold;
     }
-    .tei-editor-prosemirror-editor p.text-center {
-      text-align: center;
+    .tei-editor-prosemirror-editor div.tei-editor-heading[data-level="2"] {
+        font-size: 14pt;
+        font-weight: bold;
     }
-    .tei-editor-prosemirror-editor p.text-right {
-      text-align: right;
+    .tei-editor-prosemirror-editor div.tei-editor-paragraph, .tei-editor-prosemirror-editor div.tei-editor-verse {
+        margin-top: 1rem;
     }
-    .tei-editor-prosemirror-editor p.text-justify {
-      text-align: justify;
+    .tei-editor-prosemirror-editor div.tei-editor-verse {
+        margin-left: 2rem;
     }
-    .tei-editor-prosemirror-editor span.page-break {
-      font-size: 9pt;
-      font-variant: small-caps;
+    .tei-editor-prosemirror-editor div.tei-editor-paragraph[data-noIndent="true"] {
+        margin-top: 0;
     }
-    .tei-editor-prosemirror-editor span.page-break::before {
-      content: "[";
+    .tei-editor-prosemirror-editor span.tei-editor-fontWeightBold {
+        font-weight: bold;
     }
-    .tei-editor-prosemirror-editor span.page-break::after {
-      content: "]";
-    }
-    .tei-editor-prosemirror-editor span.font-weight-bold {
-      font-weight: 700;
-    }
-    .tei-editor-prosemirror-editor span.font-size-large {
-      font-size: 15pt;
-    }
-    .tei-editor-prosemirror-editor span.font-size-medium {
-      font-size: 13pt;
-    }
-    .tei-editor-prosemirror-editor span.letter-sparse {
-      letter-spacing: 4pt;
-    }
-    .tei-editor-prosemirror-editor span.foreign-language {
-      font-weight: 300;
-      font-style: italic;
-    }
-    .tei-editor-prosemirror-editor span.annotation {
-      text-decoration: underline dotted;
-    }
-    .tei-editor-prosemirror-editor span.page-line-range {
-      font-weight: bold;
-      padding-right: 0.5rem;
-    }
-    .tei-editor-prosemirror-editor span.word-range {
-      text-decoration: underline;
-    }
-    .tei-editor-prosemirror-editor span.quotation {
-      font-style: italic;
-    }
-    .tei-editor-prosemirror-editor h1 {
-      font-size: 15pt;
-      font-weight: 700;
-      text-align: center;
-    }
-    .tei-editor-prosemirror-editor h2 {
-      font-size: 13pt;
-      font-weight: 700;
-      text-align: center;
-    }
-    .tei-editor-prosemirror-editor h3 {
-      font-size: 11pt;
-      font-weight: 700;
-      text-align: center;
+    .tei-editor-prosemirror-editor span.tei-editor-fontStyleItalic {
+        font-style: italic;
     }
 
     #tei-editor-metadata dl dt {
@@ -796,1369 +764,200 @@
     }
     </style>
     <script>
-    function paragraph_attrs_to_class(node) {
-        let classes = [];
-        if(node.attrs.no_indent) {
-            classes.push('no-indent')
-        }
-        if(node.attrs.text_align === 'center') {
-            classes.push('text-center')
-        } else if(node.attrs.text_align === 'right') {
-            classes.push('text-right')
-        } else if(node.attrs.text_align === 'justify') {
-            classes.push('text-justify')
-        }
-        if(classes.length > 0) {
-            return classes.join(' ')
-        } else {
-            return null
-        }
-    }
-
-    function paragraph_class_to_attrs(dom) {
-        let attrs = {
-            no_indent: false,
-            text_align: 'left'
-        }
-        if(dom.class) {
-            if(dom.class.indexOf('no-indent') >= 0) {
-                attrs.no_indent = true
-            }
-            if(dom.class.indexOf('text-center') >= 0) {
-                attrs.text_align = 'center'
-            } else if(dom.class.indexOf('text-right') >= 0) {
-                attrs.text_align = 'right'
-            } else if(dom.class.indexOf('text-justify') >= 0) {
-                attrs.text_align = 'justify'
-            }
-        }
-        return attrs
-    }
-
-    function mark_font_size_attr(dom) {
-        let attrs = {
-            size: ''
-        }
-        return attrs
-    }
-
-    /**
-     * Recursively clone the object.
-     */
-    function recursive_clone(obj) {
-        if (obj === undefined) {
-            return undefined;
-        } else if (obj === null) {
-            return null;
-        } else if (Array.isArray(obj)) {
-            return obj.slice();
-        } else if (typeof(obj) === 'object') {
-            let clone = {};
-            Object.keys(obj).forEach(function(key) {
-                clone[key] = recursive_clone(obj[key]);
-            });
-            return clone;
-        } else {
-            return obj;
-        }
-    }
-
-
-    // Schema for the full text
-    var fullTextSchema = {
-        nodes: {
-            doc: {
-                content: 'block+'
-            },
-            paragraph: {
-                group: 'block',
-                content: 'inline*',
-                attrs: {
-                    no_indent: {
-                        default: false
-                    },
-                    text_align: {
-                        default: 'left'
-                    }
-                },
-                toDOM(node) {return ['p', {class: paragraph_attrs_to_class(node)}, 0]},
-                parseDOM: [{tag: 'p', paragraph_class_to_attrs}]
-            },
-            heading: {
-                group: 'block',
-                content: 'inline*',
-                attrs: {
-                    heading_id: {
-                        default: null
-                    },
-                    level: {
-                        default: 1
-                    }
-                },
-                defining: true,
-                toDOM(node) {return ['h' + node.attrs.level, 0]},
-                parseDOM: [
-                    {tag: 'h1', attrs: {level: '1'}},
-                    {tag: 'h2', attrs: {level: '2'}}
-                ]
-            },
-            text: {
-                group: 'inline',
-                inline: true
-            }
-        },
-        marks: {
-            foreign: {
-                toDOM() {return ['span', {class: 'foreign-language'}, 0]},
-                parseDOM: [{tag: 'span.foreign-language'}]
-            },
-            letter_sparse: {
-                toDOM() {return ['span', {class: 'letter-sparse'}, 0]},
-                parseDOM: [{tag: 'span.letter-sparse'}]
-            },
-            sup: {
-                toDOM() {return ['sup', 0]},
-                parseDOM: [{tag: 'sup'}]
-            },
-            font_size: {
-                attrs: {
-                    size: {
-                        default: ''
-                    }
-                },
-                toDOM(mark) {return ['span', {class: 'font-size-' + mark.attrs.size}]},
-                parseDOM: [{tag: 'span.font-size', mark_font_size_attr}]
-            },
-            page_break: {
-                toDOM() {return ['span', {class: 'page-break'}, 0]},
-                parseDOM: [{tag: 'span.page-break'}]
-            },
-            font_weight_bold: {
-                toDOM() {return ['span', {class: 'font-weight-bold'}, 0]},
-                parseDOM: [{tag: 'span.font-weight-bold'}]
-            },
-            annotation: {
-                attrs: {
-                    target: {
-                        default: ''
-                    }
-                },
-                toDOM() {return ['span', {class: 'annotation'}, 0]},
-                parseDOM: [{tag: 'span.annotation'}]
-            }
-        }
-    };
-
-    // Schema for the individual annotations
-    var individualAnnotationSchema = {
-        nodes: {
-            doc: {
-                content: 'block+',
-                attrs: {
-                    id: {
-                        default: ''
-                    }
-                }
-            },
-            paragraph: {
-                group: 'block',
-                content: 'inline*',
-                attrs: {
-                    no_indent: {
-                        default: false
-                    },
-                    text_align: {
-                        default: 'left'
-                    }
-                },
-                toDOM(node) {return ['p', {class: paragraph_attrs_to_class(node)}, 0]},
-                parseDOM: [{tag: 'p', paragraph_class_to_attrs}]
-            },
-            text: {
-                group: 'inline',
-                inline: true
-            }
-        },
-        marks: {
-            foreign: {
-                toDOM() {return ['span', {class: 'foreign-language'}, 0]},
-                parseDOM: [{tag: 'span.foreign-language'}]
-            },
-            letter_sparse: {
-                toDOM() {return ['span', {class: 'letter-sparse'}, 0]},
-                parseDOM: [{tag: 'span.letter-sparse'}]
-            },
-            sup: {
-                toDOM() {return ['sup', 0]},
-                parseDOM: [{tag: 'sup'}]
-            },
-            font_size: {
-                attrs: {
-                    size: {
-                        default: ''
-                    }
-                },
-                toDOM(mark) {return ['span', {class: 'font-size-' + mark.attrs.size}]},
-                parseDOM: [{tag: 'span.font-size', mark_font_size_attr}]
-            },
-            page_break: {
-                toDOM() {return ['span', {class: 'page-break'}, 0]},
-                parseDOM: [{tag: 'span.page-break'}]
-            },
-            font_weight_bold: {
-                toDOM() {return ['span', {class: 'font-weight-bold'}, 0]},
-                parseDOM: [{tag: 'span.font-weight-bold'}]
-            },
-            pageLineRef: {
-                toDOM() {return ['span', {class: 'page-line-range'}, 0]},
-                parseDOM: [{tag: 'span.page-line-range'}]
-            },
-            wordRange: {
-                toDOM() {return ['span', {class: 'word-range'}, 0]},
-                parseDOM: [{tag: 'span.word-range'}]
-            },
-            quotation: {
-                toDOM() {return ['span', {class: 'quotation'}, 0]},
-                parseDOM: [{tag: 'span.quotation'}]
-            }
-        }
-    };
-
-    // Parser for full text
-    var fullTextParser = {
-        selector: '/tei:TEI/tei:text/tei:body/tei:*',
-        blocks: {
-            paragraph: {
-                selector: 'tei:p',
-                attrs: {
-                    no_indent: {
-                        selector: '@style',
-                        values: {
-                            'no-indent': true
-                        }
-                    },
-                    text_align: {
-                        selector: '@style',
-                        values: {
-                            'text-left': 'left',
-                            'text-center': 'center',
-                            'text-right': 'right',
-                            'text-justify': 'justify'
-                        }
-                    }
-                }
-            },
-            heading: {
-                selector: 'tei:head',
-                attrs: {
-                    level: {
-                        selector: '@type',
-                        values: {
-                            'level-1': '1',
-                            'level-2': '2',
-                            'level-3': '3'
-                        }
-                    },
-                    heading_id: {
-                        selector: '@data-heading-id'
-                    }
-                }
-            }
-        },
-        inline: {
-            text: [
-                {
-                    selector: 'tei:seg',
-                    text: 'text()'
-                },
-                {
-                    selector: 'tei:hi',
-                    text: 'text()',
-                    marks: {
-                        font_size: {
-                            selector: '@style',
-                            values: ['font-size-small', 'font-size-medium', 'font-size-large'],
+    window.teiEditorConfig = {
+        sections: {
+            mainText: {
+                title: 'Main Text',
+                type: 'single-text',
+                selector: 'tei:text/tei:body',
+                schema: {
+                    nodes: {
+                        doc: {
+                            content: 'block+',
+                            parser: {
+                                selector: 'tei:body'
+                            }
+                        },
+                        paragraph: {
+                            group: 'block',
+                            content: 'inline*',
+                            parser: {
+                                selector: 'tei:p'
+                            },
                             attrs: {
-                                size: {
-                                    selector: '@style',
-                                    values: {
-                                        'font-size-small': 'small',
-                                        'font-size-medium': 'medium',
-                                        'font-size-large': 'large'
+                                noIndent: {
+                                    default: false,
+                                    parser: {
+                                        selector: "contains(@class, 'no-indent')",
+                                        type: 'boolean'
                                     }
                                 }
                             }
                         },
-                        font_weight_bold: {
-                            selector: '@style',
-                            values: ['font-weight-bold']
-                        },
-                        letter_sparse: {
-                            selector: '@style',
-                            values: ['letter-sparse']
-                        },
-                        sup: {
-                            selector: '@style',
-                            values: ['sup']
-                        }
-                    }
-                },
-                {
-                    selector: 'tei:ref',
-                    text: 'text()',
-                    marks: {
-                        annotation: {
-                            selector: '@target',
+                        heading: {
+                            group: 'block',
+                            content: 'inline*',
+                            parser: {
+                                selector: 'tei:head'
+                            },
                             attrs: {
-                                target: {
-                                    selector: '@target',
-                                }
-                            }
-                        }
-                    }
-                },
-                {
-                    selector: 'tei:foreign',
-                    text: 'text()',
-                    marks: {
-                        foreign: true
-                    }
-                },
-                {
-                    selector: 'tei:pb',
-                    text: '@n',
-                    marks: {
-                        page_break: true
-                    }
-                }
-            ]
-        }
-    };
-
-    var individualAnnotationsParser = {
-        selector: '/tei:TEI/tei:text/tei:interpGrp[@type="individual"]/tei:interp',
-        blockSelector: 'tei:*',
-        blocks: {
-            paragraph: {
-                selector: 'tei:p',
-                attrs: {
-                    no_indent: {
-                        selector: '@style',
-                        values: {
-                            'no-indent': true
-                        }
-                    },
-                    text_align: {
-                        selector: '@style',
-                        values: {
-                            'text-left': 'left',
-                            'text-center': 'center',
-                            'text-right': 'right',
-                            'text-justify': 'justify'
-                        }
-                    }
-                }
-            }
-        },
-        inline: {
-            text: [
-                {
-                    selector: 'tei:seg',
-                    text: 'text()'
-                },
-                {
-                    selector: 'tei:hi',
-                    text: 'text()',
-                    marks: {
-                        font_size: {
-                            selector: '@style',
-                            values: ['font-size-small', 'font-size-medium', 'font-size-large'],
-                            attrs: {
-                                size: {
-                                    selector: '@style',
-                                    values: {
-                                        'font-size-small': 'small',
-                                        'font-size-medium': 'medium',
-                                        'font-size-large': 'large'
+                                level: {
+                                    default: 1,
+                                    parser: {
+                                        selector: '@level'
                                     }
                                 }
                             }
                         },
-                        font_weight_bold: {
-                            selector: '@style',
-                            values: ['font-weight-bold']
-                        },
-                        letter_sparse: {
-                            selector: '@style',
-                            values: ['letter-sparse']
-                        },
-                        sup: {
-                            selector: '@style',
-                            values: ['sup']
-                        }
-                    }
-                },
-                {
-                    selector: 'tei:foreign',
-                    text: 'text()',
-                    marks: {
-                        foreign: true
-                    }
-                },
-                {
-                    selector: 'tei:pb',
-                    text: '@n',
-                    marks: {
-                        page_break: true
-                    }
-                },
-                {
-                    selector: 'tei:citedRange[@type="page-line-ref"]',
-                    text: 'text()',
-                    marks: {
-                        pageLineRef: true
-                    }
-                },
-                {
-                    selector: 'tei:citedRange[@type="word-range"]',
-                    text: 'text()',
-                    marks: {
-                        wordRange: true
-                    }
-                },
-                {
-                    selector: 'tei:q',
-                    text: 'text()',
-                    marks: {
-                        quotation: true
-                    }
-                }
-            ]
-        }
-    };
-
-    // UI configuration for full text
-    var fullTextUI = {
-        sidebar: [
-            {
-                title: 'Block Type',
-                test: 'block',
-                entries: [
-                    {
-                        type: 'select',
-                        value_key: 'block.type.name',
-                        action: 'setBlockType',
-                        values: [
-                            {
-                                key: 'paragraph',
-                                value: 'Paragraph'
-                            },
-                            {
-                                key: 'heading',
-                                value: 'Heading'
+                        verse: {
+                            group: 'block',
+                            content: 'line*',
+                            parser: {
+                                selector: 'tei:lg'
                             }
-                        ]
-                    }
-                ]
-            },
-            {
-                title: 'Heading',
-                test: {
-                    key: 'block.type.name',
-                    value: 'heading'
-                },
-                entries: [
-                    {
-                        type: 'select',
-                        value_key: 'block.attrs.level',
-                        action: 'setBlockAttribute',
-                        attribute: 'level',
-                        values: [
-                            {
-                                key: '1',
-                                value: 'Level 1'
-                            },
-                            {
-                                key: '2',
-                                value: 'Level 2'
-                            },
-                            {
-                                key: '3',
-                                value: 'Level 3'
+                        },
+                        line: {
+                            group: 'block',
+                            content: 'inline*',
+                            parser: {
+                                selector: 'tei:l'
                             }
-                        ]
-                    }
-                ]
-            },
-            {
-                title: 'Heading Menu ID',
-                test: {
-                    key: 'block.type.name',
-                    value: 'heading'
-                },
-                entries: [
-                    {
-                        type: 'text',
-                        value_key: 'block.attrs.heading_id',
-                        action: 'setBlockAttribute',
-                        attribute: 'heading_id'
-                    }
-                ]
-            },
-            {
-                title: 'Paragraph',
-                test: {
-                    key: 'block.type.name',
-                    value: 'paragraph'
-                },
-                entries: [
-                    {
-                        type: 'button',
-                        value_key: 'block.attrs.text_align',
-                        label: 'Left align',
-                        icon: 'FormatAlignLeft',
-                        action: 'setBlockAttribute',
-                        attribute: 'text_align',
-                        value: 'left'
-                    },
-                    {
-                        type: 'button',
-                        value_key: 'block.attrs.text_align',
-                        label: 'Center align',
-                        icon: 'FormatAlignCenter',
-                        action: 'setBlockAttribute',
-                        attribute: 'text_align',
-                        value: 'center'
-                    },
-                    {
-                        type: 'button',
-                        value_key: 'block.attrs.text_align',
-                        label: 'Right align',
-                        icon: 'FormatAlignRight',
-                        action: 'setBlockAttribute',
-                        attribute: 'text_align',
-                        value: 'right'
-                    },
-                    {
-                        type: 'button',
-                        value_key: 'block.attrs.text_align',
-                        label: 'Align justify',
-                        icon: 'FormatAlignJustify',
-                        action: 'setBlockAttribute',
-                        attribute: 'text_align',
-                        value: 'justify'
-                    },
-                    {
-                        type: 'button',
-                        value_key: 'block.attrs.no_indent',
-                        label: 'Do not indent the paragraph',
-                        icon: 'FormatHorizontalAlignLeft',
-                        action: 'toggleBlockAttribute',
-                        attribute: 'no_indent',
-                        value: true
-                    }
-                ]
-            },
-            {
-                title: 'Styling',
-                test: 'marks',
-                entries: [
-                    {
-                        type: 'select',
-                        value_key: 'marks.font_size.attrs.size',
-                        action: 'setMarkAttribute',
-                        attribute: 'font_size.size',
-                        values: [
-                            {
-                                key: '',
-                                value: 'Default Size'
-                            },
-                            {
-                                key: 'small',
-                                value: 'Small Font'
-                            },
-                            {
-                                key: 'medium',
-                                value: 'Medium Font'
-                            },
-                            {
-                                key: 'large',
-                                value: 'Large Font'
-                            },
-                        ]
-                    },
-                    {
-                        type: 'button',
-                        value_key: 'marks.letter_sparse',
-                        label: 'Sparse Lettering',
-                        icon: 'MapMarkerDistance',
-                        action: 'toggleMark',
-                        attribute: 'letter_sparse',
-                        value: 'toggle'
-                    },
-                    {
-                        type: 'button',
-                        value_key: 'marks.font_weight_bold',
-                        label: 'Bold Font',
-                        icon: 'FormatBold',
-                        action: 'toggleMark',
-                        attribute: 'font_weight_bold',
-                        value: 'toggle'
-                    }
-                ]
-            },
-            {
-                title: 'Markup',
-                test: 'marks',
-                entries: [
-                    {
-                        type: 'button',
-                        value_key: 'marks.page_break',
-                        label: 'Page Break',
-                        icon: 'FormatPageBreak',
-                        action: 'toggleMark',
-                        attribute: 'page_break',
-                        value: 'toggle'
-                    },
-                    {
-                        type: 'button',
-                        value_key: 'marks.foreign',
-                        label: 'Foreign Language',
-                        icon: 'Translate',
-                        action: 'toggleMark',
-                        attribute: 'foreign',
-                        value: 'toggle'
-                    },
-                    {
-                        type: 'button',
-                        value_key: 'marks.annotation',
-                        label: 'Annotation',
-                        icon: 'MessageBulleted',
-                        action: 'toggleMark',
-                        attribute: 'annotation',
-                        value: 'toggle'
-                    }
-                ]
-            },
-            {
-                title: 'Annotations',
-                test: 'marks.annotation',
-                entries: [
-                    {
-                        type: 'select-annotation',
-                        value_key: 'marks.annotation.attrs.target',
-                        action: 'setMarkAttribute',
-                        attribute: 'annotation.target',
-                    }
-                ]
-            }
-        ]
-    };
-
-    // Individual annoation UI configuration
-    var individualAnnotationsUI = {
-        sidebar: [
-            {
-                title: 'Identifier',
-                test: 'blocks.doc',
-                entries: [
-                    {
-                        type: 'text',
-                        value_key: 'blocks.doc.attrs.id',
-                        action: 'setDocAttribute',
-                        attribute: 'id'
-                    }
-                ]
-            },
-            {
-                title: 'Paragraph',
-                test: {
-                    key: 'block.type.name',
-                    value: 'paragraph'
-                },
-                entries: [
-                    {
-                        type: 'button',
-                        value_key: 'block.attrs.text_align',
-                        label: 'Left align',
-                        icon: 'FormatAlignLeft',
-                        action: 'setBlockAttribute',
-                        attribute: 'text_align',
-                        value: 'left'
-                    },
-                    {
-                        type: 'button',
-                        value_key: 'block.attrs.text_align',
-                        label: 'Center align',
-                        icon: 'FormatAlignCenter',
-                        action: 'setBlockAttribute',
-                        attribute: 'text_align',
-                        value: 'center'
-                    },
-                    {
-                        type: 'button',
-                        value_key: 'block.attrs.text_align',
-                        label: 'Right align',
-                        icon: 'FormatAlignRight',
-                        action: 'setBlockAttribute',
-                        attribute: 'text_align',
-                        value: 'right'
-                    },
-                    {
-                        type: 'button',
-                        value_key: 'block.attrs.text_align',
-                        label: 'Align justify',
-                        icon: 'FormatAlignJustify',
-                        action: 'setBlockAttribute',
-                        attribute: 'text_align',
-                        value: 'justify'
-                    }
-                ]
-            },
-            {
-                title: 'Styling',
-                test: 'marks',
-                entries: [
-                    {
-                        type: 'select',
-                        value_key: 'marks.font_size.attrs.size',
-                        action: 'setMarkAttribute',
-                        attribute: 'font_size.size',
-                        values: [
-                            {
-                                key: '',
-                                value: 'Default Size'
-                            },
-                            {
-                                key: 'small',
-                                value: 'Small Font'
-                            },
-                            {
-                                key: 'medium',
-                                value: 'Medium Font'
-                            },
-                            {
-                                key: 'large',
-                                value: 'Large Font'
-                            },
-                        ]
-                    },
-                    {
-                        type: 'button',
-                        value_key: 'marks.letter_sparse',
-                        label: 'Sparse Lettering',
-                        icon: 'MapMarkerDistance',
-                        action: 'toggleMark',
-                        attribute: 'letter_sparse',
-                        value: 'toggle'
-                    },
-                    {
-                        type: 'button',
-                        value_key: 'marks.font_weight_bold',
-                        label: 'Bold Font',
-                        icon: 'FormatBold',
-                        action: 'toggleMark',
-                        attribute: 'font_weight_bold',
-                        value: 'toggle'
-                    }
-                ]
-            },
-            {
-                title: 'Markup',
-                test: 'marks',
-                entries: [
-                    {
-                        type: 'button',
-                        value_key: 'marks.pageLineRef',
-                        label: 'Annotation page and line range',
-                        icon: 'PagePreviousOutline',
-                        action: 'toggleMark',
-                        attribute: 'pageLineRef',
-                        value: 'toggle'
-                    },
-                    {
-                        type: 'button',
-                        value_key: 'marks.wordRange',
-                        label: 'Annotation word range',
-                        icon: 'FileWordBox',
-                        action: 'toggleMark',
-                        attribute: 'wordRange',
-                        value: 'toggle'
-                    },
-                    {
-                        type: 'button',
-                        value_key: 'marks.quotation',
-                        label: 'Quotation from the text',
-                        icon: 'FormatQuoteClose',
-                        action: 'toggleMark',
-                        attribute: 'quotation',
-                        value: 'toggle'
-                    },
-                    {
-                        type: 'button',
-                        value_key: 'marks.foreign',
-                        label: 'Foreign Language',
-                        icon: 'Translate',
-                        action: 'toggleMark',
-                        attribute: 'foreign',
-                        value: 'toggle'
-                    }
-                ]
-            }
-        ]
-    };
-
-    // UI configuration for the metadata view
-    var metadataUI = [
-        {
-            title: 'Bibliography',
-            entries: [
-                {
-                    type: 'single-text',
-                    label: 'Title',
-                    value_key: 'fileDesc.titleStmt.title._text'
-                },
-                {
-                    type: 'single-text',
-                    label: 'Author',
-                    value_key: 'fileDesc.titleStmt.author._text'
-                },
-                {
-                    type: 'single-text',
-                    label: 'Source',
-                    value_key: 'sourceDesc.bibl._text'
-                },
-                {
-                    type: 'single-text',
-                    label: 'Publication Date (machine-readable)',
-                    value_key: 'profileDesc.creation.date._attrs.when'
-                },
-                {
-                    type: 'single-text',
-                    label: 'Publication Date (human-readable)',
-                    value_key: 'profileDesc.creation.date._text'
-                }
-            ]
-        },
-        {
-            title: 'Digital Version',
-            entries: [
-                {
-                    type: 'single-text',
-                    label: 'Distributor',
-                    value_key: 'fileDesc.publicationStmt.distributor._text'
-                },
-                {
-                    type: 'single-text',
-                    label: 'Taxonomy Identifier',
-                    value_key: 'encodingDesc.classDecl.taxonomy._attrs.xml:id'
-                },
-                {
-                    type: 'single-text',
-                    label: 'Taxonomy Label',
-                    value_key: 'encodingDesc.classDecl.taxonomy.bibl._text'
-                },
-                {
-                    type: 'single-text',
-                    label: 'Categorisation',
-                    value_key: 'profileDesc.textClass.catRef._attrs.target'
-                }
-            ]
-        },
-        {
-            title: 'Responsibilities',
-            entries: [
-                {
-                    type: 'multi-field',
-                    value_key: 'fileDesc.titleStmt.respStmt',
-                    entries: [
-                        {
-                            type: 'single-text',
-                            label: 'Identifier',
-                            value_key: '_attrs.xml:id'
                         },
-                        {
-                            type: 'single-text',
-                            label: 'Responsible for',
-                            value_key: 'resp._text'
-                        },
-                        {
-                            type: 'single-text',
-                            label: 'Name',
-                            value_key: 'name._text'
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            title: 'Revisions',
-            entries: [
-                {
-                    type: 'multi-field',
-                    value_key: 'revisionDesc.change',
-                    entries: [
-                        {
-                            type: 'single-text',
-                            label: 'Change',
-                            value_key: '_text'
-                        },
-                        {
-                            type: 'single-text',
-                            label: 'Who',
-                            value_key: '_attrs.who'
-                        },
-                        {
-                            type: 'single-text',
-                            label: 'When',
-                            value_key: '_attrs.when'
-                        }
-                    ]
-                }
-            ]
-        }
-    ];
-
-    // Serializer for the metadata block
-    var metadataSerializer = {
-        node: 'tei:teiHeader',
-        type: 'container',
-        children: [
-            {
-                node: 'tei:fileDesc',
-                children: [
-                    {
-                        node: 'tei:titleStmt',
-                        children: [
-                            {
-                                node: 'tei:title',
-                                text: 'fileDesc.titleStmt.title._text'
-                            },
-                            {
-                                node: 'tei:author',
-                                text: 'fileDesc.titleStmt.author._text'
-                            },
-                            {
-                                node: 'tei:respStmt',
-                                multiple: 'fileDesc.titleStmt.respStmt',
-                                attrs: {
-                                    'xml:id': '_attrs.xml:id'
+                        text: {
+                            group: 'inline',
+                            inline: true,
+                            parsers: [
+                                {
+                                    selector: 'tei:seg',
+                                    text: 'text()'
                                 },
-                                children: [
+                                {
+                                    selector: 'tei:hi',
+                                    text: 'text()'
+                                }
+                            ]
+                        }
+                    },
+                    marks: {
+                        fontWeightBold: {
+                            selector: "contains(@style, 'bold')",
+                        },
+                        fontStyleItalic: {
+                            selector: "contains(@style, 'italic')"
+                        }
+                    }
+                },
+                ui: [
+                    {
+                        title: 'Block Type',
+                        type: 'block-type'
+                    },
+                    {
+                        title: 'Heading',
+                        type: 'toolbar',
+                        context: 'blocks.heading',
+                        entries: [
+                            {
+                                type: 'select-attr',
+                                attr: 'level',
+                                values: [
                                     {
-                                        node: 'tei:resp',
-                                        text: 'resp._text'
+                                        key: '1',
+                                        value: 'Level 1'
                                     },
                                     {
-                                        node: 'tei:name',
-                                        text: 'name._text'
+                                        key: '2',
+                                        value: 'Level 2'
                                     }
                                 ]
                             }
                         ]
                     },
                     {
-                        node: 'tei:publicationStmt',
-                        children: [
+                        title: 'Paragraph',
+                        type: 'toolbar',
+                        context: 'blocks.paragraph',
+                        entries: [
                             {
-                                node: 'tei:distributor',
-                                text: 'fileDesc.publicationStmt.distributor._text'
-                            }
-                        ]
-                    }
-                ]
-            },
-            {
-                node: 'tei:encodingDesc',
-                children: [
-                    {
-                        node: 'tei:classDecl',
-                        children: [
-                            {
-                                node: 'tei:taxonomy',
-                                attrs: {
-                                    'xml:id': 'encodingDesc.classDecl.taxonomy._attrs.xml:id'
-                                },
-                                children: [
-                                    {
-                                        node: 'tei:bibl',
-                                        text: 'encodingDesc.classDecl.taxonomy.bibl._text'
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                ]
-            },
-            {
-                node: 'tei:sourceDesc',
-                children: [
-                    {
-                        node: 'tei:bibl',
-                        text: 'sourceDesc.bibl._text'
-                    }
-                ]
-            },
-            {
-                node: 'tei:profileDesc',
-                children: [
-                    {
-                        node: 'tei:creation',
-                        children: [
-                            {
-                                node: 'tei:date',
-                                attrs: {
-                                    when: 'profileDesc.creation.date._attrs.when'
-                                },
-                                text: 'profileDesc.creation.date._text'
+                                type: 'toggle-attr',
+                                attr: 'noIndent',
+                                label: "Don't Indent",
+                                icon: {
+                                    on: '<svg viewBox="0 0 24 24" class="mdi-icon"><path d="M11,13H21V11H11M11,9H21V7H11M3,3V5H21V3M11,17H21V15H11M3,8V16L7,12M3,21H21V19H3V21Z" /></svg>',
+                                    off: '<svg viewBox="0 0 24 24" class="mdi-icon"><path d="M11,13H21V11H11M11,9H21V7H11M3,3V5H21V3M3,21H21V19H3M3,12L7,16V8M11,17H21V15H11V17Z" /></svg>'
+                                }
                             }
                         ]
                     },
                     {
-                        node: 'tei:textClass',
-                        children: [
+                        title: 'Styling',
+                        type: 'toolbar',
+                        context: 'marks',
+                        entries: [
                             {
-                                node: 'tei:catRef',
-                                attrs: {
-                                    target: 'profileDesc.textClass.catRef._attrs.target'
-                                },
-                            }
-                        ]
-                    }
-                ]
-            },
-            {
-                node: 'tei:revisionDesc',
-                children: [
-                    {
-                        node: 'tei:change',
-                        multiple: 'revisionDesc.change',
-                        attrs: {
-                            when: '_attrs.when',
-                            who: '_attrs.who'
-                        },
-                        text: '_text'
-                    }
-                ]
-            }
-        ]
-    }
-
-    // Serialize for the main text block
-    var fullTextSerializer = {
-        doc: {
-            node: 'tei:body'
-        },
-        heading: {
-            node: 'tei:head',
-            attrs: [
-                {
-                    name: 'type',
-                    selector: 'level',
-                    values: {
-                        '1': 'level-1',
-                        '2': 'level-2',
-                        '3': 'level-3'
-                    }
-                },
-                {
-                    name: 'data-heading-id',
-                    selector: 'heading_id',
-                    value: '${value}'
-                }
-            ]
-        },
-        paragraph: {
-            node: 'tei:p',
-            attrs: [
-                {
-                    name: 'style',
-                    selector: 'no_indent',
-                    values: {
-                        true: 'no-indent'
-                    }
-                },
-                {
-                    name: 'style',
-                    selector: 'text_align',
-                    values: {
-                        left: 'text-left',
-                        center: 'text-center',
-                        right: 'text-right',
-                        justify: 'text-justify'
-                    }
-                }
-            ]
-        },
-        text: {
-            node: 'tei:seg',
-            inline: true,
-            marks: {
-                foreign: {
-                    node: 'tei:foreign'
-                },
-                letter_sparse: {
-                    node: 'tei:hi',
-                    attrs: [
-                        {
-                            name: 'style',
-                            value: 'letter-sparse'
-                        }
-                    ]
-                },
-                sup: {
-                    node: 'tei:hi'
-                },
-                font_size: {
-                    node: 'tei:hi',
-                    attrs: [
-                        {
-                            name: 'style',
-                            selector: 'size',
-                            values: {
-                                small: 'font-size-small',
-                                medium: 'font-size-medium',
-                                large: 'font-size-large'
-                            }
-                        }
-                    ]
-                },
-                page_break: {
-                    node: 'tei:pb',
-                    attrs: [
-                        {
-                            name: 'n',
-                            selector: 'text()'
-                        }
-                    ],
-                    text: null
-                },
-                font_weight_bold: {
-                    node: 'tei:hi',
-                    attrs: [
-                        {
-                            name: 'style',
-                            value: 'font-weight-bold'
-                        }
-                    ]
-                },
-                annotation: {
-                    node: 'tei:ref',
-                    attrs: [
-                        {
-                            name: 'target',
-                            selector: 'target',
-                            value: '${value}'
-                        }
-                    ]
-                }
-            }
-        }
-    }
-
-    // Serialize for the main text block
-    var individualAnnotationsSerializer = {
-        '_collection': {
-            node: 'tei:interpGrp',
-            attrs: [
-                {
-                    name: 'type',
-                    value: 'individual'
-                }
-            ]
-        },
-        doc: {
-            node: 'tei:interp',
-            attrs: [
-                {
-                    name: 'xml:id',
-                    selector: 'id',
-                    value: '${value}'
-                }
-            ]
-        },
-        heading: {
-            node: 'tei:head',
-            attrs: [
-                {
-                    name: 'type',
-                    selector: 'level',
-                    values: {
-                        '1': 'level-1',
-                        '2': 'level-2',
-                        '3': 'level-3'
-                    }
-                },
-                {
-                    name: 'data-heading-id',
-                    selector: 'heading_id',
-                    value: '${value}'
-                }
-            ]
-        },
-        paragraph: {
-            node: 'tei:p',
-            attrs: [
-                {
-                    name: 'style',
-                    selector: 'no_indent',
-                    values: {
-                        true: 'no-indent'
-                    }
-                },
-                {
-                    name: 'style',
-                    selector: 'text_align',
-                    values: {
-                        left: 'text-left',
-                        center: 'text-center',
-                        right: 'text-right',
-                        justify: 'text-justify'
-                    }
-                }
-            ]
-        },
-        text: {
-            node: 'tei:seg',
-            inline: true,
-            marks: {
-                foreign: {
-                    node: 'tei:foreign'
-                },
-                letter_sparse: {
-                    node: 'tei:hi',
-                    attrs: [
-                        {
-                            name: 'style',
-                            value: 'letter-sparse'
-                        }
-                    ]
-                },
-                sup: {
-                    node: 'tei:hi'
-                },
-                font_size: {
-                    node: 'tei:hi',
-                    attrs: [
-                        {
-                            name: 'style',
-                            selector: 'size',
-                            values: {
-                                small: 'font-size-small',
-                                medium: 'font-size-medium',
-                                large: 'font-size-large'
-                            }
-                        }
-                    ]
-                },
-                font_weight_bold: {
-                    node: 'tei:hi',
-                    attrs: [
-                        {
-                            name: 'style',
-                            value: 'font-weight-bold'
-                        }
-                    ]
-                },
-                pageLineRef: {
-                    node: 'tei:citedRange',
-                    attrs: [
-                        {
-                            name: 'type',
-                            value: 'page-line-ref'
-                        }
-                    ]
-                },
-                wordRange: {
-                    node: 'tei:citedRange',
-                    attrs: [
-                        {
-                            name: 'type',
-                            value: 'word-range'
-                        }
-                    ]
-                },
-                quotation: {
-                    node: 'tei:q'
-                }
-            }
-        }
-    };
-
-    window.teiEditorConfig = {
-        schema: {
-            mainText: fullTextSchema,
-            globalAnnotations: fullTextSchema,
-            individualAnnotations: individualAnnotationSchema
-        },
-        parser: {
-            mainText: fullTextParser,
-            globalAnnotations: recursive_clone(fullTextParser),
-            individualAnnotations: individualAnnotationsParser
-        },
-        serializer: {
-            metadata: metadataSerializer,
-            mainText: fullTextSerializer,
-            globalAnnotations: recursive_clone(fullTextSerializer),
-            individualAnnotations: individualAnnotationsSerializer
-        },
-        ui: {
-            mainText: fullTextUI,
-            globalAnnotations: fullTextUI,
-            individualAnnotations: individualAnnotationsUI,
-            metadata: metadataUI
-        },
-        default: {
-            individualAnnotations: {
-                type: 'doc',
-                attrs: {
-                    id: ''
-                },
-                content: [
-                    {
-                        type: 'paragraph',
-                        content: [
-                            {
-                                type: 'text',
-                                marks: [
-                                    {
-                                        type: 'pageLineRef'
-                                    }
-                                ],
-                                text: 'Page & Line'
+                                type: 'toggle-mark',
+                                mark: 'fontWeightBold',
+                                label: 'Bold Font',
+                                icon: '<svg viewBox="0 0 24 24" class="mdi-icon"><path d="M13.5,15.5H10V12.5H13.5A1.5,1.5 0 0,1 15,14A1.5,1.5 0 0,1 13.5,15.5M10,6.5H13A1.5,1.5 0 0,1 14.5,8A1.5,1.5 0 0,1 13,9.5H10M15.6,10.79C16.57,10.11 17.25,9 17.25,8C17.25,5.74 15.5,4 13.25,4H7V18H14.04C16.14,18 17.75,16.3 17.75,14.21C17.75,12.69 16.89,11.39 15.6,10.79Z" /></svg>'
                             },
                             {
-                                type: 'text',
-                                marks: [
-                                    {
-                                        type: 'wordRange'
-                                    }
-                                ],
-                                text: 'Word Range'
+                                type: 'toggle-mark',
+                                mark: 'fontStyleItalic',
+                                label: 'Italic Font',
+                                icon: '<svg viewBox="0 0 24 24" class="mdi-icon"><path d="M10,4V7H12.21L8.79,15H6V18H14V15H11.79L15.21,7H18V4H10Z" /></svg>'
                             }
                         ]
                     },
                     {
-                        type: 'paragraph',
-                        content: [
-                            {
-                                type: 'text',
-                                text: 'Type your annotation here'
-                            }
-                        ]
+                        title: 'Annotations',
+                        type: 'toolbar'
                     }
                 ]
             }
+        },
+        actions: {
+            initLoad: function() {
+                var promise = new Promise(function(resolve, reject) {
+                    var doc = [
+                        '<?xml version="1.0" encoding="UTF-8"?>',
+                        '<tei:TEI xmlns:tei="http://www.tei-c.org/ns/1.0">',
+                        '<tei:text>',
+                        '<tei:body>',
+                        '<tei:head>',
+                        '<tei:seg>TEI Editor Test</tei:seg>',
+                        '</tei:head>',
+                        '<tei:p class="no-indent">',
+                        '<tei:seg>This text is not indented.</tei:seg>',
+                        '</tei:p>',
+                        '<tei:p>',
+                        '<tei:seg>This is </tei:seg>',
+                        '<tei:hi style="bold">important</tei:hi>',
+                        '<tei:hi style="bold italic"> text</tei:hi>',
+                        '</tei:p>',
+                        '<tei:p>',
+                        '<tei:seg>This text has </tei:seg>',
+                        '<tei:hi style="bold">',
+                        '<tei:hi style="italic">nested tags.</tei:hi>',
+                        '</tei:hi>',
+                        '</tei:p>',
+                        '<tei:lg>',
+                        '<tei:l>',
+                        '<tei:seg>This is a</tei:seg>',
+                        '</tei:l>',
+                        '<tei:l>',
+                        '<tei:seg>poem.</tei:seg>',
+                        '</tei:l>',
+                        '</tei:lg>',
+                        '</tei:body>',
+                        '</tei:text>',
+                        '</tei:TEI>'
+                    ];
+                    resolve(doc.join(''));
+                });
+                return promise;
+            }
         }
-    };
-    window.teiEditorConfig.parser.globalAnnotations.selector = '/tei:TEI/tei:text/tei:interpGrp[@type="global"]/tei:*';
-    window.teiEditorConfig.serializer.globalAnnotations.doc.node = 'tei:interpGrp';
-    window.teiEditorConfig.serializer.globalAnnotations.doc.attrs = [
-        {
-            name: 'type',
-            value: 'global'
-        }
-    ];
+    }
     </script>
   </head>
   <body>

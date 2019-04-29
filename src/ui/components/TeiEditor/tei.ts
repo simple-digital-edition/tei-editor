@@ -32,9 +32,127 @@ class XPathEvaluator {
     stringValue(node, xpath) {
         return this.evaluate(node, xpath, XPathResult.STRING_TYPE).stringValue;
     }
+
+    booleanValue(node, xpath) {
+        return this.evaluate(node, xpath, XPathResult.BOOLEAN_TYPE).booleanValue;
+    }
+
+    numberValue(node, xpath) {
+        return this.evaluate(node, xpath, XPathResult.NUMBER_TYPE).numberValue;
+    }
 }
 
 export class TEIParser {
+    private dom: XMLDocument;
+    private xpath: XPathEvaluator;
+    private sections: object;
+    private parsed: object;
+
+    constructor(data: string, sections: object) {
+        let domParser = new DOMParser();
+        this.dom = domParser.parseFromString(data, 'application/xml');
+        this.xpath = new XPathEvaluator(this.dom);
+        this.sections = sections;
+        this.parsed = {};
+    }
+
+    public get(section: string) {
+        if (this.parsed[section] === undefined) {
+            if (this.sections[section].type === 'single-text') {
+                this.parsed[section] = this.parseSingleText(this.sections[section]);
+            }
+        }
+        return this.parsed[section];
+    }
+
+    private parseSingleText(section: object) {
+        let node = this.xpath.firstNode(this.dom.documentElement, section.selector);
+        return this.parseContentNode(node, section);
+    }
+
+    private parseContentAttributes(node, attrs: object) {
+        let result = {};
+        Object.entries(attrs).forEach((entry) => {
+            let key = entry[0];
+            let schema = entry[1];
+            if (schema.parser.type === 'boolean') {
+                result[key] = this.xpath.booleanValue(node, schema.parser.selector);
+            } else if (schema.parser.type === 'number') {
+                if (this.xpath.firstNode(node, schema.parser.selector) !== null) {
+                    result[key] = this.xpath.numberValue(node, schema.parser.selector);
+                }
+            } else {
+                if (this.xpath.firstNode(node, schema.parser.selector) !== null) {
+                    result[key] = this.xpath.stringValue(node, schema.parser.selector);
+                }
+            }
+        });
+        return result;
+    }
+
+    private parseContentMarks(node, marks: object) {
+        let result = [];
+        Object.entries(marks).forEach((entry) => {
+            let key = entry[0];
+            let schema = entry[1];
+            if (this.xpath.booleanValue(node, schema.selector)) {
+                let mark = {
+                    type: key
+                };
+                result.push(mark);
+            }
+        });
+        return result;
+    }
+
+    private parseContentNode(node, section: object) {
+        let entries = Object.entries(section.schema.nodes);
+        for (let idx = 0; idx < entries.length; idx++) {
+            let key = entries[idx][0];
+            let nodeSchema = entries[idx][1];
+            let parsers = [];
+            if (nodeSchema.parser) {
+                parsers.push(nodeSchema.parser);
+            } else if (nodeSchema.parsers) {
+                parsers = parsers.concat(nodeSchema.parsers);
+            }
+            for (let idx2 = 0; idx2 < parsers.length; idx2++) {
+                let parser = parsers[idx2];
+                if (this.xpath.firstNode(node, 'self::' + parser.selector) !== null) {
+                    let result = {
+                        type: key
+                    };
+                    if (nodeSchema.attrs) {
+                        result.attrs = this.parseContentAttributes(node, nodeSchema.attrs);
+                    }
+                    if (nodeSchema.inline) {
+                        result.text = this.xpath.stringValue(node, parser.text);
+                        result.marks = this.parseContentMarks(node, section.schema.marks);
+                        if (node.children.length === 1) {
+                            let temp = this.parseContentNode(node.children[0], section);
+                            if (temp.text && temp.text !== '') {
+                                result.text = temp.text;
+                            }
+                            result.marks = result.marks.concat(temp.marks);
+                        }
+                    } else {
+                        let content = [];
+                        for (let idx3 = 0; idx3 < node.children.length; idx3++) {
+                            let child = this.parseContentNode(node.children[idx3], section);
+                            if (child) {
+                                content.push(child);
+                            }
+                        }
+                        result.content = content;
+                    }
+                    return result;
+                }
+            }
+        }
+    }
+}
+
+/*export class TEIParser {
     private dom: XMLDocument;
     private xpath: XPathEvaluator;
     private parser: object;
@@ -160,11 +278,6 @@ export class TEIParser {
                 }
             }
         }
-        /*inlines.forEach(function(item) {
-            if(!item.text) {
-                console.log(inlines);
-            }
-        });*/
         return inlines;
     }
 
@@ -236,10 +349,10 @@ export class TEIParser {
         return this._individualAnnotations;
     }
 
-    /**
+    / **
      * Builds a forest of trees for the given elements. The forest is an object representation of the XML tree,
      * but without any ordering information.
-     */
+     * /
     private buildForest(elements) {
         let element = elements.iterateNext();
         let forest = {};
@@ -272,7 +385,7 @@ export class TEIParser {
         return this._metadata;
     }
 }
-
+*/
 export class TEISerializer {
     private serializer: object = null;
 

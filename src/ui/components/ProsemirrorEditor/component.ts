@@ -10,6 +10,7 @@ import {Transform} from 'prosemirror-transform';
 import {EditorView} from 'prosemirror-view';
 
 import SetDocAttr from './set-doc-attr';
+import deepclone from '../deepclone/helper';
 
 /**
  * Adds an item into an array, treating the array as a set. If the item to add is already contained in the array,
@@ -91,7 +92,8 @@ export default class ProsemirrorEditor extends Component implements HasGuid {
      * Upon insertion of the component, initialise the Prosemirror instance.
      */
     didInsertElement() {
-        this.schema = new Schema(this.args.schema);
+        this.makeSchema();
+        this.sourceText = this.args.text;
         let state = EditorState.create({
             schema: this.schema,
             doc: null,
@@ -119,7 +121,7 @@ export default class ProsemirrorEditor extends Component implements HasGuid {
      * Upon updating of the text in the arguments, load the text into the editor.
      */
     didUpdate() {
-        if (this.args.text !== this.sourceText) {
+        if (this.args.text && this.args.text !== this.sourceText) {
             this.sourceText = this.args.text;
             let state = EditorState.create({
                 schema: this.schema,
@@ -174,7 +176,10 @@ export default class ProsemirrorEditor extends Component implements HasGuid {
             status.marks[mark.type.name] = mark;
         });
         this.status = status;
-        this.args.update(state.doc.toJSON());
+        console.log(status);
+        if (this.args.update) {
+            this.args.update(state.doc.toJSON());
+        }
     }
 
     /**
@@ -216,5 +221,46 @@ export default class ProsemirrorEditor extends Component implements HasGuid {
         } else if (action === 'toggleMark') {
             toggleMark(this.schema.marks[attribute])(this.editorView.state, this.editorView.dispatch);
         }
+    }
+
+    // Helper functionality
+
+    private makeSchema() {
+        // Convert node attributes to DOM attributes
+        function attrsNodeToDom(key, node) {
+            let attrs = {class: 'tei-editor-' + key};
+            if (node.attrs) {
+                Object.entries(node.attrs).forEach((entry) {
+                    attrs['data-' + entry[0]] = entry[1];
+                });
+            }
+            return attrs;
+        }
+        // Convert DOM attributes to node attributes
+        function attrsDomToNode(dom) {
+            console.log(dom);
+        }
+
+        let schema = deepclone([this.args.schema]);
+        Object.entries(schema.nodes).forEach((entry) => {
+            let key = entry[0];
+            let node = entry[1];
+            if (key !== 'doc' && key !== 'text') {
+                if (node.inline) {
+                    node.toDOM = function(node) { return ['span', attrsNodeToDom(key, node), 0]};
+                    node.parseDOM = [{tag: 'span.tei-editor-' + key, getAttrs: attrsDomToNode}];
+                } else {
+                    node.toDOM = function(node) { return ['div', attrsNodeToDom(key, node), 0]};
+                    node.parseDOM = [{tag: 'div.tei-editor-' + key, getAttrs: attrsDomToNode}];
+                }
+            }
+        });
+        Object.entries(schema.marks).forEach((entry) => {
+            let key = entry[0];
+            let mark = entry[1];
+            mark.toDOM = function(node) { return ['span', attrsNodeToDom(key, node), 0]};
+            mark.parseDOM = [{tag: 'span.tei-editor-' + key, getAttrs: attrsDomToNode}];
+        });
+        this.schema = new Schema(schema);
     }
 }

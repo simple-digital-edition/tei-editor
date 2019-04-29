@@ -1,7 +1,7 @@
 <div class="tei-editor">
   <div>
     <AriaMenu @class="tei-editor-menubar">
-      <AriaDropdownMenu @title="File">
+      <!--<AriaDropdownMenu @title="File">
         {{#if (get mainUIConfig 'menu.file.load')}}
           <AriaMenuAction @action={{action loadFile}}>Load</AriaMenuAction>
         {{/if}}
@@ -10,11 +10,21 @@
       <AriaMenuAction @current={{boolean-str (eq currentView '#tei-editor-main-text')}} @hidden={{boolean-str (not loaded)}} @action={{action setView '#tei-editor-main-text'}}>Text</AriaMenuAction>
       <AriaMenuAction @current={{boolean-str (eq currentView '#tei-editor-global-annotations')}} @hidden={{boolean-str (not loaded)}} @action={{action setView '#tei-editor-global-annotations'}}>Global Annotations</AriaMenuAction>
       <AriaMenuAction @current={{boolean-str (eq currentView '#tei-editor-individual-annotations')}} @hidden={{boolean-str (not loaded)}} @action={{action setView '#tei-editor-individual-annotations'}}>Individual Annotations</AriaMenuAction>
-      <AriaMenuAction @current={{boolean-str (eq currentView '#tei-editor-metadata')}} @hidden={{boolean-str (not loaded)}} @action={{action setView '#tei-editor-metadata'}}>Metadata</AriaMenuAction>
+      <AriaMenuAction @current={{boolean-str (eq currentView '#tei-editor-metadata')}} @hidden={{boolean-str (not loaded)}} @action={{action setView '#tei-editor-metadata'}}>Metadata</AriaMenuAction>-->
+      {{#each sections key="@index" as |value key|}}
+        <AriaMenuAction @current={{boolean-str (eq currentView key)}} @hidden={{boolean-str (not loaded)}} @action={{action setView key}}>{{value.title}}</AriaMenuAction>
+      {{/each}}
     </AriaMenu>
   </div>
   <div aria-hidden={{boolean-str (not loaded)}}>
-    <div id="tei-editor-main-text" aria-hidden="false">
+    {{#each sections key="@index" as |value key|}}
+      <div id="#{{key}}" class="tei-editor-view-{{get (get sections key) 'type'}}" aria-hidden={{boolean-str (not (eq currentView key))}}>
+        {{#if (eq (get (get sections key) 'type') 'single-text')}}
+          <ProsemirrorEditor @schema={{get (get sections key) 'schema'}} @ui={{get (get sections key) 'ui'}} @text={{get data key}}></ProsemirrorEditor>
+        {{/if}}
+      </div>
+    {{/each}}
+    <!--<div id="tei-editor-main-text" aria-hidden="false">
       <ProsemirrorEditor @schema={{mainTextEditorConfig}} @sidebar={{mainTextSidebarConfig}} @text={{displayedMainText}} @annotations={{individualAnnotations}} @update={{action updateMainText}}></ProsemirrorEditor>
     </div>
     <div id="tei-editor-global-annotations" aria-hidden="true">
@@ -25,6 +35,6 @@
     </div>
     <div id="tei-editor-metadata" aria-hidden="true">
       <MetadataEditor @config={{metadataConfig}} @metadata={{metadata}} @update={{action updateMetadata}}></MetadataEditor>
-    </div>
+    </div>-->
   </div>
 </div>

@@ -4,9 +4,10 @@ import { ensureGuid, HasGuid } from '@glimmer/util';
 
 import { TEIParser, TEISerializer } from './tei';
 
+import deepclone from '../deepclone/helper';
+
 export default class TeiEditor extends Component {
     //schema: Schema = null;
-    @tracked currentView: string = '#tei-editor-main-text';
     @tracked loaded: boolean = false;
     @tracked mainText: object = null;
     @tracked displayedMainText: object = null;
@@ -15,17 +16,26 @@ export default class TeiEditor extends Component {
     @tracked metadata: object = null;
     @tracked individualAnnotations: object = null;
 
+    @tracked sections: object = null;
+    @tracked data: object = null;
+    @tracked currentView: string = '';
+
+    constructor(options) {
+        super(options);
+        this.sections = deepclone([window.teiEditorConfig.sections]);
+        this.currentView = Object.keys(this.sections)[0];
+    }
+
     public didInsertElement() {
         if (window.teiEditorConfig.actions && window.teiEditorConfig.actions.initLoad) {
             let component = this;
             window.teiEditorConfig.actions.initLoad().then(function(data) {
-                let parser = new TEIParser(data, window.teiEditorConfig.parser);
-                component.mainText = parser.body;
-                component.displayedMainText = parser.body;
-                component.metadata = parser.metadata;
-                component.globalAnnotationText = parser.globalAnnotationText;
-                component.displayedGlobalAnnotationText = parser.globalAnnotationText;
-                component.individualAnnotations = parser.individualAnnotations;
+                let parser = new TEIParser(data, window.teiEditorConfig.sections);
+                data = {};
+                Object.keys(window.teiEditorConfig.sections).forEach((key) => {
+                    data[key] = parser.get(key);
+                });
+                component.data = data;
                 component.loaded = true;
             });
         }
@@ -161,9 +171,7 @@ export default class TeiEditor extends Component {
      */
     public setView(view, ev) {
         ev.preventDefault();
-        document.querySelector(this.currentView).setAttribute('aria-hidden', 'true');
         this.currentView = view;
-        document.querySelector(this.currentView).setAttribute('aria-hidden', 'false');
     }
 
     public updateMainText(mainText) {

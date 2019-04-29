@@ -1,12 +1,65 @@
-<div>
   <div class="tei-editor-prosemirror-editor">
     <div id={{prosemirrorId}}></div>
   </div>
-</div>
-<div>
   <div class="tei-editor-prosemirror-sidebar">
     <dl>
-      {{#each @sidebar key="@index" as |section|}}
+      {{#each @ui key="@index" as |section|}}
+        {{#if (status-display-entry status section.context)}}
+          <dt>{{section.title}}</dt>
+          <dd>
+            {{#if (eq section.type 'toolbar')}}
+              <AriaMenu @label={{section.title}}>
+                {{#each section.entries key="@index" as |entry|}}
+                  {{#if (eq entry.type 'select-attr')}}
+                    <li class="input" role="presentation">
+                      <select role="menuitem" onchange={{action menuAction 'setBlockAttribute' entry.attr 'ev.target.value'}}>
+                        {{#each entry.values key="@index" as |value|}}
+                          <option value={{value.key}} selected={{eq (get (get (get status section.context) 'attrs') entry.attr) value.key}}>{{value.value}}</option>
+                        {{/each}}
+                      </select>
+                    </li>
+                  {{/if}}
+                  {{#if (eq entry.type 'toggle-attr')}}
+                    <AriaMenuAction @tabindex={{aria-menu-item-tabindex index}} @label={{entry.label}} @current={{boolean-str (get (get (get status section.context) 'attrs') entry.attr)}} @action={{action menuAction 'toggleBlockAttribute' entry.attr}}>
+                      {{#if entry.icon}}
+                        {{#if (and entry.icon.on entry.icon.off)}}
+                          {{#if (get (get (get status section.context) 'attrs') entry.attr)}}
+                            {{{entry.icon.on}}}
+                          {{else}}
+                            {{{entry.icon.off}}}
+                          {{/if}}
+                        {{else}}
+                          {{{entry.icon}}}
+                        {{/if}}
+                      {{else}}
+                        {{entry.label}}
+                      {{/if}}
+                    </AriaMenuAction>
+                  {{/if}}
+                  {{#if (eq entry.type 'toggle-mark')}}
+                    <AriaMenuAction @tabindex={{aria-menu-item-tabindex index}} @label={{entry.label}} @current={{boolean-str (get (get status section.context) entry.mark)}} @action={{action menuAction 'toggleMark' entry.mark}}>
+                      {{#if entry.icon}}
+                        {{#if (and entry.icon.on entry.icon.off)}}
+                          {{#if (get (get (get status section.context) 'attrs') entry.attr)}}
+                            {{{entry.icon.on}}}
+                          {{else}}
+                            {{{entry.icon.off}}}
+                          {{/if}}
+                        {{else}}
+                          {{{entry.icon}}}
+                        {{/if}}
+                      {{else}}
+                        {{entry.label}}
+                      {{/if}}
+                    </AriaMenuAction>
+                  {{/if}}
+                {{/each}}
+              </AriaMenu>
+            {{/if}}
+          </dd>
+        {{/if}}
+      {{/each}}
+<!--      {{#each @ui key="@index" as |section|}}
         {{#if (status-display-entry status section.test)}}
           <dt>{{section.title}}</dt>
           <dd>
@@ -45,7 +98,6 @@
             </AriaMenu>
           </dd>
         {{/if}}
-      {{/each}}
+      {{/each}}-->
     </dl>
   </div>
-</div>
