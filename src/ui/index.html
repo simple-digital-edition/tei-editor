@@ -745,6 +745,9 @@
     .tei-editor-prosemirror-editor div.tei-editor-verse {
         margin-left: 2rem;
     }
+    .tei-editor-prosemirror-editor span.tei-editor-annotation {
+        text-decoration: dotted underline;
+    }
     .tei-editor-prosemirror-editor div.tei-editor-paragraph[data-noIndent="true"] {
         margin-top: 0;
     }
@@ -836,6 +839,23 @@
                                     text: 'text()'
                                 }
                             ]
+                        },
+                        annotation: {
+                            group: 'inline',
+                            inline: true,
+                            content: 'text*',
+                            parser: {
+                                selector: 'tei:ref',
+                                text: 'text()'
+                            },
+                            attrs: {
+                                target: {
+                                    default: 'unknown',
+                                    parser: {
+                                        selector: '@target'
+                                    }
+                                }
+                            }
                         }
                     },
                     marks: {
@@ -910,7 +930,14 @@
                     },
                     {
                         title: 'Annotations',
-                        type: 'toolbar'
+                        type: 'toolbar',
+                        context: 'blocks.annotation',
+                        entries: [
+                            {
+                                type: 'text-attr',
+                                attr: 'target'
+                            }
+                        ]
                     }
                 ]
             }
@@ -927,12 +954,16 @@
                         '<tei:seg>TEI Editor Test</tei:seg>',
                         '</tei:head>',
                         '<tei:p class="no-indent">',
-                        '<tei:seg>This text is not indented.</tei:seg>',
+                        '<tei:seg>This text is </tei:seg>',
+                        '<tei:ref target="#note-1">not</tei:ref>',
+                        '<tei:seg> indented.</tei:seg>',
                         '</tei:p>',
                         '<tei:p>',
                         '<tei:seg>This is </tei:seg>',
+                        '<tei:ref target="#note-2">',
                         '<tei:hi style="bold">important</tei:hi>',
                         '<tei:hi style="bold italic"> text</tei:hi>',
+                        '</tei:ref>',
                         '</tei:p>',
                         '<tei:p>',
                         '<tei:seg>This text has </tei:seg>',

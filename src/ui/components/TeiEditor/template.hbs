@@ -6,11 +6,7 @@
           <AriaMenuAction @action={{action loadFile}}>Load</AriaMenuAction>
         {{/if}}
         <AriaMenuAction @action={{action saveFile}}>Save</AriaMenuAction>
-      </AriaDropdownMenu>
-      <AriaMenuAction @current={{boolean-str (eq currentView '#tei-editor-main-text')}} @hidden={{boolean-str (not loaded)}} @action={{action setView '#tei-editor-main-text'}}>Text</AriaMenuAction>
-      <AriaMenuAction @current={{boolean-str (eq currentView '#tei-editor-global-annotations')}} @hidden={{boolean-str (not loaded)}} @action={{action setView '#tei-editor-global-annotations'}}>Global Annotations</AriaMenuAction>
-      <AriaMenuAction @current={{boolean-str (eq currentView '#tei-editor-individual-annotations')}} @hidden={{boolean-str (not loaded)}} @action={{action setView '#tei-editor-individual-annotations'}}>Individual Annotations</AriaMenuAction>
-      <AriaMenuAction @current={{boolean-str (eq currentView '#tei-editor-metadata')}} @hidden={{boolean-str (not loaded)}} @action={{action setView '#tei-editor-metadata'}}>Metadata</AriaMenuAction>-->
+      </AriaDropdownMenu>-->
       {{#each sections key="@index" as |value key|}}
         <AriaMenuAction @current={{boolean-str (eq currentView key)}} @hidden={{boolean-str (not loaded)}} @action={{action setView key}}>{{value.title}}</AriaMenuAction>
       {{/each}}
@@ -24,17 +20,5 @@
         {{/if}}
       </div>
     {{/each}}
-    <!--<div id="tei-editor-main-text" aria-hidden="false">
-      <ProsemirrorEditor @schema={{mainTextEditorConfig}} @sidebar={{mainTextSidebarConfig}} @text={{displayedMainText}} @annotations={{individualAnnotations}} @update={{action updateMainText}}></ProsemirrorEditor>
-    </div>
-    <div id="tei-editor-global-annotations" aria-hidden="true">
-      <ProsemirrorEditor @schema={{globalAnnotationConfig}} @sidebar={{globalAnnotationSidebarConfig}} @text={{displayedGlobalAnnotationText}} @update={{action updateGlobalAnnotationText}}></ProsemirrorEditor>
-    </div>
-    <div id="tei-editor-individual-annotations" aria-hidden="true">
-      <IndividualAnnotationEditor @schema={{individualAnnotationsConfig}} @sidebar={{individualAnnotationsSidebarConfig}} @annotations={{individualAnnotations}} @default={{individualAnnotationsDefault}} @update={{action updateIndividualAnnotations}}></IndividualAnnotationEditor>
-    </div>
-    <div id="tei-editor-metadata" aria-hidden="true">
-      <MetadataEditor @config={{metadataConfig}} @metadata={{metadata}} @update={{action updateMetadata}}></MetadataEditor>
-    </div>-->
   </div>
 </div>

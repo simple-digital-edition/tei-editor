@@ -69,14 +69,14 @@ function getMarks(state) {
  * Gets a list of nodes from the current selection.
  */
 function getBlockHierarchy(state) {
-    let selection = state.selection
-    let blocks = []
+    let selection = state.selection;
+    let blocks = [];
     for(let idx = 0; idx < selection.$anchor.path.length; idx++) {
         if(typeof(selection.$anchor.path[idx]) === 'object') {
             blocks.push(selection.$anchor.path[idx]);
         }
     }
-    return blocks
+    return blocks;
 }
 
 export default class ProsemirrorEditor extends Component implements HasGuid {
@@ -162,7 +162,7 @@ export default class ProsemirrorEditor extends Component implements HasGuid {
         // Determine most specific active block
         let blocks = getBlockHierarchy(state);
         blocks.forEach((node) => {
-            if (node.type.isBlock) {
+            if (!node.type.isText) {
                 if (status.blocks === null) {
                     status.blocks = {};
                 }
@@ -176,7 +176,7 @@ export default class ProsemirrorEditor extends Component implements HasGuid {
             status.marks[mark.type.name] = mark;
         });
         this.status = status;
-        console.log(status);
+        //console.log(status);
         if (this.args.update) {
             this.args.update(state.doc.toJSON());
         }
@@ -197,15 +197,29 @@ export default class ProsemirrorEditor extends Component implements HasGuid {
         } else if (action === 'setBlockType') {
             setBlockType(this.schema.nodes[value], {})(this.editorView.state, this.editorView.dispatch)
         } else if (action === 'setBlockAttribute') {
-            let {$from} = this.editorView.state.selection;
-            let attrs = Object.assign({}, $from.parent.attrs);
-            attrs[attribute] = value;
-            setBlockType(this.schema.nodes[$from.parent.type.name], attrs)(this.editorView.state, this.editorView.dispatch)
+            let {$anchor} = this.editorView.state.selection;
+            let transaction = this.editorView.state.tr;
+            for (let depth = $anchor.depth; depth >= 0; depth--) {
+                let node = $anchor.node(depth);
+                if (node.type.attrs[attribute] !== undefined) {
+                    let attrs = Object.assign({}, node.attrs);
+                    attrs[attribute] = value;
+                    transaction.setNodeMarkup($anchor.start(depth) - 1, null, attrs);
+                }
+            }
+            this.editorView.dispatch(transaction);
         } else if (action === 'toggleBlockAttribute') {
-            let {$from} = this.editorView.state.selection;
-            let attrs = Object.assign({}, $from.parent.attrs);
-            attrs[attribute] = !attrs[attribute];
-            setBlockType(this.schema.nodes[$from.parent.type.name], attrs)(this.editorView.state, this.editorView.dispatch);
+            let {$anchor} = this.editorView.state.selection;
+            let transaction = this.editorView.state.tr;
+            for (let depth = $anchor.depth; depth >= 0; depth--) {
+                let node = $anchor.node(depth);
+                if (node.type.attrs[attribute] !== undefined) {
+                    let attrs = Object.assign({}, node.attrs);
+                    attrs[attribute] = !attrs[attribute];
+                    transaction.setNodeMarkup($anchor.start(depth) - 1, null, attrs);
+                }
+            }
+            this.editorView.dispatch(transaction);
         } else if (action === 'setMarkAttribute') {
             attribute = attribute.split('.');
             let marks = getMarks(this.editorView.state);

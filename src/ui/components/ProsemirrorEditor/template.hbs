@@ -53,6 +53,11 @@
                       {{/if}}
                     </AriaMenuAction>
                   {{/if}}
+                  {{#if (eq entry.type 'text-attr')}}
+                    <li class="input" role="presentation">
+                      <input type={{entry.dataType}} value={{get (get (get status section.context) 'attrs') entry.attr}} onchange={{action menuAction 'setBlockAttribute' entry.attr 'ev.target.value'}}/>
+                    </li>
+                  {{/if}}
                 {{/each}}
               </AriaMenu>
             {{/if}}

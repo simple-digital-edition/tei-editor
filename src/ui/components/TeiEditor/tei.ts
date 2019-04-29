@@ -126,14 +126,35 @@ export class TEIParser {
                         result.attrs = this.parseContentAttributes(node, nodeSchema.attrs);
                     }
                     if (nodeSchema.inline) {
-                        result.text = this.xpath.stringValue(node, parser.text);
-                        result.marks = this.parseContentMarks(node, section.schema.marks);
-                        if (node.children.length === 1) {
-                            let temp = this.parseContentNode(node.children[0], section);
-                            if (temp.text && temp.text !== '') {
-                                result.text = temp.text;
+                        if (key === 'text') {
+                            result.text = this.xpath.stringValue(node, parser.text);
+                            result.marks = this.parseContentMarks(node, section.schema.marks);
+                            if (node.children.length === 1) {
+                                let temp = this.parseContentNode(node.children[0], section);
+                                if (temp.text && temp.text !== '') {
+                                    result.text = temp.text;
+                                }
+                                result.marks = result.marks.concat(temp.marks);
                             }
-                            result.marks = result.marks.concat(temp.marks);
+                        } else {
+                            if (node.children.length === 0) {
+                                result.content = [
+                                    {
+                                        type: 'text',
+                                        text: this.xpath.stringValue(node, parser.text),
+                                        marks: this.parseContentMarks(node, section.schema.marks)
+                                    }
+                                ]
+                            } else {
+                                let content = [];
+                                for (let idx3 = 0; idx3 < node.children.length; idx3++) {
+                                    let child = this.parseContentNode(node.children[idx3], section);
+                                    if (child) {
+                                        content.push(child);
+                                    }
+                                }
+                                result.content = content;
+                            }
                         }
                     } else {
                         let content = [];
