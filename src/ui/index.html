@@ -739,10 +739,10 @@
         font-size: 14pt;
         font-weight: bold;
     }
-    .tei-editor-prosemirror-editor div.tei-editor-paragraph, .tei-editor-prosemirror-editor div.tei-editor-verse {
+    .tei-editor-prosemirror-editor div.tei-editor-paragraph, .tei-editor-prosemirror-editor div.tei-editor-lineGroup {
         margin-top: 1rem;
     }
-    .tei-editor-prosemirror-editor div.tei-editor-verse {
+    .tei-editor-prosemirror-editor div.tei-editor-lineGroup {
         margin-left: 2rem;
     }
     .tei-editor-prosemirror-editor span.tei-editor-annotation {
@@ -812,7 +812,7 @@
                                 }
                             }
                         },
-                        verse: {
+                        lineGroup: {
                             group: 'block',
                             content: 'line*',
                             parser: {
@@ -870,7 +870,30 @@
                 ui: [
                     {
                         title: 'Block Type',
-                        type: 'block-type'
+                        type: 'block-type',
+                        blocks: [
+                            {
+                                type: 'heading',
+                                label: 'Heading'
+                            },
+                            {
+                                type: 'paragraph',
+                                label: 'Paragraph'
+                            },
+                            {
+                                type: 'lineGroup',
+                                label: 'Line Group',
+                                wrapping: true
+                            },
+                            {
+                                type: 'line',
+                                label: 'Line'
+                            },
+                            {
+                                type: 'annotation',
+                                label: 'Annotation'
+                            }
+                        ]
                     },
                     {
                         title: 'Heading',

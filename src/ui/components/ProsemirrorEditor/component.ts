@@ -6,7 +6,7 @@ import {undo, redo, history} from 'prosemirror-history';
 import {keymap} from 'prosemirror-keymap';
 import {Schema} from 'prosemirror-model';
 import {EditorState} from 'prosemirror-state';
-import {Transform} from 'prosemirror-transform';
+import {Transform, findWrapping, liftTarget} from 'prosemirror-transform';
 import {EditorView} from 'prosemirror-view';
 
 import SetDocAttr from './set-doc-attr';
@@ -71,9 +71,9 @@ function getMarks(state) {
 function getBlockHierarchy(state) {
     let selection = state.selection;
     let blocks = [];
-    for(let idx = 0; idx < selection.$anchor.path.length; idx++) {
-        if(typeof(selection.$anchor.path[idx]) === 'object') {
-            blocks.push(selection.$anchor.path[idx]);
+    for(let idx = 0; idx < selection.$from.path.length; idx++) {
+        if(typeof(selection.$from.path[idx]) === 'object') {
+            blocks.push(selection.$from.path[idx]);
         }
     }
     return blocks;
@@ -195,28 +195,54 @@ export default class ProsemirrorEditor extends Component implements HasGuid {
             transaction.step(new SetDocAttr(attribute, value));
             this.editorView.dispatch(transaction);
         } else if (action === 'setBlockType') {
-            setBlockType(this.schema.nodes[value], {})(this.editorView.state, this.editorView.dispatch)
+            if (this.schema.nodes[value].isBlock) {
+                if (attribute.wrapping) {
+                    let range = this.editorView.state.selection.$from.blockRange(this.editorView.state.selection.$to);
+                    if (this.status.blocks[value]) {
+                        this.editorView.dispatch(this.editorView.state.tr.lift(range, liftTarget(range)));
+                    } else {
+                        let wrapping = findWrapping(range, this.schema.nodes[value]);
+                        if (wrapping) {
+                            this.editorView.dispatch(this.editorView.state.tr.wrap(range, wrapping));
+                        }
+                    }
+                } else {
+                    setBlockType(this.schema.nodes[value], {})(this.editorView.state, this.editorView.dispatch)
+                }
+            } else {
+                let type = this.schema.nodes[value];
+                let {$from, $to} = this.editorView.state.selection;
+                if (this.status.blocks[value]) {
+                    let slice = $from.parent.slice($from.parentOffset, $to.parentOffset);
+                    this.editorView.dispatch(this.editorView.state.tr.replaceRange($from.pos - 1, $to.pos, slice));
+                } else {
+                    if ($from.parent.canReplaceWith($from.index(), $to.index(), type)) {
+                        let slice = $from.parent.slice($from.parentOffset, $to.parentOffset);
+                        this.editorView.dispatch(this.editorView.state.tr.replaceSelectionWith(type.create({}, slice.content)));
+                    }
+                }
+            }
         } else if (action === 'setBlockAttribute') {
-            let {$anchor} = this.editorView.state.selection;
+            let {$from} = this.editorView.state.selection;
             let transaction = this.editorView.state.tr;
-            for (let depth = $anchor.depth; depth >= 0; depth--) {
-                let node = $anchor.node(depth);
+            for (let depth = $from.depth; depth >= 0; depth--) {
+                let node = $from.node(depth);
                 if (node.type.attrs[attribute] !== undefined) {
                     let attrs = Object.assign({}, node.attrs);
                     attrs[attribute] = value;
-                    transaction.setNodeMarkup($anchor.start(depth) - 1, null, attrs);
+                    transaction.setNodeMarkup($from.start(depth) - 1, null, attrs);
                 }
             }
             this.editorView.dispatch(transaction);
         } else if (action === 'toggleBlockAttribute') {
-            let {$anchor} = this.editorView.state.selection;
+            let {$from} = this.editorView.state.selection;
             let transaction = this.editorView.state.tr;
-            for (let depth = $anchor.depth; depth >= 0; depth--) {
-                let node = $anchor.node(depth);
+            for (let depth = $from.depth; depth >= 0; depth--) {
+                let node = $from.node(depth);
                 if (node.type.attrs[attribute] !== undefined) {
                     let attrs = Object.assign({}, node.attrs);
                     attrs[attribute] = !attrs[attribute];
-                    transaction.setNodeMarkup($anchor.start(depth) - 1, null, attrs);
+                    transaction.setNodeMarkup($from.start(depth) - 1, null, attrs);
                 }
             }
             this.editorView.dispatch(transaction);

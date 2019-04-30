@@ -7,12 +7,19 @@
         {{#if (status-display-entry status section.context)}}
           <dt>{{section.title}}</dt>
           <dd>
+            {{#if (eq section.type 'block-type')}}
+              <AriaMenu @label={{section.title}}>
+                {{#each section.blocks key="@index" as |entry|}}
+                  <AriaMenuAction @tabindex={{aria-menu-item-tabindex index}} @label={{entry.label}} @current={{boolean-str (get status.blocks entry.type)}} @action={{action menuAction 'setBlockType' entry entry.type}}>{{entry.label}}</AriaMenuAction>
+                {{/each}}
+              </AriaMenu>
+            {{/if}}
             {{#if (eq section.type 'toolbar')}}
               <AriaMenu @label={{section.title}}>
                 {{#each section.entries key="@index" as |entry|}}
                   {{#if (eq entry.type 'select-attr')}}
                     <li class="input" role="presentation">
-                      <select role="menuitem" onchange={{action menuAction 'setBlockAttribute' entry.attr 'ev.target.value'}}>
+                      <select role="menuitem" tabindex={{aria-menu-item-tabindex index}} onchange={{action menuAction 'setBlockAttribute' entry.attr 'ev.target.value'}}>
                         {{#each entry.values key="@index" as |value|}}
                           <option value={{value.key}} selected={{eq (get (get (get status section.context) 'attrs') entry.attr) value.key}}>{{value.value}}</option>
                         {{/each}}
