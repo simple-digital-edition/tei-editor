@@ -71,45 +71,5 @@
           </dd>
         {{/if}}
       {{/each}}
-<!--      {{#each @ui key="@index" as |section|}}
-        {{#if (status-display-entry status section.test)}}
-          <dt>{{section.title}}</dt>
-          <dd>
-            <AriaMenu @label="Main">
-              {{#each section.entries key="@index" as |entry index|}}
-                {{#if (eq entry.type 'select')}}
-                  <li class="input">
-                    <select role="menuitem" tabindex={{aria-menu-item-tabindex index}} onchange={{action menuAction entry.action entry.attribute 'ev.target.value'}}>
-                      {{#each entry.values key="@index" as |value|}}
-                        <option value={{value.key}} selected={{eq (get status entry.value_key) value.key}}>{{value.value}}</option>
-                      {{/each}}
-                    </select>
-                  </li>
-                {{/if}}
-                {{#if (eq entry.type 'select-annotation')}}
-                  <li class="input">
-                    <select role="menuitem" tabindex={{aria-menu-item-tabindex index}} onchange={{action menuAction entry.action entry.attribute 'ev.target.value'}}>
-                      <option value="">--- Please select ---</option>
-                      {{#each @annotations key="@index" as |value|}}
-                        <option value={{value.attrs.id}} selected={{eq (get status entry.value_key) value.attrs.id}}>{{value.attrs.id}}</option>
-                      {{/each}}
-                    </select>
-                  </li>
-                {{/if}}
-                {{#if (eq entry.type 'button')}}
-                  {{#if (eq entry.value 'toggle')}}
-                    <AriaMenuAction @tabindex={{aria-menu-item-tabindex index}} @label={{entry.label}} @action={{action menuAction entry.action entry.attribute entry.value}} @current={{boolean-str (get status entry.value_key)}}><MdiIcon @name={{entry.icon}} /></AriaMenuAction>
-                  {{else}}
-                    <AriaMenuAction @tabindex={{aria-menu-item-tabindex index}} @label={{entry.label}} @action={{action menuAction entry.action entry.attribute entry.value}} @current={{boolean-str (eq (get status entry.value_key) entry.value)}}><MdiIcon @name={{entry.icon}} /></AriaMenuAction>
-                  {{/if}}
-                {{/if}}
-                {{#if (eq entry.type 'text')}}
-                  <input type="text" value={{get status entry.value_key}} onchange={{action menuAction entry.action entry.attribute 'ev.target.value'}}/>
-                {{/if}}
-              {{/each}}
-            </AriaMenu>
-          </dd>
-        {{/if}}
-      {{/each}}-->
     </dl>
   </div>
