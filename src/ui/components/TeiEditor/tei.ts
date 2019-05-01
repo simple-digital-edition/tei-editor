@@ -71,6 +71,7 @@ export class TEIParser {
     }
 
     private parseContentAttributes(node, attrs: object) {
+        // Parse attributes for nodes or marks. Attributes can have a type which is boolean, number, static, or string (default).
         let result = {};
         Object.entries(attrs).forEach((entry) => {
             let key = entry[0];
@@ -111,6 +112,7 @@ export class TEIParser {
     }
 
     private parseContentMarks(node, marks: object) {
+        // Parse the marks of a text node
         let result = [];
         Object.entries(marks).forEach((entry) => {
             let key = entry[0];
@@ -137,6 +139,7 @@ export class TEIParser {
     }
 
     private parseContentNode(node, section: object) {
+        // Parse a single content node
         let entries = Object.entries(section.schema.nodes);
         for (let idx = 0; idx < entries.length; idx++) {
             let key = entries[idx][0];
@@ -150,6 +153,7 @@ export class TEIParser {
             for (let idx2 = 0; idx2 < parsers.length; idx2++) {
                 let parser = parsers[idx2];
                 if (this.xpath.firstNode(node, 'self::' + parser.selector) !== null) {
+                    // The first schema node where the parser selector matches is chosen as the result
                     let result = {
                         type: key
                     };
@@ -157,6 +161,7 @@ export class TEIParser {
                         result.attrs = this.parseContentAttributes(node, nodeSchema.attrs);
                     }
                     if (nodeSchema.inline) {
+                        // Inline nodes are either loaded as text nodes with marks or as complex text nodes
                         if (key === 'text') {
                             result.text = this.xpath.stringValue(node, parser.text);
                             result.marks = this.parseContentMarks(node, section.schema.marks);
@@ -169,6 +174,7 @@ export class TEIParser {
                             }
                         } else {
                             if (node.children.length === 0) {
+                                // Inline nodes without children need a virtual text node added
                                 result.content = [
                                     {
                                         type: 'text',
@@ -227,6 +233,8 @@ export class TEISerializer {
     }
 
     private mergeTrees(base, merge) {
+        // Merge one tree into another. If either of the two trees tries to merge at a level where sibling nodes have the
+        // same tags, this will break
         for (let idx = 0; idx < merge.children.length; idx++) {
             let found = false;
             for (let idx2 = 0; idx2 < base.children.length; idx2++) {
@@ -256,16 +264,20 @@ export class TEISerializer {
     }
 
     private serializeTextNode(node: object, section: object) {
+        // Basic structure
         let obj = {
             node: section.schema.nodes[node.type].serializer.tag,
             attrs: {},
             children: [],
             text: null
         };
+        // Attributes are serialised as a dict of key => list pairs to simplify handling multi-value attributes
         if (node.attrs) {
             Object.entries(node.attrs).forEach((entry) => {
                 let serializer = section.schema.nodes[node.type].attrs[entry[0]].serializer;
                 let value = undefined;
+                // Values can either be serialised directly, through string replacement in the value key, or
+                // through value lookup in the values key.
                 if (serializer.values) {
                     if (serializer.values[entry[1]]) {
                         value = serializer.values[entry[1]];
@@ -286,6 +298,8 @@ export class TEISerializer {
         }
         if (section.schema.nodes[node.type].inline) {
             if (node.content) {
+                // Inline nodes with content are serialised like any other block node, if they have more than one
+                // content element. Otherwise the text is fetched from the single child element
                 if (node.content.length > 1 || (node.content[0].marks && node.content[0].marks.length > 0)) {
                     node.content.forEach((child) => {
                         obj.children.push(this.serializeTextNode(child, section));
@@ -293,6 +307,7 @@ export class TEISerializer {
                 } else {
                     let temp = this.serializeTextNode(node.content[0], section);
                     if (section.schema.nodes[node.type].serializer.text) {
+                        // By setting the text.attr value in the serialiser, the text can be serialised into an attribute
                         if (obj.attrs[section.schema.nodes[node.type].serializer.text.attr]) {
                             obj.attrs[section.schema.nodes[node.type].serializer.text.attr].push(temp.text);
                         } else {
@@ -303,6 +318,7 @@ export class TEISerializer {
                     }
                 }
             } else if (node.text) {
+                // As above allow serialisation of text into an attribute
                 if (section.schema.nodes[node.type].serializer.text) {
                     if (obj.attrs[section.schema.nodes[node.type].serializer.text.attr]) {
                         obj.attrs[section.schema.nodes[node.type].serializer.text.attr].push(node.text);
@@ -313,53 +329,59 @@ export class TEISerializer {
                     obj.text = node.text;
                 }
             }
+            if (node.marks) {
+                // Only inline nodes can have marks
+                node.marks.forEach((mark) => {
+                    let serializer = section.schema.marks[mark.type].serializer;
+                    if (serializer.tag) {
+                        obj.node = serializer.tag;
+                    }
+                    if (serializer.attrs) {
+                        // Static attribute values can be serialised into the node for marks
+                        Object.entries(serializer.attrs).forEach((entry) => {
+                            if (entry[1].value) {
+                                if (obj.attrs[entry[0]]) {
+                                    obj.attrs[entry[0]].push(entry[1].value);
+                                } else {
+                                    obj.attrs[entry[0]] = [entry[1].value];
+                                }
+                            }
+                        });
+                    }
+                    if (mark.attrs) {
+                        Object.entries(mark.attrs).forEach((entry) => {
+                            // Marks with attributes can have those attributes serialised either via a value replacement
+                            // or through value lookup in the values dict.
+                            let value = undefined;
+                            if (section.schema.marks[mark.type].attrs[entry[0]].serializer.value) {
+                                value = section.schema.marks[mark.type].attrs[entry[0]].serializer.value.replace('${value}', entry[1]);
+                            } else if (section.schema.marks[mark.type].attrs[entry[0]].serializer.values) {
+                                if (section.schema.marks[mark.type].attrs[entry[0]].serializer.values[entry[1]]) {
+                                    value = section.schema.marks[mark.type].attrs[entry[0]].serializer.values[entry[1]];
+                                }
+                            }
+                            if (value !== undefined) {
+                                if (obj.attrs[section.schema.marks[mark.type].attrs[entry[0]].serializer.attr]) {
+                                    obj.attrs[section.schema.marks[mark.type].attrs[entry[0]].serializer.attr].push(value);
+                                } else {
+                                    obj.attrs[section.schema.marks[mark.type].attrs[entry[0]].serializer.attr] = [value];
+                                }
+                            }
+                        });
+                    }
+                });
+            }
         } else if (node.content) {
+            // Block nodes simply get their content
             node.content.forEach((child) => {
                 obj.children.push(this.serializeTextNode(child, section));
-            });
-        }
-        if (node.marks) {
-            node.marks.forEach((mark) => {
-                let serializer = section.schema.marks[mark.type].serializer;
-                if (serializer.tag) {
-                    obj.node = serializer.tag;
-                }
-                if (serializer.attrs) {
-                    Object.entries(serializer.attrs).forEach((entry) => {
-                        if (entry[1].value) {
-                            if (obj.attrs[entry[0]]) {
-                                obj.attrs[entry[0]].push(entry[1].value);
-                            } else {
-                                obj.attrs[entry[0]] = [entry[1].value];
-                            }
-                        }
-                    });
-                }
-                if (mark.attrs) {
-                    Object.entries(mark.attrs).forEach((entry) => {
-                        let value = undefined;
-                        if (section.schema.marks[mark.type].attrs[entry[0]].serializer.value) {
-                            value = section.schema.marks[mark.type].attrs[entry[0]].serializer.value.replace('${value}', entry[1]);
-                        } else if (section.schema.marks[mark.type].attrs[entry[0]].serializer.values) {
-                            if (section.schema.marks[mark.type].attrs[entry[0]].serializer.values[entry[1]]) {
-                                value = section.schema.marks[mark.type].attrs[entry[0]].serializer.values[entry[1]];
-                            }
-                        }
-                        if (value !== undefined) {
-                            if (obj.attrs[section.schema.marks[mark.type].attrs[entry[0]].serializer.attr]) {
-                                obj.attrs[section.schema.marks[mark.type].attrs[entry[0]].serializer.attr].push(value);
-                            } else {
-                                obj.attrs[section.schema.marks[mark.type].attrs[entry[0]].serializer.attr] = [value];
-                            }
-                        }
-                    });
-                }
             });
         }
         return obj;
     }
 
     private toString(node, indentation) {
+        // Render a node into an XML string representation as a list of lines
         let lines = [];
         let buffer = [indentation, '<', node.node];
         if (node.attrs) {
