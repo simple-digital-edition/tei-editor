@@ -75,22 +75,35 @@ export class TEIParser {
         Object.entries(attrs).forEach((entry) => {
             let key = entry[0];
             let schema = entry[1];
-            if (schema.parser.type === 'boolean') {
-                result[key] = this.xpath.booleanValue(node, schema.parser.selector);
-            } else if (schema.parser.type === 'number') {
-                try {
-                    result[key] = this.xpath.numberValue(node, schema.parser.selector);
-                } catch(e) {
-                    console.log(e);
-                }
-            } else {
-                try {
-                    let value = this.xpath.stringValue(node, schema.parser.selector);
-                    if (value && value !== '') {
-                        result[key] = value;
+            let parsers = [];
+            if (schema.parser) {
+                parsers.push(schema.parser);
+            } else if (schema.parsers) {
+                parsers = schema.parsers;
+            }
+            for (let idx = 0; idx < parsers.length; idx++) {
+                let parser = parsers[idx];
+                if (parser.type === 'boolean') {
+                    result[key] = this.xpath.booleanValue(node, parser.selector);
+                } else if (parser.type === 'number') {
+                    try {
+                        result[key] = this.xpath.numberValue(node, parser.selector);
+                    } catch(e) {
+                        console.log(e);
                     }
-                } catch(e) {
-                    console.log(e);
+                } else if (parser.type === 'static') {
+                    if (this.xpath.booleanValue(node, parser.selector)) {
+                        result[key] = parser.value;
+                    }
+                } else {
+                    try {
+                        let value = this.xpath.stringValue(node, parser.selector);
+                        if (value && value !== '') {
+                            result[key] = value;
+                        }
+                    } catch(e) {
+                        console.log(e);
+                    }
                 }
             }
         });
@@ -102,11 +115,22 @@ export class TEIParser {
         Object.entries(marks).forEach((entry) => {
             let key = entry[0];
             let schema = entry[1];
-            if (this.xpath.booleanValue(node, schema.parser.selector)) {
-                let mark = {
-                    type: key
-                };
-                result.push(mark);
+            let parsers = [];
+            if (schema.parser) {
+                parsers.push(schema.parser);
+            } else if (schema.parsers) {
+                parsers = schema.parsers;
+            }
+            for (let idx = 0; idx < parsers.length; idx++) {
+                if (this.xpath.booleanValue(node, parsers[idx].selector)) {
+                    let mark = {
+                        type: key
+                    };
+                    if (schema.attrs) {
+                        mark.attrs = this.parseContentAttributes(node, schema.attrs);
+                    }
+                    result.push(mark);
+                }
             }
         });
         return result;
@@ -280,6 +304,25 @@ export class TEISerializer {
                                 obj.attrs[entry[0]].push(entry[1].value);
                             } else {
                                 obj.attrs[entry[0]] = [entry[1].value];
+                            }
+                        }
+                    });
+                }
+                if (mark.attrs) {
+                    Object.entries(mark.attrs).forEach((entry) => {
+                        let value = undefined;
+                        if (section.schema.marks[mark.type].attrs[entry[0]].serializer.value) {
+                            value = section.schema.marks[mark.type].attrs[entry[0]].serializer.value.replace('${value}', entry[1]);
+                        } else if (section.schema.marks[mark.type].attrs[entry[0]].serializer.values) {
+                            if (section.schema.marks[mark.type].attrs[entry[0]].serializer.values[entry[1]]) {
+                                value = section.schema.marks[mark.type].attrs[entry[0]].serializer.values[entry[1]];
+                            }
+                        }
+                        if (value !== undefined) {
+                            if (obj.attrs[section.schema.marks[mark.type].attrs[entry[0]].serializer.attr]) {
+                                obj.attrs[section.schema.marks[mark.type].attrs[entry[0]].serializer.attr].push(value);
+                            } else {
+                                obj.attrs[section.schema.marks[mark.type].attrs[entry[0]].serializer.attr] = [value];
                             }
                         }
                     });

@@ -65,6 +65,15 @@
                       <input type={{entry.dataType}} value={{get (get (get status section.context) 'attrs') entry.attr}} onchange={{action menuAction 'setBlockAttribute' entry.attr 'ev.target.value'}}/>
                     </li>
                   {{/if}}
+                  {{#if (eq entry.type 'select-mark-attr')}}
+                    <li class="input" role="presentation">
+                      <select role="menuitem" tabindex={{aria-menu-item-tabindex index}} onchange={{action menuAction 'setMarkAttribute' (join '.' entry.mark entry.attr) 'ev.target.value'}}>
+                        {{#each entry.values key="@index" as |value|}}
+                          <option value={{value.key}} selected={{eq (get (get (get (get status 'marks') entry.mark) 'attrs') entry.attr) value.key}}>{{value.label}}</option>
+                        {{/each}}
+                      </select>
+                    </li>
+                  {{/if}}
                 {{/each}}
               </AriaMenu>
             {{/if}}
