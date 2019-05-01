@@ -751,6 +751,15 @@
     .tei-editor-prosemirror-editor div.tei-editor-paragraph[data-noIndent="true"] {
         margin-top: 0;
     }
+    .tei-editor-prosemirror-editor span.tei-editor-pageBegin {
+        font-size: 80%;
+    }
+    .tei-editor-prosemirror-editor span.tei-editor-pageBegin:before {
+        content: '[';
+    }
+    .tei-editor-prosemirror-editor span.tei-editor-pageBegin:after {
+        content: ']';
+    }
     .tei-editor-prosemirror-editor span.tei-editor-fontWeightBold {
         font-weight: bold;
     }
@@ -899,6 +908,21 @@
                                     }
                                 }
                             }
+                        },
+                        pageBegin: {
+                            group: 'inline',
+                            inline: true,
+                            content: 'text*',
+                            parser: {
+                                selector: 'tei:pb',
+                                text: '@n'
+                            },
+                            serializer: {
+                                tag: 'tei:pb',
+                                text: {
+                                    attr: 'n'
+                                }
+                            }
                         }
                     },
                     marks: {
@@ -992,6 +1016,10 @@
                             {
                                 type: 'annotation',
                                 label: 'Annotation'
+                            },
+                            {
+                                type: 'pageBegin',
+                                label: 'Page Begin'
                             }
                         ]
                     },
@@ -1106,6 +1134,9 @@
                         '<tei:hi style="bold">important</tei:hi>',
                         '<tei:hi style="bold italic"> text</tei:hi>',
                         '</tei:ref>',
+                        '</tei:p>',
+                        '<tei:p class="no-indent">',
+                        '<tei:pb n="2"/>',
                         '</tei:p>',
                         '<tei:p>',
                         '<tei:seg>This text has </tei:seg>',

@@ -221,7 +221,7 @@ export class TEISerializer {
                 this.mergeTrees(root, this.serializeSingleText(data[key], sections[key]));
             }
         }
-        let lines = this.toString(root, '  ');
+        let lines = this.toString(root, '');
         lines.splice(0, 0, '<?xml version="1.0" encoding="UTF-8"?>');
         return lines.join('\n');
     }
@@ -284,12 +284,39 @@ export class TEISerializer {
                 }
             });
         }
-        if (node.content) {
+        if (section.schema.nodes[node.type].inline) {
+            if (node.content) {
+                if (node.content.length > 1 || (node.content[0].marks && node.content[0].marks.length > 0)) {
+                    node.content.forEach((child) => {
+                        obj.children.push(this.serializeTextNode(child, section));
+                    });
+                } else {
+                    let temp = this.serializeTextNode(node.content[0], section);
+                    if (section.schema.nodes[node.type].serializer.text) {
+                        if (obj.attrs[section.schema.nodes[node.type].serializer.text.attr]) {
+                            obj.attrs[section.schema.nodes[node.type].serializer.text.attr].push(temp.text);
+                        } else {
+                            obj.attrs[section.schema.nodes[node.type].serializer.text.attr] = [temp.text];
+                        }
+                    } else {
+                        obj.text = temp.text;
+                    }
+                }
+            } else if (node.text) {
+                if (section.schema.nodes[node.type].serializer.text) {
+                    if (obj.attrs[section.schema.nodes[node.type].serializer.text.attr]) {
+                        obj.attrs[section.schema.nodes[node.type].serializer.text.attr].push(node.text);
+                    } else {
+                        obj.attrs[section.schema.nodes[node.type].serializer.text.attr] = [node.text];
+                    }
+                } else {
+                    obj.text = node.text;
+                }
+            }
+        } else if (node.content) {
             node.content.forEach((child) => {
                 obj.children.push(this.serializeTextNode(child, section));
             });
-        } else if (node.text) {
-            obj.text = node.text;
         }
         if (node.marks) {
             node.marks.forEach((mark) => {
@@ -340,8 +367,8 @@ export class TEISerializer {
                 buffer.push(' ' + entry[0] + '="' + entry[1].join(' ') + '"');
             });
         }
-        buffer.push('>');
         if (node.children && node.children.length > 0) {
+            buffer.push('>');
             lines.push(buffer.join(''));
             node.children.forEach((child) => {
                 lines = lines.concat(this.toString(child, indentation + '  '));
@@ -349,9 +376,12 @@ export class TEISerializer {
             lines.push(indentation + '</' + node.node + '>');
         } else {
             if (node.text) {
+                buffer.push('>');
                 buffer.push(node.text);
+                buffer.push('</' + node.node + '>');
+            } else {
+                buffer.push('/>');
             }
-            buffer.push('</' + node.node + '>');
             lines.push(buffer.join(''));
         }
         return lines;

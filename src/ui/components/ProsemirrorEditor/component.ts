@@ -213,7 +213,7 @@ export default class ProsemirrorEditor extends Component implements HasGuid {
                 let {$from, $to} = this.editorView.state.selection;
                 if (this.status.blocks[value]) {
                     let slice = $from.parent.slice($from.parentOffset, $to.parentOffset);
-                    this.editorView.dispatch(this.editorView.state.tr.replaceRange($from.pos - 1, $to.pos, slice));
+                    this.editorView.dispatch(this.editorView.state.tr.replaceRange($from.pos - 1, $to.pos + 1, slice));
                 } else {
                     if ($from.parent.canReplaceWith($from.index(), $to.index(), type)) {
                         let slice = $from.parent.slice($from.parentOffset, $to.parentOffset);
