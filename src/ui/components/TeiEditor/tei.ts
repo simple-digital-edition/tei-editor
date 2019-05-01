@@ -78,12 +78,19 @@ export class TEIParser {
             if (schema.parser.type === 'boolean') {
                 result[key] = this.xpath.booleanValue(node, schema.parser.selector);
             } else if (schema.parser.type === 'number') {
-                if (this.xpath.firstNode(node, schema.parser.selector) !== null) {
+                try {
                     result[key] = this.xpath.numberValue(node, schema.parser.selector);
+                } catch(e) {
+                    console.log(e);
                 }
             } else {
-                if (this.xpath.firstNode(node, schema.parser.selector) !== null) {
-                    result[key] = this.xpath.stringValue(node, schema.parser.selector);
+                try {
+                    let value = this.xpath.stringValue(node, schema.parser.selector);
+                    if (value && value !== '') {
+                        result[key] = value;
+                    }
+                } catch(e) {
+                    console.log(e);
                 }
             }
         });
@@ -95,7 +102,7 @@ export class TEIParser {
         Object.entries(marks).forEach((entry) => {
             let key = entry[0];
             let schema = entry[1];
-            if (this.xpath.booleanValue(node, schema.selector)) {
+            if (this.xpath.booleanValue(node, schema.parser.selector)) {
                 let mark = {
                     type: key
                 };
@@ -170,6 +177,141 @@ export class TEIParser {
                 }
             }
         }
+    }
+}
+
+export class TEISerializer {
+
+    public serialize(data: object[], sections: object[]) {
+        let root = {
+            node: 'tei:TEI',
+            attrs: {
+                'xmlns:tei': ['http://www.tei-c.org/ns/1.0']
+            },
+            children: []
+        }
+        let keys = Object.keys(sections);
+        for (let idx = 0; idx < keys.length; idx++) {
+            let key = keys[idx];
+            if (sections[key].type === 'single-text') {
+                this.mergeTrees(root, this.serializeSingleText(data[key], sections[key]));
+            }
+        }
+        let lines = this.toString(root, '  ');
+        lines.splice(0, 0, '<?xml version="1.0" encoding="UTF-8"?>');
+        return lines.join('\n');
+    }
+
+    private mergeTrees(base, merge) {
+        for (let idx = 0; idx < merge.children.length; idx++) {
+            let found = false;
+            for (let idx2 = 0; idx2 < base.children.length; idx2++) {
+                if (base.children[idx2].node === merge.children[idx2].node) {
+                    this.mergeTrees(base.children[idx2].node, merge.children[idx2].node);
+                    found = true;
+                }
+            }
+            if (!found) {
+                base.children.push(merge.children[idx]);
+            }
+        }
+    }
+
+    private serializeSingleText(data: object, section: section) {
+        return {
+            node: 'tei:TEI',
+            children: [
+                {
+                    node: section.serializer.tag
+                    children: [
+                        this.serializeTextNode(data, section)
+                    ]
+                }
+            ]
+        }
+    }
+
+    private serializeTextNode(node: object, section: object) {
+        let obj = {
+            node: section.schema.nodes[node.type].serializer.tag,
+            attrs: {},
+            children: [],
+            text: null
+        };
+        if (node.attrs) {
+            Object.entries(node.attrs).forEach((entry) => {
+                let serializer = section.schema.nodes[node.type].attrs[entry[0]].serializer;
+                let value = undefined;
+                if (serializer.values) {
+                    if (serializer.values[entry[1]]) {
+                        value = serializer.values[entry[1]];
+                    }
+                } else if (serializer.value) {
+                    value = serializer.value.replace('${value}', entry[1]);
+                } else {
+                    value = entry[1];
+                }
+                if (value !== undefined) {
+                    if (obj.attrs[serializer.attr]) {
+                        obj.attrs[serializer.attr].push(value);
+                    } else {
+                        obj.attrs[serializer.attr] = [value];
+                    }
+                }
+            });
+        }
+        if (node.content) {
+            node.content.forEach((child) => {
+                obj.children.push(this.serializeTextNode(child, section));
+            });
+        } else if (node.text) {
+            obj.text = node.text;
+        }
+        if (node.marks) {
+            node.marks.forEach((mark) => {
+                let serializer = section.schema.marks[mark.type].serializer;
+                if (serializer.tag) {
+                    obj.node = serializer.tag;
+                }
+                if (serializer.attrs) {
+                    Object.entries(serializer.attrs).forEach((entry) => {
+                        if (entry[1].value) {
+                            if (obj.attrs[entry[0]]) {
+                                obj.attrs[entry[0]].push(entry[1].value);
+                            } else {
+                                obj.attrs[entry[0]] = [entry[1].value];
+                            }
+                        }
+                    });
+                }
+            });
+        }
+        return obj;
+    }
+
+    private toString(node, indentation) {
+        let lines = [];
+        let buffer = [indentation, '<', node.node];
+        if (node.attrs) {
+            Object.entries(node.attrs).forEach((entry) => {
+                buffer.push(' ' + entry[0] + '="' + entry[1].join(' ') + '"');
+            });
+        }
+        buffer.push('>');
+        if (node.children && node.children.length > 0) {
+            lines.push(buffer.join(''));
+            node.children.forEach((child) => {
+                lines = lines.concat(this.toString(child, indentation + '  '));
+            });
+            lines.push(indentation + '</' + node.node + '>');
+        } else {
+            if (node.text) {
+                buffer.push(node.text);
+            }
+            buffer.push('</' + node.node + '>');
+            lines.push(buffer.join(''));
+        }
+        return lines;
     }
 }
 
@@ -406,7 +548,7 @@ export class TEIParser {
         return this._metadata;
     }
 }
-*/
+
 export class TEISerializer {
     private serializer: object = null;
 
@@ -427,7 +569,7 @@ export class TEISerializer {
 
     /**
      * Generate the metadata TEI header.
-     */
+     * /
     private serializeMetadata(metadata) {
         let lines = [];
         // Write the opening tag, including optional attributes and self-closing, if set
@@ -666,5 +808,5 @@ export class TEISerializer {
         return lines;
     }
 }
-
+*/
 export default null;

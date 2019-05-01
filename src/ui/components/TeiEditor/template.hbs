@@ -1,12 +1,9 @@
 <div class="tei-editor">
   <div>
     <AriaMenu @class="tei-editor-menubar">
-      <!--<AriaDropdownMenu @title="File">
-        {{#if (get mainUIConfig 'menu.file.load')}}
-          <AriaMenuAction @action={{action loadFile}}>Load</AriaMenuAction>
-        {{/if}}
+      <AriaDropdownMenu @title="File">
         <AriaMenuAction @action={{action saveFile}}>Save</AriaMenuAction>
-      </AriaDropdownMenu>-->
+      </AriaDropdownMenu>
       {{#each sections key="@index" as |value key|}}
         <AriaMenuAction @current={{boolean-str (eq currentView key)}} @hidden={{boolean-str (not loaded)}} @action={{action setView key}}>{{value.title}}</AriaMenuAction>
       {{/each}}
@@ -16,7 +13,7 @@
     {{#each sections key="@index" as |value key|}}
       <div id="#{{key}}" class="tei-editor-view-{{get (get sections key) 'type'}}" aria-hidden={{boolean-str (not (eq currentView key))}}>
         {{#if (eq (get (get sections key) 'type') 'single-text')}}
-          <ProsemirrorEditor @schema={{get (get sections key) 'schema'}} @ui={{get (get sections key) 'ui'}} @text={{get data key}}></ProsemirrorEditor>
+          <ProsemirrorEditor @schema={{get (get sections key) 'schema'}} @ui={{get (get sections key) 'ui'}} @text={{get data key}} @update={{action updateData key}}></ProsemirrorEditor>
         {{/if}}
       </div>
     {{/each}}

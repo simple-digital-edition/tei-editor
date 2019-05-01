@@ -773,12 +773,18 @@
                 title: 'Main Text',
                 type: 'single-text',
                 selector: 'tei:text/tei:body',
+                serializer: {
+                    tag: 'tei:text'
+                },
                 schema: {
                     nodes: {
                         doc: {
                             content: 'block+',
                             parser: {
                                 selector: 'tei:body'
+                            },
+                            serializer: {
+                                tag: 'tei:body'
                             }
                         },
                         paragraph: {
@@ -787,12 +793,21 @@
                             parser: {
                                 selector: 'tei:p'
                             },
+                            serializer: {
+                                tag: 'tei:p'
+                            },
                             attrs: {
                                 noIndent: {
                                     default: false,
                                     parser: {
                                         selector: "contains(@class, 'no-indent')",
                                         type: 'boolean'
+                                    },
+                                    serializer: {
+                                        attr: 'class',
+                                        values: {
+                                            true: 'no-indent'
+                                        }
                                     }
                                 }
                             }
@@ -803,11 +818,17 @@
                             parser: {
                                 selector: 'tei:head'
                             },
+                            serializer: {
+                                tag: 'tei:head'
+                            },
                             attrs: {
                                 level: {
                                     default: 1,
                                     parser: {
                                         selector: '@level'
+                                    },
+                                    serializer: {
+                                        attr: 'level'
                                     }
                                 }
                             }
@@ -817,6 +838,9 @@
                             content: 'line*',
                             parser: {
                                 selector: 'tei:lg'
+                            },
+                            serializer: {
+                                tag: 'tei:lg'
                             }
                         },
                         line: {
@@ -824,6 +848,9 @@
                             content: 'inline*',
                             parser: {
                                 selector: 'tei:l'
+                            },
+                            serializer: {
+                                tag: 'tei:l'
                             }
                         },
                         text: {
@@ -838,7 +865,10 @@
                                     selector: 'tei:hi',
                                     text: 'text()'
                                 }
-                            ]
+                            ],
+                            serializer: {
+                                tag: 'tei:seg'
+                            }
                         },
                         annotation: {
                             group: 'inline',
@@ -848,11 +878,18 @@
                                 selector: 'tei:ref',
                                 text: 'text()'
                             },
+                            serializer: {
+                                tag: 'tei:ref'
+                            },
                             attrs: {
                                 target: {
                                     default: 'unknown',
                                     parser: {
-                                        selector: '@target'
+                                        selector: 'substring(@target, 2)'
+                                    },
+                                    serializer: {
+                                        attr: 'target',
+                                        value: '#${value}'
                                     }
                                 }
                             }
@@ -860,10 +897,30 @@
                     },
                     marks: {
                         fontWeightBold: {
-                            selector: "contains(@style, 'bold')",
+                            parser: {
+                                selector: "contains(@style, 'bold')",
+                            },
+                            serializer: {
+                                tag: 'tei:hi',
+                                attrs: {
+                                    style: {
+                                        value: 'bold'
+                                    }
+                                }
+                            }
                         },
                         fontStyleItalic: {
-                            selector: "contains(@style, 'italic')"
+                            parser: {
+                                selector: "contains(@style, 'italic')"
+                            },
+                            serializer: {
+                                tag: 'tei:hi',
+                                attrs: {
+                                    style: {
+                                        value: 'italic'
+                                    }
+                                }
+                            }
                         }
                     }
                 },

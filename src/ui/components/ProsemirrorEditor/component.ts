@@ -176,7 +176,6 @@ export default class ProsemirrorEditor extends Component implements HasGuid {
             status.marks[mark.type.name] = mark;
         });
         this.status = status;
-        //console.log(status);
         if (this.args.update) {
             this.args.update(state.doc.toJSON());
         }

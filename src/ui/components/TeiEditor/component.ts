@@ -50,62 +50,6 @@ export default class TeiEditor extends Component {
         return window.teiEditorConfig.ui.main;
     }
 
-    /**
-     * Return the main text schema.
-     */
-    get mainTextEditorConfig() {
-        return window.teiEditorConfig.schema.mainText;
-    }
-
-    /**
-     * Return the main text sidebar configuration.
-     */
-    get mainTextSidebarConfig() {
-        return window.teiEditorConfig.ui.mainText.sidebar;
-    }
-
-    /**
-     * Return the main text schema.
-     */
-    get globalAnnotationConfig() {
-        return window.teiEditorConfig.schema.globalAnnotations;
-    }
-
-    /**
-     * Return the main text sidebar configuration.
-     */
-    get globalAnnotationSidebarConfig() {
-        return window.teiEditorConfig.ui.globalAnnotations.sidebar;
-    }
-
-    /**
-     * Return the individual annotations schema.
-     */
-    get individualAnnotationsConfig() {
-        return window.teiEditorConfig.schema.individualAnnotations;
-    }
-
-    /**
-     * Return the individual annotations sidebar config.
-     */
-    get individualAnnotationsSidebarConfig() {
-        return window.teiEditorConfig.ui.individualAnnotations.sidebar;
-    }
-
-    /**
-     * Return the metadata configuration.
-     */
-    get metadataConfig() {
-        return window.teiEditorConfig.ui.metadata;
-    }
-
-    /**
-     * Returns the default document for individual annotations.
-     */
-    get individualAnnotationsDefault() {
-        return window.teiEditorConfig.default.individualAnnotations;
-    }
-
     // Action handlers
 
     public loadFile(ev) {
@@ -151,7 +95,9 @@ export default class TeiEditor extends Component {
 
     public saveFile(ev) {
         ev.preventDefault();
-        let serializer = new TEISerializer(window.teiEditorConfig.serializer);
+        let serializer = new TEISerializer();
+        console.log(serializer.serialize(this.data, this.sections));
+        /*let serializer = new TEISerializer(window.teiEditorConfig.serializer);
         let content = serializer.serialize(this.metadata, this.mainText, this.globalAnnotationText, this.individualAnnotations);
         if (window.teiEditorConfig.actions && window.teiEditorConfig.actions.save) {
             window.teiEditorConfig.actions.save(content);
@@ -163,7 +109,7 @@ export default class TeiEditor extends Component {
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-        }
+        }*/
     }
 
     /**
@@ -174,19 +120,7 @@ export default class TeiEditor extends Component {
         this.currentView = view;
     }
 
-    public updateMainText(mainText) {
-        this.mainText = mainText;
-    }
-
-    public updateGlobalAnnotationText(globalAnnotationText) {
-        this.globalAnnotationText = globalAnnotationText;
-    }
-
-    public updateMetadata(metadata) {
-        this.metadata = metadata;
-    }
-
-    public updateIndividualAnnotations(individualAnnotations) {
-        this.individualAnnotations = individualAnnotations;
+    public updateData(key, data) {
+        this.data[key] = data;
     }
 }
