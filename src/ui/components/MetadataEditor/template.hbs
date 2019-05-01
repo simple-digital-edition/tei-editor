@@ -5,26 +5,26 @@
       <ul>
         {{#each section.entries key="@index" as |entry|}}
           {{#if (eq entry.type 'single-text')}}
-            <li class="tei-editor-metadata-single"><label>{{entry.label}}<input type="text" value={{get @metadata entry.value_key}} onchange={{action setMetadataField entry.value_key}}/></label></li>
+            <li class="tei-editor-metadata-single"><label>{{entry.label}}<input type="text" value={{get @metadata entry.path}} onchange={{action setMetadataField entry.path}}/></label></li>
           {{/if}}
           {{#if (eq entry.type 'multi-field')}}
             <li class="tei-editor-metadata-multiple">
-              {{#each (get @metadata entry.value_key) key="@index" as |value value_idx|}}
+              {{#each (get @metadata entry.path) key="@index" as |value value_idx|}}
               <div>
                 {{#each entry.entries key="@index" as |part_entry part_idx|}}
-                  <div><label>{{part_entry.label}}<input type="text" value={{get value part_entry.value_key}} onchange={{action setMetadataField (join '.' entry.value_key value_idx part_entry.value_key)}}/></label></div>
+                  <div><label>{{part_entry.label}}<input type="text" value={{get value part_entry.path}} onchange={{action setMetadataField (join '.' entry.path value_idx part_entry.path)}}/></label></div>
                 {{/each}}
                 <nav>
                   <AriaMenu>
-                    <AriaMenuAction @tabindex="0" @label="Delete this row" @action={{action removeMultiFieldRow entry.value_key value_idx}}><MdiIcon @name="Delete"/></AriaMenuAction>
-                    <AriaMenuAction @tabindex="-1" @label="Move this row up one" @disabled={{array-first (get @metadata entry.value_key) value_idx}} @action={{action moveMultiFieldRowUp entry.value_key value_idx}}><MdiIcon @name="ArrowUp"/></AriaMenuAction>
-                    <AriaMenuAction @tabindex="-1" @label="Move this row one down" @disabled={{array-last (get @metadata entry.value_key) value_idx}} @action={{action moveMultiFieldRowDown entry.value_key value_idx}}><MdiIcon @name="ArrowDown"/></AriaMenuAction>
+                    <AriaMenuAction @tabindex="0" @label="Delete this row" @action={{action removeMultiFieldRow entry.path value_idx}}>Delete</AriaMenuAction>
+                    <AriaMenuAction @tabindex="-1" @label="Move this row up one" @disabled={{array-first (get @metadata entry.path) value_idx}} @action={{action moveMultiFieldRowUp entry.path value_idx}}>Up</AriaMenuAction>
+                    <AriaMenuAction @tabindex="-1" @label="Move this row one down" @disabled={{array-last (get @metadata entry.path) value_idx}} @action={{action moveMultiFieldRowDown entry.path value_idx}}>Down</AriaMenuAction>
                   </AriaMenu>
                 </nav>
               </div>
               {{/each}}
               <AriaMenu>
-                <AriaMenuAction @tabindex="0" @label="Add a new row" @action={{action addMultiFieldRow entry.value_key entry.entries}}><MdiIcon @name="Plus"/></AriaMenuAction>
+                <AriaMenuAction @tabindex="0" @label="Add a new row" @action={{action addMultiFieldRow entry.path entry.entries}}>Add</AriaMenuAction>
               </AriaMenu>
             </li>
           {{/if}}

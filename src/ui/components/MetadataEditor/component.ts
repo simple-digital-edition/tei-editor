@@ -9,38 +9,37 @@ export default class MetadataEditor extends Component {
      * Sets the content of a single value field, regardless whether it is an attribute or text. Also handles traversal
      * through array indices.
      */
-    public setMetadataField(value_key, ev) {
+    public setMetadataField(path, ev) {
         ev.preventDefault();
         let clone = deepclone([this.args.metadata]);
-        clone = set([clone, value_key, ev.target.value]);
+        clone = set([clone, path, ev.target.value]);
         this.args.update(clone);
     }
 
     /**
      * Adds a row to a multi-row field.
      */
-    public addMultiFieldRow(value_key, entries, ev) {
+    public addMultiFieldRow(path, entries, ev) {
         ev.preventDefault();
         let clone = deepclone([this.args.metadata]);
-        let field = get([clone, value_key]);
+        let field = get([clone, path]);
         let new_row = [];
         entries.forEach((entry) => {
             let new_column = {};
-            new_column = set([new_column, entry.value_key, '']);
+            new_column = set([new_column, entry.path, '']);
             new_row.push(new_column);
         });
         field.push(new_row);
-        console.log(this.args.update);
         this.args.update(clone);
     }
 
     /**
      * Removes a row from a multi-row field.
      */
-    public removeMultiFieldRow(value_key, idx, ev) {
+    public removeMultiFieldRow(path, idx, ev) {
         ev.preventDefault();
         let clone = deepclone([this.args.metadata]);
-        let field = get([clone, value_key]);
+        let field = get([clone, path]);
         field.splice(idx, 1);
         this.args.update(clone);
     }
@@ -48,10 +47,10 @@ export default class MetadataEditor extends Component {
     /**
      * Move a row in a multi-row field one row up.
      */
-    public moveMultiFieldRowUp(value_key, idx, ev) {
+    public moveMultiFieldRowUp(path, idx, ev) {
         ev.preventDefault();
         let clone = deepclone([this.args.metadata]);
-        let field = get([clone, value_key]);
+        let field = get([clone, path]);
         let mover = field[idx];
         field.splice(idx, 1);
         field.splice(idx - 1, 0, mover);
@@ -61,10 +60,10 @@ export default class MetadataEditor extends Component {
     /**
      * Move a row in a multi-row field one row down.
      */
-    public moveMultiFieldRowDown(value_key, idx, ev) {
+    public moveMultiFieldRowDown(path, idx, ev) {
         ev.preventDefault();
         let clone = deepclone([this.args.metadata]);
-        let field = get([clone, value_key]);
+        let field = get([clone, path]);
         let mover = field[idx];
         field.splice(idx, 1);
         field.splice(idx + 1, 0, mover);

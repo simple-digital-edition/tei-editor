@@ -15,6 +15,9 @@
         {{#if (eq (get (get sections key) 'type') 'single-text')}}
           <ProsemirrorEditor @schema={{get (get sections key) 'schema'}} @ui={{get (get sections key) 'ui'}} @text={{get data key}} @update={{action updateData key}}></ProsemirrorEditor>
         {{/if}}
+        {{#if (eq (get (get sections key) 'type') 'header')}}
+          <MetadataEditor @config={{get (get sections key) 'ui'}} @metadata={{get data key}} @update={{action updateData key}}></MetadataEditor>
+        {{/if}}
       </div>
     {{/each}}
   </div>

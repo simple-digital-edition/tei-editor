@@ -730,6 +730,7 @@
       box-sizing: border-box;
       padding: 0.5rem 1rem;
       font-size: 11pt;
+      height: 100%;
     }
     .tei-editor-prosemirror-editor div.tei-editor-heading[data-level="1"] {
         font-size: 16pt;
@@ -773,6 +774,16 @@
         font-size: 130%;
     }
 
+    .tei-editor-view-header {
+        height: 100%;
+        overflow: auto;
+        padding: 0.5rem 1rem;
+        font-size: 11pt;
+    }
+    .tei-editor-view-header ul li {
+        list-style-type: none;
+    }
+
     #tei-editor-metadata dl dt {
       margin-bottom: 0.5rem;
     }
@@ -784,6 +795,110 @@
     <script>
     window.teiEditorConfig = {
         sections: {
+            header: {
+                title: 'Metadata',
+                type: 'header',
+                tag: 'tei:teiHeader',
+                schema: [
+                    {
+                        tag: 'tei:fileDesc',
+                        children: [
+                            {
+                                tag: 'tei:titleStmt',
+                                children: [
+                                    {
+                                        tag: 'tei:title',
+                                        text: 'fileDesc.titleStmt.title._text'
+                                    },
+                                    {
+                                        tag: 'tei:author',
+                                        text: 'fileDesc.titleStmt.author._text'
+                                    },
+                                    {
+                                        tag: 'tei:respStmt',
+                                        multiple: true,
+                                        attrs: {
+                                            'xml:id': '_attrs.xml:id'
+                                        },
+                                        children: [
+                                            {
+                                                tag: 'tei:resp',
+                                                text: 'resp._text'
+                                            },
+                                            {
+                                                tag: 'tei:name',
+                                                text: 'name._text'
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                tag: 'tei:publicationStmt',
+                                children: [
+                                    {
+                                        tag: 'tei:distributor',
+                                        text: 'fileDesc.publicationStmt.distributor._text'
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ],
+                ui: [
+                    {
+                        title: 'Bibliography',
+                        entries: [
+                            {
+                                type: 'single-text',
+                                label: 'Title',
+                                path: 'fileDesc.titleStmt.title._text'
+                            },
+                            {
+                                type: 'single-text',
+                                label: 'Author',
+                                path: 'fileDesc.titleStmt.author._text'
+                            }
+                        ]
+                    },
+                    {
+                        title: 'Digital Version',
+                        entries: [
+                            {
+                                type: 'single-text',
+                                label: 'Distributor',
+                                path: 'fileDesc.publicationStmt.distributor._text'
+                            },
+                        ]
+                    },
+                    {
+                        title: 'Responsibilities',
+                        entries: [
+                            {
+                                type: 'multi-field',
+                                path: 'fileDesc.titleStmt.respStmt',
+                                entries: [
+                                    {
+                                        type: 'single-text',
+                                        label: 'Identifier',
+                                        path: '_attrs.xml:id'
+                                    },
+                                    {
+                                        type: 'single-text',
+                                        label: 'Responsible for',
+                                        path: 'resp._text'
+                                    },
+                                    {
+                                        type: 'single-text',
+                                        label: 'Name',
+                                        path: 'name._text'
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
             mainText: {
                 title: 'Main Text',
                 type: 'single-text',
@@ -1118,6 +1233,21 @@
                     var doc = [
                         '<?xml version="1.0" encoding="UTF-8"?>',
                         '<tei:TEI xmlns:tei="http://www.tei-c.org/ns/1.0">',
+                        '<tei:teiHeader>',
+                        '<tei:fileDesc>',
+                        '<tei:titleStmt>',
+                        '<tei:title>Test Document</tei:title>',
+                        '<tei:author>Mark Hall</tei:author>',
+                        '<tei:respStmt xml:id="markhall">',
+                        '<tei:resp>Most things</tei:resp>',
+                        '<tei:name>Mark Hall</tei:name>',
+                        '</tei:respStmt>',
+                        '</tei:titleStmt>',
+                        '<tei:publicationStmt>',
+                        '<tei:distributor>Mark Hall</tei:distributor>',
+                        '</tei:publicationStmt>',
+                        '</tei:fileDesc>',
+                        '</tei:teiHeader>',
                         '<tei:text>',
                         '<tei:body>',
                         '<tei:head>',

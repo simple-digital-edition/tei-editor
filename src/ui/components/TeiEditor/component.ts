@@ -121,6 +121,8 @@ export default class TeiEditor extends Component {
     }
 
     public updateData(key, data) {
-        this.data[key] = data;
+        let newData = deepclone([this.data]);
+        newData[key] = data;
+        this.data = newData;
     }
 }

@@ -60,6 +60,8 @@ export class TEIParser {
         if (this.parsed[section] === undefined) {
             if (this.sections[section].type === 'single-text') {
                 this.parsed[section] = this.parseSingleText(this.sections[section]);
+            } else if (this.sections[section].type === 'header') {
+                this.parsed[section] = this.parseHeader(this.sections[section]);
             }
         }
         return this.parsed[section];
@@ -208,6 +210,52 @@ export class TEIParser {
             }
         }
     }
+
+    private parseHeaderNode(node, schema) {
+        let elements = this.xpath.nodeIterator(node, schema.tag);
+        let result = [];
+        let element = elements.iterateNext();
+        while (element) {
+            let obj = {
+                _attrs: {},
+                _text: element.children.length === 0 ? this.xpath.stringValue(element, 'text()') : null
+            };
+            for(let idx = 0; idx < element.attributes.length; idx++) {
+                obj._attrs[element.attributes[idx].name] = element.attributes[idx].value;
+            }
+            if (schema.children) {
+                for (let idx = 0; idx < schema.children.length; idx++) {
+                    let temp = this.parseHeaderNode(element, schema.children[idx]);
+                    if (temp) {
+                        obj[schema.children[idx].tag.substring(4)] = temp;
+                    }
+                }
+            }
+            result.push(obj);
+            element = elements.iterateNext();
+        }
+        if (result.length === 0) {
+            return null;
+        } else {
+            if (schema.multiple) {
+                return result;
+            } else {
+                return result[0];
+            }
+        }
+    }
+
+    private parseHeader(section) {
+        let header = this.xpath.firstNode(this.dom.documentElement, section.tag);
+        let data = {};
+        for (let idx = 0; idx < section.schema.length; idx++) {
+            let temp = this.parseHeaderNode(header, section.schema[idx]);
+            if (temp) {
+                data[section.schema[idx].tag.substring(4)] = temp;
+            }
+        }
+        return data;
+    }
 }
 
 export class TEISerializer {
@@ -225,6 +273,8 @@ export class TEISerializer {
             let key = keys[idx];
             if (sections[key].type === 'single-text') {
                 this.mergeTrees(root, this.serializeSingleText(data[key], sections[key]));
+            } else if (sections[key].type === 'header') {
+                this.mergeTrees(root, this.serializeHeader(data[key], sections[key]));
             }
         }
         let lines = this.toString(root, '');
@@ -378,6 +428,78 @@ export class TEISerializer {
             });
         }
         return obj;
+    }
+
+    private serializeHeader(data: object, section: object) {
+        return {
+            node: 'tei:TEI',
+            children: [
+                {
+                    node: section.tag
+                    children: section.schema.map((config) => {return this.serializeMetadataNode(data[config.tag.substring(4)], config)})
+                }
+            ]
+        }
+    }
+
+    private serializeMetadataNode(data: object, config: object) {
+        if (config.multiple) {
+            return data.map((item) => {
+                let result = {
+                    node: config.tag
+                };
+                if (item._text) {
+                    result.text = item._text;
+                }
+                if (item._attrs) {
+                    result.attrs = {};
+                    Object.entries(item._attrs).forEach((entry) => {
+                        result.attrs[entry[0]] = [entry[1]];
+                    });
+                }
+                if (config.children) {
+                    result.children = [];
+                    for (let idx = 0; idx < config.children.length; idx++) {
+                        if (item[config.children[idx].tag.substring(4)]) {
+                            let temp = this.serializeMetadataNode(item[config.children[idx].tag.substring(4)], config.children[idx]);
+                            if (Array.isArray(temp)) {
+                                result.children = result.children.concat(temp);
+                            } else {
+                                result.children.push(temp);
+                            }
+                        }
+                    }
+                }
+                return result;
+            });
+        } else {
+            let result = {
+                node: config.tag
+            };
+            if (data._text) {
+                result.text = data._text;
+            }
+            if (data._attrs) {
+                result.attrs = {};
+                Object.entries(data._attrs).forEach((entry) => {
+                    result.attrs[entry[0]] = [entry[1]];
+                });
+            }
+            if (config.children) {
+                result.children = [];
+                for (let idx = 0; idx < config.children.length; idx++) {
+                    if (data[config.children[idx].tag.substring(4)]) {
+                        let temp = this.serializeMetadataNode(data[config.children[idx].tag.substring(4)], config.children[idx]);
+                        if (Array.isArray(temp)) {
+                            result.children = result.children.concat(temp);
+                        } else {
+                            result.children.push(temp);
+                        }
+                    }
+                }
+            }
+            return result;
+        }
     }
 
     private toString(node, indentation) {
