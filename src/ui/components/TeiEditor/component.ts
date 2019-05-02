@@ -104,9 +104,7 @@ export default class TeiEditor extends Component {
     public saveFile(ev) {
         ev.preventDefault();
         let serializer = new TEISerializer();
-        console.log(serializer.serialize(this.data, this.sections));
-        /*let serializer = new TEISerializer(window.teiEditorConfig.serializer);
-        let content = serializer.serialize(this.metadata, this.mainText, this.globalAnnotationText, this.individualAnnotations);
+        let content = serializer.serialize(this.data, this.sections);
         if (window.teiEditorConfig.actions && window.teiEditorConfig.actions.save) {
             window.teiEditorConfig.actions.save(content);
         } else {
@@ -117,7 +115,7 @@ export default class TeiEditor extends Component {
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-        }*/
+        }
     }
 
     /**

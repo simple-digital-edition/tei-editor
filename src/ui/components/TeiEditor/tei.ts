@@ -304,6 +304,7 @@ export class TEISerializer {
         }
         let lines = this.toString(root, '');
         lines.splice(0, 0, '<?xml version="1.0" encoding="UTF-8"?>');
+        lines.push('');
         return lines.join('\n');
     }
 
@@ -313,7 +314,7 @@ export class TEISerializer {
         for (let idx = 0; idx < merge.children.length; idx++) {
             let found = false;
             for (let idx2 = 0; idx2 < base.children.length; idx2++) {
-                if (base.children[idx2].node === merge.children[idx].node) {
+                if (base.children[idx2].node === merge.children[idx].node && this.objectsMatch(base.children[idx2].attrs, merge.children[idx].attrs)) {
                     this.mergeTrees(base.children[idx2], merge.children[idx]);
                     found = true;
                 }
@@ -321,6 +322,37 @@ export class TEISerializer {
             if (!found) {
                 base.children.push(merge.children[idx]);
             }
+        }
+    }
+
+    private objectsMatch(a, b) {
+        if (a && b) {
+            console.log(a);
+            console.log(b);
+            if (typeof a !== typeof b) {
+                return false;
+            } else if (typeof a === 'string' || typeof a === 'number' || typeof a === 'boolean') {
+                return a === b;
+            }
+            let keysA = Object.keys(a);
+            let keysB = Object.keys(b);
+            keysA.forEach((key) => {
+                if (keysB.indexOf(key) < 0) {
+                    return false;
+                }
+                if (!this.objectsMatch(a[key], b[key])) {
+                    return false;
+                }
+                keysB.splice(keysB.indexOf(key), 1);
+            });
+            if (keysB.length > 0) {
+                return false;
+            }
+            return true;
+        } else if(!a && !b) {
+            return true;
+        } else {
+            return false;
         }
     }
 
@@ -565,6 +597,7 @@ export class TEISerializer {
         let buffer = [indentation, '<', node.node];
         if (node.attrs) {
             Object.entries(node.attrs).forEach((entry) => {
+                entry[1].sort();
                 buffer.push(' ' + entry[0] + '="' + entry[1].join(' ') + '"');
             });
         }
