@@ -14,61 +14,54 @@
         overflow: hidden;
     }
 
-    #tei-editor-main-text {
+    .tei-editor-view-single-text {
         @include xy-grid('horizontal', false);
         @include xy-cell-block(true);
+        height: 100%;
 
         > div:nth-child(1) {
             @include xy-cell-base();
             @include xy-cell-static(8, false, 0);
             @include xy-cell-block(true);
+            height: 100%;
         }
         > div:nth-child(2) {
             @include xy-cell-base();
             @include xy-cell-static(4, false, 0);
             @include xy-cell-block(true);
+            height: 100%;
         }
     }
 
-    #tei-editor-global-annotations {
-        @include xy-grid('horizontal', false);
-        @include xy-cell-block(true);
+    .tei-editor-view-multi-text {
+        @include xy-grid('vertical', false);
+        overflow: hidden;
+        height: 100%;
 
-        > div:nth-child(1) {
-            @include xy-cell-base();
-            @include xy-cell-static(8, false, 0);
-            @include xy-cell-block(true);
-        }
-        > div:nth-child(2) {
-            @include xy-cell-base();
-            @include xy-cell-static(4, false, 0);
-            @include xy-cell-block(true);
-        }
-    }
-
-    #tei-editor-individual-annotations {
-        @include xy-grid('vertical');
-        @include xy-cell-block(true);
-
-        > div:nth-child(1) {
+        > nav {
             @include xy-cell-base('shrink');
         }
-        > div:nth-child(2) {
+        > div {
             @include xy-cell-base('auto');
             @include xy-grid('horizontal', false);
+            overflow: hidden;
 
             > div:nth-child(1) {
+                @include xy-cell-base();
                 @include xy-cell-static(8, false, 0);
                 @include xy-cell-block(true);
+                height: 100%;
             }
             > div:nth-child(2) {
+                @include xy-cell-base();
                 @include xy-cell-static(4, false, 0);
                 @include xy-cell-block(true);
+                height: 100%;
             }
         }
     }
 
-    #tei-editor-metadata {
+    .tei-editor-view-header {
         @include xy-cell-block(true);
 
         > dl {
@@ -97,12 +90,5 @@
                 }
             }
         }
-    }
-
-    .tei-editor-prosemirror-editor {
-        @include xy-cell-block(true);
-    }
-    .tei-editor-prosemirror-sidebar {
-        @include xy-cell-block(true);
     }
 }
