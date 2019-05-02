@@ -881,7 +881,9 @@
             mainText: {
                 title: 'Main Text',
                 type: 'single-text',
-                selector: 'tei:text/tei:body',
+                parser: {
+                    selector: 'tei:text/tei:body',
+                },
                 serializer: {
                     tag: 'tei:text'
                 },
