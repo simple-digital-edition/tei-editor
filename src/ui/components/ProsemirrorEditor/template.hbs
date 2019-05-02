@@ -17,6 +17,9 @@
             {{#if (eq section.type 'toolbar')}}
               <AriaMenu @label={{section.title}}>
                 {{#each section.entries key="@index" as |entry|}}
+                  {{#if (eq entry.type 'separator')}}
+                    <li role="separator"></li>
+                  {{/if}}
                   {{#if (eq entry.type 'select-attr')}}
                     <li class="input" role="presentation">
                       <select role="menuitem" tabindex={{aria-menu-item-tabindex index}} onchange={{action menuAction 'setBlockAttribute' entry.attr 'ev.target.value'}}>
@@ -28,6 +31,23 @@
                         {{/each}}
                       </select>
                     </li>
+                  {{/if}}
+                  {{#if (eq entry.type 'set-attr')}}
+                    <AriaMenuAction @tabindex={{aria-menu-item-tabindex index}} @label={{entry.label}} @current={{boolean-str (eq (get (get (get status section.context) 'attrs') entry.attr) entry.value)}} @action={{action menuAction 'setBlockAttribute' entry.attr entry.value}}>
+                      {{#if entry.icon}}
+                        {{#if (and entry.icon.on entry.icon.off)}}
+                          {{#if (eq (get (get (get status section.context) 'attrs') entry.attr) entry.value)}}
+                            {{{entry.icon.on}}}
+                          {{else}}
+                            {{{entry.icon.off}}}
+                          {{/if}}
+                        {{else}}
+                          {{{entry.icon}}}
+                        {{/if}}
+                      {{else}}
+                        {{entry.label}}
+                      {{/if}}
+                    </AriaMenuAction>
                   {{/if}}
                   {{#if (eq entry.type 'toggle-attr')}}
                     <AriaMenuAction @tabindex={{aria-menu-item-tabindex index}} @label={{entry.label}} @current={{boolean-str (get (get (get status section.context) 'attrs') entry.attr)}} @action={{action menuAction 'toggleBlockAttribute' entry.attr}}>
