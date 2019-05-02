@@ -9,13 +9,6 @@ import deepclone from '../deepclone/helper';
 export default class TeiEditor extends Component {
     //schema: Schema = null;
     @tracked loaded: boolean = false;
-    @tracked mainText: object = null;
-    @tracked displayedMainText: object = null;
-    @tracked globalAnnotationText: object = null;
-    @tracked displayedGlobalAnnotationText: object = null;
-    @tracked metadata: object = null;
-    @tracked individualAnnotations: object = null;
-
     @tracked sections: object = null;
     @tracked data: object = null;
     @tracked currentView: string = '';
@@ -48,6 +41,21 @@ export default class TeiEditor extends Component {
      */
     get mainUIConfig() {
         return window.teiEditorConfig.ui.main;
+    }
+
+    /**
+     * Returns a dictionary of all loaded multi-texts.
+     */
+    @tracked get multiTexts() {
+        let multiTexts = {};
+        if (this.sections && this.data) {
+            Object.entries(this.sections).forEach((entry) => {
+                if (entry[1].type === 'multi-text' && this.data && this.data[entry[0]]) {
+                    multiTexts[entry[0]] = this.data[entry[0]];
+                }
+            });
+        }
+        return multiTexts;
     }
 
     // Action handlers

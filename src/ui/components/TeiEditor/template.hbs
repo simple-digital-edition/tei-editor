@@ -16,7 +16,7 @@
           <MetadataEditor @config={{get (get sections key) 'ui'}} @metadata={{get data key}} @update={{action updateData key}}></MetadataEditor>
         {{/if}}
         {{#if (eq (get (get sections key) 'type') 'single-text')}}
-          <ProsemirrorEditor @schema={{get (get sections key) 'schema'}} @ui={{get (get sections key) 'ui'}} @text={{get data key}} @update={{action updateData key}}></ProsemirrorEditor>
+          <ProsemirrorEditor @schema={{get (get sections key) 'schema'}} @ui={{get (get sections key) 'ui'}} @multiTexts={{multiTexts}} @text={{get data key}} @update={{action updateData key}}></ProsemirrorEditor>
         {{/if}}
         {{#if (eq (get (get sections key) 'type') 'multi-text')}}
           <MultiText @schema={{get (get sections key) 'schema'}} @ui={{get (get sections key) 'ui'}} @default={{get (get sections key) 'default'}} @texts={{get data key}} @update={{action updateData key}} />

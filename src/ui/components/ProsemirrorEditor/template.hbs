@@ -23,6 +23,9 @@
                         {{#each entry.values key="@index" as |value|}}
                           <option value={{value.key}} selected={{eq (get (get (get status section.context) 'attrs') entry.attr) value.key}}>{{value.value}}</option>
                         {{/each}}
+                        {{#each (get @multiTexts entry.valueSource) key="@index" as |value|}}
+                          <option value={{value.id}} selected={{eq (get (get (get status section.context) 'attrs') entry.attr) value.id}}>{{value.id}}</option>
+                        {{/each}}
                       </select>
                     </li>
                   {{/if}}

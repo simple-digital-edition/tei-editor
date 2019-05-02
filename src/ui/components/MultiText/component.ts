@@ -87,10 +87,15 @@ export default class MultiText extends Component {
                 }
             }
         }
-        texts.push({
+        let text = {
             id: 'new-text-' + newIdx,
             text: deepclone([this.args.default])
-        });
+        }
+        if (!text.text.attrs) {
+            text.text.attrs = {};
+        }
+        text.text.attrs.id = 'new-text-' + newIdx;
+        texts.push(text);
         this.selectedIdx = texts.length - 1;
         this.text = texts[this.selectedIdx].text;
         this.args.update(texts);
