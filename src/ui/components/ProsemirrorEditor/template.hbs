@@ -65,6 +65,11 @@
                       <input type={{entry.dataType}} value={{get (get (get status section.context) 'attrs') entry.attr}} onchange={{action menuAction 'setBlockAttribute' entry.attr 'ev.target.value'}}/>
                     </li>
                   {{/if}}
+                  {{#if (eq entry.type 'doc-text-attr')}}
+                    <li class="input" role="presentation">
+                      <input type={{entry.dataType}} value={{get (get (get status section.context) 'attrs') entry.attr}} onchange={{action menuAction 'setDocAttribute' entry.attr 'ev.target.value'}}/>
+                    </li>
+                  {{/if}}
                   {{#if (eq entry.type 'select-mark-attr')}}
                     <li class="input" role="presentation">
                       <select role="menuitem" tabindex={{aria-menu-item-tabindex index}} onchange={{action menuAction 'setMarkAttribute' (join '.' entry.mark entry.attr) 'ev.target.value'}}>

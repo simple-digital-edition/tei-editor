@@ -96,7 +96,7 @@ export default class ProsemirrorEditor extends Component implements HasGuid {
         this.sourceText = this.args.text;
         let state = EditorState.create({
             schema: this.schema,
-            doc: null,
+            doc: this.sourceText ? this.schema.nodeFromJSON(this.sourceText) : null,
             plugins: [
                 history(),
                 keymap({

@@ -62,6 +62,8 @@ export class TEIParser {
                 this.parsed[section] = this.parseSingleText(this.sections[section]);
             } else if (this.sections[section].type === 'header') {
                 this.parsed[section] = this.parseHeader(this.sections[section]);
+            } else if (this.sections[section].type === 'multi-text') {
+                this.parsed[section] = this.parseMultiText(this.sections[section]);
             }
         }
         return this.parsed[section];
@@ -256,6 +258,27 @@ export class TEIParser {
         }
         return data;
     }
+
+    private parseMultiText(section) {
+        let root = this.xpath.firstNode(this.dom.documentElement, section.parser.selector);
+        if (root) {
+            let parts = [];
+            let nodes = this.xpath.nodeIterator(root, section.parts.parser.selector);
+            let node = nodes.iterateNext();
+            while (node) {
+                let part = this.parseContentNode(node, section);
+                if (part) {
+                    parts.push({
+                        id: node.getAttribute('xml:id'),
+                        text: part
+                    });
+                }
+                node = nodes.iterateNext();
+            }
+            return parts;
+        }
+        return [];
+    }
 }
 
 export class TEISerializer {
@@ -275,6 +298,8 @@ export class TEISerializer {
                 this.mergeTrees(root, this.serializeSingleText(data[key], sections[key]));
             } else if (sections[key].type === 'header') {
                 this.mergeTrees(root, this.serializeHeader(data[key], sections[key]));
+            } else if (sections[key].type === 'multi-text') {
+                this.mergeTrees(root, this.serializeMultiText(data[key], sections[key]));
             }
         }
         let lines = this.toString(root, '');
@@ -288,8 +313,8 @@ export class TEISerializer {
         for (let idx = 0; idx < merge.children.length; idx++) {
             let found = false;
             for (let idx2 = 0; idx2 < base.children.length; idx2++) {
-                if (base.children[idx2].node === merge.children[idx2].node) {
-                    this.mergeTrees(base.children[idx2].node, merge.children[idx2].node);
+                if (base.children[idx2].node === merge.children[idx].node) {
+                    this.mergeTrees(base.children[idx2], merge.children[idx]);
                     found = true;
                 }
             }
@@ -304,7 +329,7 @@ export class TEISerializer {
             node: 'tei:TEI',
             children: [
                 {
-                    node: section.serializer.tag
+                    node: section.serializer.tag,
                     children: [
                         this.serializeTextNode(data, section)
                     ]
@@ -500,6 +525,33 @@ export class TEISerializer {
             }
             return result;
         }
+    }
+
+    private void serializeMultiText(data: object, section: object) {
+        let wrapperNode = {
+            node: section.parts.serializer.tag,
+            children: data.map((text) => {
+                return this.serializeTextNode(text.text, section)
+            });
+        };
+        console.log(wrapperNode);
+        if (section.parts.serializer.attrs) {
+            wrapperNode.attrs = {}
+            Object.entries(section.parts.serializer.attrs).forEach((entry) => {
+                wrapperNode.attrs[entry[0]] = [entry[1]];
+            });
+        }
+        return {
+            node: 'tei:TEI',
+            children: [
+                {
+                    node: section.serializer.tag,
+                    children: [
+                        wrapperNode
+                    ]
+                }
+            ]
+        };
     }
 
     private toString(node, indentation) {

@@ -784,6 +784,17 @@
         list-style-type: none;
     }
 
+    .tei-editor-view-multi-text > div {
+        display: flex;
+        flex-direction: row;
+    }
+    .tei-editor-view-multi-text > div > .tei-editor-prosemirror-editor {
+      width: 66.666666%;
+    }
+    .tei-editor-view-multi-text > div > .tei-editor-prosemirror-sidebar {
+      width: 33.333333%;
+    }
+
     #tei-editor-metadata dl dt {
       margin-bottom: 0.5rem;
     }
@@ -1225,6 +1236,265 @@
                         ]
                     }
                 ]
+            },
+            annotations: {
+                title: 'Annotations',
+                type: 'multi-text',
+                parser: {
+                    selector: 'tei:text/tei:interpGrp[@type="annotations"]',
+                },
+                serializer: {
+                    tag: 'tei:text'
+                },
+                parts: {
+                    parser: {
+                        selector: 'tei:interp'
+                    },
+                    serializer: {
+                        tag: 'tei:interpGrp',
+                        attrs: {
+                            type: 'annotations'
+                        }
+                    }
+                },
+                schema: {
+                    nodes: {
+                        doc: {
+                            content: 'block+',
+                            parser: {
+                                selector: 'tei:interp'
+                            },
+                            serializer: {
+                                tag: 'tei:interp'
+                            },
+                            attrs: {
+                                id: {
+                                    default: 'unknown',
+                                    parser: {
+                                        selector: '@xml:id'
+                                    },
+                                    serializer: {
+                                        attr: 'xml:id',
+                                        value: '${value}'
+                                    }
+                                }
+                            }
+                        },
+                        paragraph: {
+                            group: 'block',
+                            content: 'inline*',
+                            parser: {
+                                selector: 'tei:p'
+                            },
+                            serializer: {
+                                tag: 'tei:p'
+                            },
+                            attrs: {
+                                noIndent: {
+                                    default: false,
+                                    parser: {
+                                        selector: "contains(@class, 'no-indent')",
+                                        type: 'boolean'
+                                    },
+                                    serializer: {
+                                        attr: 'class',
+                                        values: {
+                                            true: 'no-indent'
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        text: {
+                            group: 'inline',
+                            inline: true,
+                            parsers: [
+                                {
+                                    selector: 'tei:seg',
+                                    text: 'text()'
+                                },
+                                {
+                                    selector: 'tei:hi',
+                                    text: 'text()'
+                                }
+                            ],
+                            serializer: {
+                                tag: 'tei:seg'
+                            }
+                        }
+                    },
+                    marks: {
+                        fontWeightBold: {
+                            parser: {
+                                selector: "contains(@style, 'bold')",
+                            },
+                            serializer: {
+                                tag: 'tei:hi',
+                                attrs: {
+                                    style: {
+                                        value: 'bold'
+                                    }
+                                }
+                            }
+                        },
+                        fontStyleItalic: {
+                            parser: {
+                                selector: "contains(@style, 'italic')"
+                            },
+                            serializer: {
+                                tag: 'tei:hi',
+                                attrs: {
+                                    style: {
+                                        value: 'italic'
+                                    }
+                                }
+                            }
+                        },
+                        fontSize: {
+                            parsers: [
+                                {
+                                    selector: "contains(@style, 'font-size-large')"
+                                },
+                                {
+                                    selector: "contains(@style, 'font-size-small')"
+                                }
+                            ],
+                            serializer: {
+                                tag: 'tei:hi'
+                            },
+                            attrs: {
+                                size: {
+                                    default: 'normal',
+                                    parsers: [
+                                        {
+                                            selector: "contains(@style, 'font-size-large')",
+                                            type: 'static',
+                                            value: 'large'
+                                        },
+                                        {
+                                            selector: "contains(@style, 'font-size-small')",
+                                            type: 'static',
+                                            value: 'small'
+                                        }
+                                    ],
+                                    serializer: {
+                                        attr: 'style',
+                                        values: {
+                                            small: 'font-size-small',
+                                            large: 'font-size-large'
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                ui: [
+                    {
+                        title: 'Identifier',
+                        type: 'toolbar',
+                        context: 'blocks.doc',
+                        entries: [
+                            {
+                                type: 'doc-text-attr',
+                                attr: 'id'
+                            }
+                        ]
+                    },
+                    {
+                        title: 'Block Type',
+                        type: 'block-type',
+                        blocks: [
+                            {
+                                type: 'paragraph',
+                                label: 'Paragraph'
+                            }
+                        ]
+                    },
+                    {
+                        title: 'Heading',
+                        type: 'toolbar',
+                        context: 'blocks.heading',
+                        entries: [
+                            {
+                                type: 'select-attr',
+                                attr: 'level',
+                                values: [
+                                    {
+                                        key: '1',
+                                        value: 'Level 1'
+                                    },
+                                    {
+                                        key: '2',
+                                        value: 'Level 2'
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        title: 'Paragraph',
+                        type: 'toolbar',
+                        context: 'blocks.paragraph',
+                        entries: [
+                            {
+                                type: 'toggle-attr',
+                                attr: 'noIndent',
+                                label: "Don't Indent",
+                                icon: {
+                                    on: '<svg viewBox="0 0 24 24" class="mdi-icon"><path d="M11,13H21V11H11M11,9H21V7H11M3,3V5H21V3M11,17H21V15H11M3,8V16L7,12M3,21H21V19H3V21Z" /></svg>',
+                                    off: '<svg viewBox="0 0 24 24" class="mdi-icon"><path d="M11,13H21V11H11M11,9H21V7H11M3,3V5H21V3M3,21H21V19H3M3,12L7,16V8M11,17H21V15H11V17Z" /></svg>'
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        title: 'Styling',
+                        type: 'toolbar',
+                        context: 'marks',
+                        entries: [
+                            {
+                                type: 'toggle-mark',
+                                mark: 'fontWeightBold',
+                                label: 'Bold Font',
+                                icon: '<svg viewBox="0 0 24 24" class="mdi-icon"><path d="M13.5,15.5H10V12.5H13.5A1.5,1.5 0 0,1 15,14A1.5,1.5 0 0,1 13.5,15.5M10,6.5H13A1.5,1.5 0 0,1 14.5,8A1.5,1.5 0 0,1 13,9.5H10M15.6,10.79C16.57,10.11 17.25,9 17.25,8C17.25,5.74 15.5,4 13.25,4H7V18H14.04C16.14,18 17.75,16.3 17.75,14.21C17.75,12.69 16.89,11.39 15.6,10.79Z" /></svg>'
+                            },
+                            {
+                                type: 'toggle-mark',
+                                mark: 'fontStyleItalic',
+                                label: 'Italic Font',
+                                icon: '<svg viewBox="0 0 24 24" class="mdi-icon"><path d="M10,4V7H12.21L8.79,15H6V18H14V15H11.79L15.21,7H18V4H10Z" /></svg>'
+                            },
+                            {
+                                type: 'select-mark-attr',
+                                mark: 'fontSize',
+                                attr: 'size',
+                                values: [
+                                    {
+                                        key: '',
+                                        label: 'Normal'
+                                    },
+                                    {
+                                        key: 'small',
+                                        label: 'Small',
+                                    },
+                                    {
+                                        key: 'large',
+                                        label: 'Large'
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ],
+                default: {
+                    type: 'doc',
+                    content: [
+                        {
+                            type: 'paragraph'
+                        }
+                    ]
+                }
             }
         },
         actions: {
@@ -1290,6 +1560,19 @@
                         '<tei:seg> text</tei:seg>',
                         '</tei:p>',
                         '</tei:body>',
+                        '<tei:interpGrp type="annotations">',
+                        '<tei:interp xml:id="note-1">',
+                        '<tei:p>',
+                        '<tei:seg>This is just a small note.</tei:seg>',
+                        '</tei:p>',
+                        '</tei:interp>',
+                        '<tei:interp xml:id="note-2">',
+                        '<tei:p>',
+                        '<tei:seg>This is </tei:seg>',
+                        '<tei:hi style="bold">important!</tei:hi>',
+                        '</tei:p>',
+                        '</tei:interp>',
+                        '</tei:interpGrp>',
                         '</tei:text>',
                         '</tei:TEI>'
                     ];

@@ -3,7 +3,7 @@ import hbs from '@glimmer/inline-precompile';
 
 const { module, test } = QUnit;
 
-module('Component: IndividualAnnotationEditor', function(hooks) {
+module('Component: MultiText', function(hooks) {
   setupRenderingTest(hooks);
 
   test('it renders', async function(assert) {
@@ -16,7 +16,7 @@ module('Component: IndividualAnnotationEditor', function(hooks) {
      * ```
      * this.foo = { foo: '123' };
      *
-     * await render(hbs`<IndividualAnnotationEditor @foo={{this.foo}} />`)
+     * await render(hbs`<MultiText @foo={{this.foo}} />`)
      *
      * // or
      *
@@ -26,7 +26,7 @@ module('Component: IndividualAnnotationEditor', function(hooks) {
      * assert.dom('p').text('bar');
      * ```
      */
-    await render(hbs`<IndividualAnnotationEditor />`);
+    await render(hbs`<MultiText />`);
     assert.ok(this.containerElement.querySelector('div'));
   });
 });

@@ -1,0 +1,22 @@
+<nav class="tei-editor-menubar">
+  <AriaMenu @label="Individual Annotation">
+    <li role="presentation">
+      <select role="menuitem" tabindex="0" aria-label="Select the text to edit" onchange={{action selectText}}>
+        {{#each @texts key="@index" as |text idx|}}
+          {{#if (eq idx selectedIdx)}}
+            <option value={{idx}} selected="selected">{{text.id}}</option>
+          {{else}}
+            <option value={{idx}}>{{text.id}}</option>
+          {{/if}}
+        {{/each}}
+      </select>
+    </li>
+    <AriaMenuAction @label="Delete this text" @tabindex="-1" @disabled={{eq (get texts 'length') 0}} @action={{action deleteText}}>Delete</AriaMenuAction>
+    <AriaMenuAction @label="Add a text" @tabindex="-1" @action={{action addText}}>Add</AriaMenuAction>
+  </AriaMenu>
+</nav>
+<div>
+  {{#if text}}
+    <ProsemirrorEditor @schema={{@schema}} @ui={{@ui}} @text={{text}} @update={{action updateText}}></ProsemirrorEditor>
+  {{/if}}
+</div>
