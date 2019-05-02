@@ -11,7 +11,7 @@
   </div>
   <div aria-hidden={{boolean-str (not loaded)}}>
     {{#each sections key="@index" as |value key|}}
-      <div id="#{{key}}" class="tei-editor-view-{{get (get sections key) 'type'}}" aria-hidden={{boolean-str (not (eq currentView key))}}>
+      <div id="{{key}}" class="tei-editor-view-{{get (get sections key) 'type'}}" aria-hidden={{boolean-str (not (eq currentView key))}}>
         {{#if (eq (get (get sections key) 'type') 'header')}}
           <MetadataEditor @config={{get (get sections key) 'ui'}} @metadata={{get data key}} @update={{action updateData key}}></MetadataEditor>
         {{/if}}

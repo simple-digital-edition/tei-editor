@@ -2,6 +2,10 @@
 
 ## 0.0.6
 
+* **BUGFIX**: Fixed the generated section id values
+
+## 0.0.6
+
 * **UPDATE**: Re-written configuration from scratch
 
 ## 0.0.5
