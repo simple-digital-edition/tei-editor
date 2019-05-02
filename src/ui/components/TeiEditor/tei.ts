@@ -534,7 +534,6 @@ export class TEISerializer {
                 return this.serializeTextNode(text.text, section)
             });
         };
-        console.log(wrapperNode);
         if (section.parts.serializer.attrs) {
             wrapperNode.attrs = {}
             Object.entries(section.parts.serializer.attrs).forEach((entry) => {
