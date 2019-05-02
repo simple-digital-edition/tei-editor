@@ -346,6 +346,12 @@ export class TEISerializer {
             children: [],
             text: null
         };
+        // Optional static attributes defined by the node itself
+        if (section.schema.nodes[node.type].serializer.attrs) {
+            Object.entries(section.schema.nodes[node.type].serializer.attrs).forEach((entry) => {
+                obj.attrs[entry[0]] = [entry[1]];
+            });
+        }
         // Attributes are serialised as a dict of key => list pairs to simplify handling multi-value attributes
         if (node.attrs) {
             Object.entries(node.attrs).forEach((entry) => {
