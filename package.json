@@ -1,6 +1,6 @@
 {
   "name": "tei-editor",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "A highly configurable TEI editor that can be embedded as a custom HTML component.",
   "repository": "https://gitlab.informatik.uni-halle.de/amsvu/tei-editor",
   "author": "Mark Hall <mark.hall@informatik.uni-halle.de>",
