@@ -315,16 +315,18 @@ export class TEISerializer {
     private mergeTrees(base, merge) {
         // Merge one tree into another. If either of the two trees tries to merge at a level where sibling nodes have the
         // same tags, this will break
-        for (let idx = 0; idx < merge.children.length; idx++) {
-            let found = false;
-            for (let idx2 = 0; idx2 < base.children.length; idx2++) {
-                if (base.children[idx2].node === merge.children[idx].node && this.objectsMatch(base.children[idx2].attrs, merge.children[idx].attrs)) {
-                    this.mergeTrees(base.children[idx2], merge.children[idx]);
-                    found = true;
+        if (base && merge) {
+            for (let idx = 0; idx < merge.children.length; idx++) {
+                let found = false;
+                for (let idx2 = 0; idx2 < base.children.length; idx2++) {
+                    if (base.children[idx2].node === merge.children[idx].node && this.objectsMatch(base.children[idx2].attrs, merge.children[idx].attrs)) {
+                        this.mergeTrees(base.children[idx2], merge.children[idx]);
+                        found = true;
+                    }
                 }
-            }
-            if (!found) {
-                base.children.push(merge.children[idx]);
+                if (!found) {
+                    base.children.push(merge.children[idx]);
+                }
             }
         }
     }
@@ -359,16 +361,20 @@ export class TEISerializer {
     }
 
     private serializeSingleText(data: object, section: section) {
-        return {
-            node: 'tei:TEI',
-            children: [
-                {
-                    node: section.serializer.tag,
-                    children: [
-                        this.serializeTextNode(data, section)
-                    ]
-                }
-            ]
+        if (data) {
+            return {
+                node: 'tei:TEI',
+                children: [
+                    {
+                        node: section.serializer.tag,
+                        children: [
+                            this.serializeTextNode(data, section)
+                        ]
+                    }
+                ]
+            }
+        } else {
+            return null;
         }
     }
 

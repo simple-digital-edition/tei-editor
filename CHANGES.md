@@ -1,5 +1,9 @@
 # Changes
 
+## 0.0.9
+
+* **BUGFIX**: Fix issues handling missing data
+
 ## 0.0.8
 
 * **BUGFIX**: Correctly handle missing sections in the source data
