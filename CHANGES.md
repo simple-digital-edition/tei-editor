@@ -1,5 +1,9 @@
 # Changes
 
+## 0.0.10
+
+* **BUGFIX**: Fixed an issue with the XML serialisation
+
 ## 0.0.9
 
 * **BUGFIX**: Fix issues handling missing data

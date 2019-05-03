@@ -600,13 +600,17 @@ export class TEISerializer {
     }
 
     private toString(node, indentation) {
+        function xmlSafe(txt) {
+            return txt.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;');
+        }
+
         // Render a node into an XML string representation as a list of lines
         let lines = [];
         let buffer = [indentation, '<', node.node];
         if (node.attrs) {
             Object.entries(node.attrs).forEach((entry) => {
                 entry[1].sort();
-                buffer.push(' ' + entry[0] + '="' + entry[1].join(' ') + '"');
+                buffer.push(' ' + entry[0] + '="' + xmlSafe(entry[1].join(' ')) + '"');
             });
         }
         if (node.children && node.children.length > 0) {
@@ -619,7 +623,7 @@ export class TEISerializer {
         } else {
             if (node.text) {
                 buffer.push('>');
-                buffer.push(node.text);
+                buffer.push(xmlSafe(node.text));
                 buffer.push('</' + node.node + '>');
             } else {
                 buffer.push('/>');
