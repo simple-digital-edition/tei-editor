@@ -1,10 +1,10 @@
 # Changes
 
-## 0.0.6
+## 0.0.8
 
 * **BUGFIX**: Correctly handle missing sections in the source data
 
-## 0.0.6
+## 0.0.7
 
 * **BUGFIX**: Fixed the generated section id values
 
