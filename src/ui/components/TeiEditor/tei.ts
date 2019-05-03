@@ -331,8 +331,6 @@ export class TEISerializer {
 
     private objectsMatch(a, b) {
         if (a && b) {
-            console.log(a);
-            console.log(b);
             if (typeof a !== typeof b) {
                 return false;
             } else if (typeof a === 'string' || typeof a === 'number' || typeof a === 'boolean') {
