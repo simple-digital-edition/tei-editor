@@ -948,10 +948,13 @@
                             group: 'block',
                             content: 'line*',
                             parser: {
-                                selector: 'tei:lg'
+                                selector: 'tei:lg[@type="poem"]'
                             },
                             serializer: {
-                                tag: 'tei:lg'
+                                tag: 'tei:lg',
+                                attrs: {
+                                    type: 'poem'
+                                }
                             }
                         },
                         line: {
@@ -1515,7 +1518,7 @@
                         '<tei:hi style="italic">nested tags.</tei:hi>',
                         '</tei:hi>',
                         '</tei:p>',
-                        '<tei:lg>',
+                        '<tei:lg type="poem">',
                         '<tei:l>',
                         '<tei:seg>This is a</tei:seg>',
                         '</tei:l>',
