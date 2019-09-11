@@ -1,6 +1,6 @@
 # Changes
 
-## DEV
+## 0.0.11
 
 * **UPDATE**: Allow multi-texts to reference other multi texts
 
