@@ -19,7 +19,7 @@
           <ProsemirrorEditor @schema={{get (get sections key) 'schema'}} @ui={{get (get sections key) 'ui'}} @multiTexts={{multiTexts}} @text={{get data key}} @update={{action updateData key}}></ProsemirrorEditor>
         {{/if}}
         {{#if (eq (get (get sections key) 'type') 'multi-text')}}
-          <MultiText @schema={{get (get sections key) 'schema'}} @ui={{get (get sections key) 'ui'}} @default={{get (get sections key) 'default'}} @texts={{get data key}} @update={{action updateData key}} />
+          <MultiText @schema={{get (get sections key) 'schema'}} @ui={{get (get sections key) 'ui'}} @default={{get (get sections key) 'default'}} @texts={{get data key}} @multiTexts={{multiTexts}} @update={{action updateData key}} />
         {{/if}}
       </div>
     {{/each}}

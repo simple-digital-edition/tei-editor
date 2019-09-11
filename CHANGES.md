@@ -1,5 +1,9 @@
 # Changes
 
+## DEV
+
+* **UPDATE**: Allow multi-texts to reference other multi texts
+
 ## 0.0.10
 
 * **BUGFIX**: Fixed an issue with the XML serialisation

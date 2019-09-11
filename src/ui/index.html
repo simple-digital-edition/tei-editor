@@ -1295,6 +1295,30 @@
                             serializer: {
                                 tag: 'tei:seg'
                             }
+                        },
+                        annotation: {
+                            group: 'inline',
+                            inline: true,
+                            content: 'text*',
+                            parser: {
+                                selector: 'tei:ref',
+                                text: 'text()'
+                            },
+                            serializer: {
+                                tag: 'tei:ref'
+                            },
+                            attrs: {
+                                target: {
+                                    default: 'unknown',
+                                    parser: {
+                                        selector: 'substring(@target, 2)'
+                                    },
+                                    serializer: {
+                                        attr: 'target',
+                                        value: '#${value}'
+                                    }
+                                }
+                            }
                         }
                     },
                     marks: {
@@ -1382,6 +1406,10 @@
                             {
                                 type: 'paragraph',
                                 label: 'Paragraph'
+                            },
+                            {
+                                type: 'annotation',
+                                label: 'Annotation'
                             }
                         ]
                     },
@@ -1457,6 +1485,18 @@
                                         label: 'Large'
                                     }
                                 ]
+                            }
+                        ]
+                    },
+                    {
+                        title: 'Annotations',
+                        type: 'toolbar',
+                        context: 'blocks.annotation',
+                        entries: [
+                            {
+                                type: 'select-attr',
+                                attr: 'target',
+                                valueSource: 'annotations'
                             }
                         ]
                     }
@@ -1544,6 +1584,9 @@
                         '<tei:p>',
                         '<tei:seg>This is </tei:seg>',
                         '<tei:hi style="bold">important!</tei:hi>',
+                        '<tei:seg> and a </tei:seg>',
+                        '<tei:ref target="#note-1">cross-reference</tei:ref>',
+                        '<tei:seg>.</tei:seg>',
                         '</tei:p>',
                         '</tei:interp>',
                         '</tei:interpGrp>',

@@ -17,6 +17,6 @@
 </nav>
 <div>
   {{#if text}}
-    <ProsemirrorEditor @schema={{@schema}} @ui={{@ui}} @text={{text}} @update={{action updateText}}></ProsemirrorEditor>
+    <ProsemirrorEditor @schema={{@schema}} @ui={{@ui}} @text={{text}} @multiTexts={{@multiTexts}} @update={{action updateText}}></ProsemirrorEditor>
   {{/if}}
 </div>
