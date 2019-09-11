@@ -3,6 +3,7 @@
 ## DEV
 
 * **UPDATE**: Allow multi-texts to reference other multi texts
+* **UPDATE**: Update dependencies
 
 ## 0.0.10
 
