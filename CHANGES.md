@@ -1,5 +1,9 @@
 # Changes
 
+## 0.1.1
+
+* **BUGFIX**: Fix a release error
+
 ## 0.1.0
 
 * **UPDATE**: Only serialise attributes if the attribute is not empty
