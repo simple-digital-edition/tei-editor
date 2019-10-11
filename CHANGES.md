@@ -1,6 +1,6 @@
 # Changes
 
-## dev
+## 0.0.13
 
 * **BUGFIX**: Fixed a bug with nested marks
 
