@@ -1,6 +1,6 @@
 # Changes
 
-## DEV
+## 0.1.0
 
 * **UPDATE**: Only serialise attributes if the attribute is not empty
 
