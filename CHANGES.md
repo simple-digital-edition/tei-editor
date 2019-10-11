@@ -1,5 +1,9 @@
 # Changes
 
+## DEV
+
+* **UPDATE**: Only serialise attributes if the attribute is not empty
+
 ## 0.0.13
 
 * **BUGFIX**: Fixed a bug with nested marks

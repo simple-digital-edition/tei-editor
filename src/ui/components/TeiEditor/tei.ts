@@ -667,8 +667,10 @@ export class TEISerializer {
         let buffer = [indentation, '<', node.node];
         if (node.attrs) {
             Object.entries(node.attrs).forEach((entry) => {
-                entry[1].sort();
-                buffer.push(' ' + entry[0] + '="' + xmlSafe(entry[1].join(' ')) + '"');
+                if (entry[1].length > 0) {
+                    entry[1].sort();
+                    buffer.push(' ' + entry[0] + '="' + xmlSafe(entry[1].join(' ')) + '"');
+                }
             });
         }
         if (node.children && node.children.length > 0) {
