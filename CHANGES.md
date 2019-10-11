@@ -1,5 +1,9 @@
 # Changes
 
+## dev
+
+* **BUGFIX**: Fixed a bug with nested marks
+
 ## 0.0.11
 
 * **UPDATE**: Allow multi-texts to reference other multi texts

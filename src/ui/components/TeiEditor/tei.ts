@@ -451,20 +451,24 @@ export class TEISerializer {
                 }
             }
             if (node.marks) {
-                // Only inline nodes can have marks
-                node.marks.forEach((mark) => {
+                // First map all marks to temporary objects
+                let markObjs = node.marks.map((mark) => {
+                    let markObj = {
+                        node: obj.node,
+                        attrs: {}
+                    };
                     let serializer = section.schema.marks[mark.type].serializer;
                     if (serializer.tag) {
-                        obj.node = serializer.tag;
+                        markObj.node = serializer.tag;
                     }
                     if (serializer.attrs) {
                         // Static attribute values can be serialised into the node for marks
                         Object.entries(serializer.attrs).forEach((entry) => {
                             if (entry[1].value) {
-                                if (obj.attrs[entry[0]]) {
-                                    obj.attrs[entry[0]].push(entry[1].value);
+                                if (markObj.attrs[entry[0]]) {
+                                    markObj.attrs[entry[0]].push(entry[1].value);
                                 } else {
-                                    obj.attrs[entry[0]] = [entry[1].value];
+                                    markObj.attrs[entry[0]] = [entry[1].value];
                                 }
                             }
                         });
@@ -482,15 +486,69 @@ export class TEISerializer {
                                 }
                             }
                             if (value !== undefined) {
-                                if (obj.attrs[section.schema.marks[mark.type].attrs[entry[0]].serializer.attr]) {
-                                    obj.attrs[section.schema.marks[mark.type].attrs[entry[0]].serializer.attr].push(value);
+                                if (markObj.attrs[section.schema.marks[mark.type].attrs[entry[0]].serializer.attr]) {
+                                    markObj.attrs[section.schema.marks[mark.type].attrs[entry[0]].serializer.attr].push(value);
                                 } else {
-                                    obj.attrs[section.schema.marks[mark.type].attrs[entry[0]].serializer.attr] = [value];
+                                    markObj.attrs[section.schema.marks[mark.type].attrs[entry[0]].serializer.attr] = [value];
                                 }
                             }
                         });
                     }
+                    return markObj;
                 });
+                if ((new Set(markObjs.map((markObj) => { return markObj.node; }))).size > 1) {
+                    // If there are multiple nodes in the marks, then the output needs to be nested
+                    markObjs.sort((a, b) => {
+                        if (a.node < b.node) {
+                            return -1;
+                        } else if (a.node > b.node) {
+                            return 1;
+                        } else if (a.node === b.node) {
+                            return 0;
+                        }
+                    });
+                    let target = obj;
+                    target.node = null;
+                    // Build the nested structure
+                    markObjs.forEach((markObj) => {
+                        if (target.node === null || target.node === markObj.node) {
+                            target.node = markObj.node;
+                            Object.entries(markObj.attrs).forEach((entry) => {
+                                if (target.attrs[entry[0]]) {
+                                    target.attrs[entry[0]] = target.attrs[entry[0]].concat(entry[1]);
+                                } else {
+                                    target.attrs[entry[0]] = entry[1];
+                                }
+                            });
+                        } else {
+                            let tmpObj = {
+                                node: markObj.node,
+                                attrs: markObj.attrs,
+                                children: [],
+                                text: target.text
+                            };
+                            target.text = null;
+                            target.children.push(tmpObj);
+                            target = tmpObj;
+                        }
+                    });
+                } else {
+                    // If there is only one node in the marks, then the output can be flattened
+                    markObjs.forEach((markObj) => {
+                        if (markObj.node) {
+                            obj.node = markObj.node;
+                        }
+                        if (markObj.attrs) {
+                            Object.entries(markObj.attrs).forEach((entry) => {
+                                if (obj.attrs[entry[0]]) {
+                                    obj.attrs[entry[0]] = obj.attrs[entry[0]].concat(entry[1]);
+                                } else {
+                                    obj.attrs[entry[0]] = entry[1];
+                                }
+                            });
+                        }
+                    });
+                }
             }
         } else if (node.content) {
             // Block nodes simply get their content
