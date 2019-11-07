@@ -982,7 +982,7 @@
                                 {
                                     selector: 'tei:foreign',
                                     text: 'text()'
-                                }
+                                },
                             ],
                             serializer: {
                                 tag: 'tei:seg'
@@ -1024,6 +1024,31 @@
                                 tag: 'tei:pb',
                                 text: {
                                     attr: 'n'
+                                }
+                            }
+                        },
+                        footnote: {
+                            group: 'inline',
+                            inline: true,
+                            content: 'text*',
+                            parser: {
+                                selector: 'tei:note',
+                                text: '@data-marker'
+                            },
+                            serializer: {
+                                tag: 'tei:note',
+                                text: {
+                                    attr: 'data-marker'
+                                }
+                            },
+                            attrs: {
+                                text: {
+                                    parser: {
+                                        selector: 'text()'
+                                    },
+                                    serializer: {
+                                        attr: 'text()'
+                                    }
                                 }
                             }
                         }
@@ -1131,6 +1156,10 @@
                             {
                                 type: 'pageBegin',
                                 label: 'Page Begin'
+                            },
+                            {
+                                type: 'footnote',
+                                label: 'Footnote'
                             }
                         ]
                     },
@@ -1224,6 +1253,18 @@
                                 type: 'select-attr',
                                 attr: 'target',
                                 valueSource: 'annotations'
+                            }
+                        ]
+                    },
+                    {
+                        title: 'Footnote',
+                        type: 'toolbar',
+                        context: 'blocks.footnote',
+                        class: 'expanded',
+                        entries: [
+                            {
+                                type: 'text-attr',
+                                attr: 'text'
                             }
                         ]
                     }
@@ -1597,6 +1638,8 @@
                         '<tei:foreign>',
                         '<tei:hi style="bold">gut</tei:hi>',
                         '</tei:foreign>',
+                        '<tei:seg>. </tei:seg>',
+                        '<tei:note data-marker="*)">Just a footnote.</tei:note>',
                         '</tei:p>',
                         '</tei:body>',
                         '<tei:interpGrp type="annotations">',
@@ -1611,7 +1654,7 @@
                         '<tei:hi style="bold">important!</tei:hi>',
                         '<tei:seg> and a </tei:seg>',
                         '<tei:ref target="#note-1">cross-reference</tei:ref>',
-                        '<tei:seg>.</tei:seg>',
+                        '<tei:seg>. </tei:seg>',
                         '</tei:p>',
                         '</tei:interp>',
                         '</tei:interpGrp>',

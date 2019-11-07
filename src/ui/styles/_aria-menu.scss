@@ -1,6 +1,17 @@
 /*
  * ARIA Compliant Menu
  */
+nav {
+    &.expanded {
+        *[role="menu"] {
+            @include menu-expand;
+
+            input, textarea {
+                width: 100%;
+            }
+        }
+    }
+}
 *[role="menu"] {
     @include menu-base;
 

@@ -15,7 +15,7 @@
               </AriaMenu>
             {{/if}}
             {{#if (eq section.type 'toolbar')}}
-              <AriaMenu @label={{section.title}}>
+              <AriaMenu @label={{section.title}} @class={{section.class}}>
                 {{#each section.entries key="@index" as |entry|}}
                   {{#if (eq entry.type 'separator')}}
                     <li role="separator"></li>
@@ -86,6 +86,11 @@
                   {{#if (eq entry.type 'text-attr')}}
                     <li class="input" role="presentation">
                       <input type={{entry.dataType}} value={{get (get (get status section.context) 'attrs') entry.attr}} onchange={{action menuAction 'setBlockAttribute' entry.attr 'ev.target.value'}}/>
+                    </li>
+                  {{/if}}
+                  {{#if (eq entry.type 'text-block-attr')}}
+                    <li class="input" role="presentation">
+                      <textarea onchange={{action menuAction 'setBlockAttribute' entry.attr 'ev.target.value'}}>{{get (get (get status section.context) 'attrs') entry.attr}}</textarea>
                     </li>
                   {{/if}}
                   {{#if (eq entry.type 'doc-text-attr')}}

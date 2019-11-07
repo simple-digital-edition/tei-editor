@@ -1,5 +1,11 @@
 # Changes
 
+## 0.0.14
+
+* **NEW**: Added support for textarea attributes
+* **NEW**: Added support for serialising attributes as text
+* **NEW**: Added support for expanded menus
+
 ## 0.0.13
 
 * **BUGFIX**: Fixed a bug with nested marks
