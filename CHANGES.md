@@ -2,6 +2,12 @@
 
 ## 0.1.1
 
+* **NEW**: Added support for textarea attributes
+* **NEW**: Added support for serialising attributes as text
+* **NEW**: Added support for expanded menus
+
+## 0.1.1
+
 * **BUGFIX**: Fix a release error
 
 ## 0.1.0

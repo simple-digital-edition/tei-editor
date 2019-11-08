@@ -409,10 +409,14 @@ export class TEISerializer {
                     value = entry[1];
                 }
                 if (value !== undefined) {
-                    if (obj.attrs[serializer.attr]) {
-                        obj.attrs[serializer.attr].push(value);
+                    if (serializer.attr === 'text()') {
+                        obj.text = value;
                     } else {
-                        obj.attrs[serializer.attr] = [value];
+                        if (obj.attrs[serializer.attr]) {
+                            obj.attrs[serializer.attr].push(value);
+                        } else {
+                            obj.attrs[serializer.attr] = [value];
+                        }
                     }
                 }
             });
