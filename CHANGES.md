@@ -1,6 +1,6 @@
 # Changes
 
-## 0.1.1
+## 0.1.2
 
 * **NEW**: Added support for textarea attributes
 * **NEW**: Added support for serialising attributes as text
