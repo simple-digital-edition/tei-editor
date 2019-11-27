@@ -770,6 +770,9 @@
     .tei-editor-view-header ul li {
         list-style-type: none;
     }
+    .tei-editor-proof::before {
+        content: '\25A1';
+    }
     </style>
     <script>
     window.teiEditorConfig = {
@@ -1048,6 +1051,25 @@
                                     },
                                     serializer: {
                                         attr: 'text()'
+                                    }
+                                }
+                            }
+                        },
+                        proof: {
+                            group: 'inline',
+                            inline: true,
+                            parser: {
+                                selector: 'tei:metamark[@function="proof"]'
+                            },
+                            serializer: {
+                                tag: 'tei:metamark'
+                            },
+                            attrs: {
+                                function: {
+                                    default: 'proof',
+                                    serializer: {
+                                        attr: 'function',
+                                        value: 'proof'
                                     }
                                 }
                             }
@@ -1640,6 +1662,10 @@
                         '</tei:foreign>',
                         '<tei:seg>. </tei:seg>',
                         '<tei:note data-marker="*)">Just a footnote.</tei:note>',
+                        '</tei:p>',
+                        '<tei:p>',
+                        '<tei:seg>This is proven.</tei:seg>',
+                        '<tei:metamark function="proof"/>',
                         '</tei:p>',
                         '</tei:body>',
                         '<tei:interpGrp type="annotations">',

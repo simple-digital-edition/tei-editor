@@ -1,5 +1,9 @@
 # Changes
 
+## 0.2.0
+
+* **NEW**: Support inline nodes without content
+
 ## 0.1.2
 
 * **NEW**: Added support for textarea attributes

@@ -72,6 +72,7 @@ export class TEIParser {
     private parseSingleText(section: object) {
         let node = this.xpath.firstNode(this.dom.documentElement, section.parser.selector);
         if (node) {
+            console.log(this.parseContentNode(node, section));
             return this.parseContentNode(node, section);
         } else {
             return null;
@@ -182,14 +183,16 @@ export class TEIParser {
                             }
                         } else {
                             if (node.children.length === 0) {
-                                // Inline nodes without children need a virtual text node added
-                                result.content = [
-                                    {
-                                        type: 'text',
-                                        text: this.xpath.stringValue(node, parser.text),
-                                        marks: this.parseContentMarks(node, section.schema.marks)
-                                    }
-                                ]
+                                // Inline nodes without children need a virtual text node added if they have text
+                                if (this.xpath.stringValue(node, parser.text)) {
+                                    result.content = [
+                                        {
+                                            type: 'text',
+                                            text: this.xpath.stringValue(node, parser.text),
+                                            marks: this.parseContentMarks(node, section.schema.marks)
+                                        }
+                                    ];
+                                }
                             } else {
                                 let content = [];
                                 for (let idx3 = 0; idx3 < node.children.length; idx3++) {
