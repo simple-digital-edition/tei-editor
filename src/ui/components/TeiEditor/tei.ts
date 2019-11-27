@@ -72,7 +72,6 @@ export class TEIParser {
     private parseSingleText(section: object) {
         let node = this.xpath.firstNode(this.dom.documentElement, section.parser.selector);
         if (node) {
-            console.log(this.parseContentNode(node, section));
             return this.parseContentNode(node, section);
         } else {
             return null;

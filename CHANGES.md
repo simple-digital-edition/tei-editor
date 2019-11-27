@@ -1,5 +1,9 @@
 # Changes
 
+## 0.2.1
+
+* **BUGFIX**: Remove debug statements
+
 ## 0.2.0
 
 * **NEW**: Support inline nodes without content
