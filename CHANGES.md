@@ -1,5 +1,9 @@
 # Changes
 
+## 0.3.0
+
+* **UPDATE**: Don't filter empty attribute values on loading
+
 ## 0.2.1
 
 * **BUGFIX**: Remove debug statements

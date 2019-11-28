@@ -107,7 +107,7 @@ export class TEIParser {
                 } else {
                     try {
                         let value = this.xpath.stringValue(node, parser.selector);
-                        if (value && value !== '') {
+                        if (value) {
                             result[key] = value;
                         }
                     } catch(e) {
