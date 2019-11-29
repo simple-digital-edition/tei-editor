@@ -1,5 +1,9 @@
 # Changes
 
+## 0.3.1
+
+* **BUGFIX**: Fixed an issue with creating new multi-value fields
+
 ## 0.3.0
 
 * **UPDATE**: Don't filter empty attribute values on loading

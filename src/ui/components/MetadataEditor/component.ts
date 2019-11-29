@@ -23,6 +23,10 @@ export default class MetadataEditor extends Component {
         ev.preventDefault();
         let clone = deepclone([this.args.metadata]);
         let field = get([clone, path]);
+        if (field === undefined) {
+            set([clone, path, []]);
+            field = get([clone, path]);
+        }
         let new_row = [];
         entries.forEach((entry) => {
             let new_column = {};
