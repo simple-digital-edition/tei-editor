@@ -1,5 +1,9 @@
 # Changes
 
+## dev:
+
+* **BUGFIX**: Make the serialiser more resilient to missing data
+
 ## 0.3.1
 
 * **BUGFIX**: Fixed an issue with creating new multi-value fields

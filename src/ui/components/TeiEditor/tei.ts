@@ -611,24 +611,26 @@ export class TEISerializer {
             let result = {
                 node: config.tag
             };
-            if (data._text) {
-                result.text = data._text;
-            }
-            if (data._attrs) {
-                result.attrs = {};
-                Object.entries(data._attrs).forEach((entry) => {
-                    result.attrs[entry[0]] = [entry[1]];
-                });
-            }
-            if (config.children) {
-                result.children = [];
-                for (let idx = 0; idx < config.children.length; idx++) {
-                    if (data[config.children[idx].tag.substring(4)]) {
-                        let temp = this.serializeMetadataNode(data[config.children[idx].tag.substring(4)], config.children[idx]);
-                        if (Array.isArray(temp)) {
-                            result.children = result.children.concat(temp);
-                        } else {
-                            result.children.push(temp);
+            if (data) {
+                if (data._text) {
+                    result.text = data._text;
+                }
+                if (data._attrs) {
+                    result.attrs = {};
+                    Object.entries(data._attrs).forEach((entry) => {
+                        result.attrs[entry[0]] = [entry[1]];
+                    });
+                }
+                if (config.children) {
+                    result.children = [];
+                    for (let idx = 0; idx < config.children.length; idx++) {
+                        if (data[config.children[idx].tag.substring(4)]) {
+                            let temp = this.serializeMetadataNode(data[config.children[idx].tag.substring(4)], config.children[idx]);
+                            if (Array.isArray(temp)) {
+                                result.children = result.children.concat(temp);
+                            } else {
+                                result.children.push(temp);
+                            }
                         }
                     }
                 }
