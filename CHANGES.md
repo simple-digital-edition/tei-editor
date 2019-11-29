@@ -1,6 +1,6 @@
 # Changes
 
-## dev:
+## 0.3.2:
 
 * **BUGFIX**: Make the serialiser more resilient to missing data
 
