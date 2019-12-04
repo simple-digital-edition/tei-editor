@@ -799,6 +799,14 @@
                                     {
                                         tag: 'tei:respStmt',
                                         multiple: true,
+                                        deduplicate: {
+                                            key: 'attrs.xml:id',
+                                            merge: [
+                                                {
+                                                    tag: 'tei:resp',
+                                                },
+                                            ],
+                                        },
                                         attrs: {
                                             'xml:id': '_attrs.xml:id'
                                         },
@@ -1605,6 +1613,7 @@
                         '<tei:author>Mark Hall</tei:author>',
                         '<tei:respStmt xml:id="markhall">',
                         '<tei:resp>Most things</tei:resp>',
+                        '<tei:resp>Some things</tei:resp>',
                         '<tei:name>Mark Hall</tei:name>',
                         '</tei:respStmt>',
                         '</tei:titleStmt>',

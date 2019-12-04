@@ -1,4 +1,5 @@
 import get from '../get/helper';
+import deepclone from '../deepclone/helper';
 
 function nsResolver(prefix: string) {
     if (prefix === 'tei') {
@@ -219,6 +220,12 @@ export class TEIParser {
         }
     }
 
+    private duplicateNode(node, fields) {
+        let duplicates = [];
+
+        return duplicates;
+    }
+
     private parseHeaderNode(node, schema) {
         let elements = this.xpath.nodeIterator(node, schema.tag);
         let result = [];
@@ -232,10 +239,19 @@ export class TEIParser {
                 obj._attrs[element.attributes[idx].name] = element.attributes[idx].value;
             }
             if (schema.children) {
+                if (schema.deduplicate) {
+                    schema.children.forEach((childSchema) => {
+                        schema.deduplicate.merge.forEach((mergeSchema) => {
+                            if (childSchema.tag === mergeSchema.tag) {
+                                childSchema.multiple = true;
+                            }
+                        });
+                    });
+                }
                 for (let idx = 0; idx < schema.children.length; idx++) {
                     let temp = this.parseHeaderNode(element, schema.children[idx]);
                     if (temp) {
-                        obj[schema.children[idx].tag.substring(4)] = temp;
+                        obj[schema.children[idx].tag.substring(schema.children[idx].tag.indexOf(':'))] = temp;
                     }
                 }
             }
@@ -246,6 +262,24 @@ export class TEIParser {
             return null;
         } else {
             if (schema.multiple) {
+                if (schema.deduplicate) {
+                    let dupResult = [];
+                    result.forEach((item) => {
+                        let needsDuplication = false;
+                        schema.deduplicate.merge.forEach((mergeConfig) => {
+                            let tmp = get([item, mergeConfig.tag.substring(mergeConfig.tag.indexOf(':'))]);
+                            if (tmp && tmp.length > 1) {
+                                needsDuplication = true;
+                            }
+                        });
+                        if (needsDuplication) {
+                            dupResult = dupResult.concat(this.duplicateNode(item, schema.deduplicate.merge));
+                        } else {
+                            dupResult.append(item);
+                        }
+                    });
+                    result = dupResult;
+                }
                 return result;
             } else {
                 return result[0];
@@ -579,7 +613,7 @@ export class TEISerializer {
 
     private serializeMetadataNode(data: object, config: object) {
         if (config.multiple) {
-            return data.map((item) => {
+            let items = data.map((item) => {
                 let result = {
                     node: config.tag
                 };
@@ -607,6 +641,47 @@ export class TEISerializer {
                 }
                 return result;
             });
+            if (config.deduplicate) {
+                // Deduplicate items based on a key, adding elements to be merged to the first element with the key
+                let dedupItems = [];
+                let keys = [];
+                items.forEach((item) => {
+                    let key = get([item, config.deduplicate.key]);
+                    if (key.length > 0) {
+                        key = key[0];
+                    } else {
+                        key = null;
+                    }
+                    let keyIdx = keys.indexOf(key);
+                    if (keyIdx >= 0) {
+                        let target = dedupItems[keyIdx];
+                        if (item.children && item.children.length > 0) {
+                            config.deduplicate.merge.forEach((mergeConfig) => {
+                                item.children.forEach((sourceChild) => {
+                                    if (sourceChild.node === mergeConfig.tag) {
+                                        let insertIdx = 0;
+                                        let state = 0;
+                                        target.children.forEach((targetChild, idx) => {
+                                            if (state === 0 && targetChild.node === sourceChild.node) {
+                                                state = 1;
+                                            } else if (state === 1 && targetChild.node !== sourceChild.node) {
+                                                state = 2;
+                                                insertIdx = idx;
+                                            }
+                                        });
+                                        target.children.splice(insertIdx, 0, sourceChild);
+                                    }
+                                });
+                            });
+                        }
+                    } else {
+                        keys.push(key);
+                        dedupItems.push(item);
+                    }
+                });
+                items = dedupItems;
+            }
+            return items;
         } else {
             let result = {
                 node: config.tag
