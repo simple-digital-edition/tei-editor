@@ -220,9 +220,35 @@ export class TEIParser {
         }
     }
 
-    private duplicateNode(node, fields) {
-        let duplicates = [];
+    private generatePermutations(values) {
+        // Recursively generate all value permutations
+        if (values.length > 1) {
+            let permutations = [];
+            this.generatePermutations(values.slice(1)).forEach((partPermutation) => {
+                values[0].forEach((value) => {
+                    permutations.push([value].concat(partPermutation.slice(0)));
+                });
+            });
+            return permutations;
+        } else {
+            return values[0].map((value) => { return [value]; });
+        }
+    }
 
+    private duplicateNode(node, fields) {
+        // Generate duplicate nodes based on field value permutations
+        let duplicates = [];
+        let field = fields[0];
+        let valueSets = fields.map((field) => {
+            return get([node, field.tag.substring(field.tag.indexOf(':') + 1)])
+        });
+        this.generatePermutations(valueSets).forEach((permutation) => {
+            let dupNode = deepclone([node]);
+            for (let idx = 0; idx < fields.length; idx++) {
+                dupNode[fields[idx].tag.substring(fields[idx].tag.indexOf(':') + 1)] = permutation[idx];
+            }
+            duplicates.push(dupNode);
+        });
         return duplicates;
     }
 
@@ -240,6 +266,7 @@ export class TEIParser {
             }
             if (schema.children) {
                 if (schema.deduplicate) {
+                    // Force loading multiple children
                     schema.children.forEach((childSchema) => {
                         schema.deduplicate.merge.forEach((mergeSchema) => {
                             if (childSchema.tag === mergeSchema.tag) {
@@ -251,8 +278,18 @@ export class TEIParser {
                 for (let idx = 0; idx < schema.children.length; idx++) {
                     let temp = this.parseHeaderNode(element, schema.children[idx]);
                     if (temp) {
-                        obj[schema.children[idx].tag.substring(schema.children[idx].tag.indexOf(':'))] = temp;
+                        obj[schema.children[idx].tag.substring(schema.children[idx].tag.indexOf(':') + 1)] = temp;
                     }
+                }
+                if (schema.deduplicate) {
+                    // Undo force loading multiple children to enable saving to work
+                    schema.children.forEach((childSchema) => {
+                        schema.deduplicate.merge.forEach((mergeSchema) => {
+                            if (childSchema.tag === mergeSchema.tag) {
+                                childSchema.multiple = false;
+                            }
+                        });
+                    });
                 }
             }
             result.push(obj);
@@ -267,7 +304,7 @@ export class TEIParser {
                     result.forEach((item) => {
                         let needsDuplication = false;
                         schema.deduplicate.merge.forEach((mergeConfig) => {
-                            let tmp = get([item, mergeConfig.tag.substring(mergeConfig.tag.indexOf(':'))]);
+                            let tmp = get([item, mergeConfig.tag.substring(mergeConfig.tag.indexOf(':') + 1)]);
                             if (tmp && tmp.length > 1) {
                                 needsDuplication = true;
                             }
@@ -659,7 +696,7 @@ export class TEISerializer {
                             config.deduplicate.merge.forEach((mergeConfig) => {
                                 item.children.forEach((sourceChild) => {
                                     if (sourceChild.node === mergeConfig.tag) {
-                                        let insertIdx = 0;
+                                        let insertIdx = target.children.length;
                                         let state = 0;
                                         target.children.forEach((targetChild, idx) => {
                                             if (state === 0 && targetChild.node === sourceChild.node) {
@@ -668,8 +705,15 @@ export class TEISerializer {
                                                 state = 2;
                                                 insertIdx = idx;
                                             }
+                                            if (targetChild.node === sourceChild.node) {
+                                                if (this.objectsMatch(targetChild, sourceChild)) {
+                                                    state = 3;
+                                                }
+                                            }
                                         });
-                                        target.children.splice(insertIdx, 0, sourceChild);
+                                        if (state != 3) {
+                                            target.children.splice(insertIdx, 0, sourceChild);
+                                        }
                                     }
                                 });
                             });

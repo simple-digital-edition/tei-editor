@@ -1,5 +1,9 @@
 # Changes
 
+## 0.4.0:
+
+* **NEW**: Support deduplication of fields in the TEI output
+
 ## 0.3.2:
 
 * **BUGFIX**: Make the serialiser more resilient to missing data
