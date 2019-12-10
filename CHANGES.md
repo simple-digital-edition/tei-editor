@@ -1,5 +1,9 @@
 # Changes
 
+## 0.4.2:
+
+* **BUGFIX**: Fixed a bug with non-duplicate TEI metadata
+
 ## 0.4.1:
 
 * **BUGFIX**: Small bugfix

@@ -312,6 +312,11 @@ export class TEIParser {
                         if (needsDuplication) {
                             dupResult = dupResult.concat(this.duplicateNode(item, schema.deduplicate.merge));
                         } else {
+                            Object.keys(item).forEach((key) => {
+                                if (item[key] && item[key].length === 1) {
+                                    item[key] = item[key][0];
+                                }
+                            });
                             dupResult.push(item);
                         }
                     });
