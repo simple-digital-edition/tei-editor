@@ -1,5 +1,9 @@
 # Changes
 
+## 0.4.1:
+
+* **BUGFIX**: Small bugfix
+
 ## 0.4.0:
 
 * **NEW**: Support deduplication of fields in the TEI output

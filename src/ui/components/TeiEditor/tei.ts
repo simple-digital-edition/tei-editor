@@ -312,7 +312,7 @@ export class TEIParser {
                         if (needsDuplication) {
                             dupResult = dupResult.concat(this.duplicateNode(item, schema.deduplicate.merge));
                         } else {
-                            dupResult.append(item);
+                            dupResult.push(item);
                         }
                     });
                     result = dupResult;
