@@ -1,6 +1,17 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png" />
-    <h1>Welcome to Your Vue.js + TypeScript App</h1>
+    <tei-editor />
   </div>
 </template>
+
+<script lang="ts">
+import { Component, Vue } from "vue-property-decorator";
+import TeiEditor from "./components/TeiEditor.vue";
+
+@Component({
+  components: {
+    TeiEditor
+  }
+})
+export default class App extends Vue {}
+</script>
