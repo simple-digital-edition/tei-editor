@@ -6,7 +6,7 @@
     <div>
       <template v-for="(section, sectionName, index) in sections">
         <template v-if="sectionName === currentSection">
-          <metadata-editor v-if="section.type === 'MetadataEditor'" :key="index"></metadata-editor>
+          <metadata-editor v-if="section.type === 'MetadataEditor'" :key="index" :config="section"></metadata-editor>
           <text-editor v-if="section.type === 'TextEditor'" :key="index"></text-editor>
         </template>
       </template>

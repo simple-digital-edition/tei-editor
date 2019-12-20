@@ -9,14 +9,115 @@
   </head>
   <body>
     <noscript>
-      <strong>We're sorry but tei-editor doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>
+      <strong>We are sorry but tei-editor does not work properly without JavaScript enabled. Please enable it to continue.</strong>
     </noscript>
-    <script id="TEIEditorConfig">
+    <script id="TEIEditorConfig" type="application/json">
       {
           "sections": {
               "metadata": {
                   "label": "Metadata",
-                  "type": "MetadataEditor"
+                  "type": "MetadataEditor",
+                  "schema": [
+                      {
+                          "tag": "tei:fileDesc",
+                          "children": [
+                              {
+                                  "tag": "tei:titleStmt",
+                                  "children": [
+                                      {
+                                          "tag": "tei:title",
+                                          "text": "fileDesc.titleStmt.title._text"
+                                      },
+                                      {
+                                          "tag": "tei:author",
+                                          "text": "fileDesc.titleStmt.author._text"
+                                      },
+                                      {
+                                          "tag": "tei:respStmt",
+                                          "multiple": true,
+                                          "attrs": {
+                                              "xml:id": "_attrs.xml:id"
+                                          },
+                                          "children": [
+                                              {
+                                                  "tag": "tei:resp",
+                                                  "text": "resp._text",
+                                                  "multiple": true
+                                              },
+                                              {
+                                                  "tag": "tei:name",
+                                                  "text": "name._text",
+                                                  "multiple": true
+                                              }
+                                          ]
+                                      }
+                                  ]
+                              },
+                              {
+                                  "tag": "tei:publicationStmt",
+                                  "children": [
+                                      {
+                                          "tag": "tei:distributor",
+                                          "text": "fileDesc.publicationStmt.distributor._text"
+                                      }
+                                  ]
+                              }
+                          ]
+                      }
+                  ],
+                  "ui": [
+                      {
+                          "label": "Bibliography",
+                          "entries": [
+                              {
+                                  "type": "single-text",
+                                  "label": "Title",
+                                  "path": "fileDesc.titleStmt.title._text"
+                              },
+                              {
+                                  "type": "single-text",
+                                  "label": "Author",
+                                  "path": "fileDesc.titleStmt.author._text"
+                              }
+                          ]
+                      },
+                      {
+                          "label": "Digital Version",
+                          "entries": [
+                              {
+                                  "type": "single-text",
+                                  "label": "Distributor",
+                                  "path": "fileDesc.publicationStmt.distributor._text"
+                              }
+                          ]
+                      },
+                      {
+                          "label": "Responsibilities",
+                          "entries": [
+                              {
+                                  "type": "multi-field",
+                                  "path": "fileDesc.titleStmt.respStmt",
+                                  "entries": [
+                                      {
+                                          "type": "single-text",
+                                          "label": "Identifier",
+                                          "path": "_attrs.xml:id"
+                                      },
+                                      {
+                                          "type": "single-text",
+                                          "label": "Responsible for",
+                                          "path": "resp._text"
+                                      },
+                                      {
+                                          "type": "single-text",
+                                          "label": "Name",
+                                          "path": "name._text"
+                                      }
+                                  ]
+                              }
+                          ]
+                      }
+                  ]
               },
               "body": {
                   "label": "Main Text",

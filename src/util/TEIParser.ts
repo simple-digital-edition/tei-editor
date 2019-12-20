@@ -1,4 +1,5 @@
 import XPathEvaluator from './XPathEvaluator';
+import get from './get';
 
 export default export class TEIParser {
     private dom: XMLDocument;
@@ -197,7 +198,7 @@ export default export class TEIParser {
         let duplicates = [];
         let field = fields[0];
         let valueSets = fields.map((field) => {
-            return get([node, field.tag.substring(field.tag.indexOf(':') + 1)])
+            return get(node, field.tag.substring(field.tag.indexOf(':') + 1))
         });
         this.generatePermutations(valueSets).forEach((permutation) => {
             let dupNode = deepclone([node]);
@@ -261,7 +262,7 @@ export default export class TEIParser {
                     result.forEach((item) => {
                         let needsDuplication = false;
                         schema.deduplicate.merge.forEach((mergeConfig) => {
-                            let tmp = get([item, mergeConfig.tag.substring(mergeConfig.tag.indexOf(':') + 1)]);
+                            let tmp = get(item, mergeConfig.tag.substring(mergeConfig.tag.indexOf(':') + 1));
                             if (tmp && tmp.length > 1) {
                                 needsDuplication = true;
                             }
