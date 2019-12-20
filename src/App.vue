@@ -15,22 +15,13 @@ import TeiEditor from "./components/TeiEditor.vue";
 })
 export default class App extends Vue {
     public mounted() {
-        this.$store.commit('init', {
-            sections: {
-                metadaten: {
-                    label: 'Metadaten',
-                    type: 'MetadataEditor',
-                },
-                haupttext: {
-                    label: 'Haupttext',
-                    type: 'TextEditor',
-                },
-                apparat: {
-                    label: 'Apparat',
-                    type: 'TextEditor',
-                },
-            },
-        });
+        let configElement = document.getElementById('TEIEditorConfig');
+        if (configElement) {
+            let config = JSON.parse(configElement.innerHTML);
+            if (config) {
+                this.$store.commit('init', config);
+            }
+        }
     }
 }
 </script>

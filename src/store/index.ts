@@ -10,10 +10,10 @@ const defaultState: State = {
     ui: {
         mainMenu: [
             {
-                label: 'Datei',
+                label: 'File',
                 children: [
                     {
-                        label: 'Speichern',
+                        label: 'Save',
                         action: 'save',
                     }
                 ],
