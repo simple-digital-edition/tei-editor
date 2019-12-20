@@ -4,7 +4,10 @@
     <ul role="menu" :aria-hidden="hidden" @keyup="keynav">
       <template v-for="(item, index) in item.children">
         <aria-menu v-if="item.children" :key="index" :item="item" @action="action" />
-        <aria-menu-item v-else :key="index" :item="item" @action="action" />
+        <template v-else>
+          <aria-menu-item-checkbox v-if="item.selected !== undefined" :key="index" :item="item" @action="action" />
+          <aria-menu-item v-else :key="index" :item="item" @action="action" />
+        </template>
       </template>
     </ul>
   </li>
@@ -13,10 +16,12 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
 import AriaMenuItem from './AriaMenuItem.vue';
+import AriaMenuItemCheckbox from './AriaMenuItemCheckbox.vue';
 
 @Component({
     components: {
         AriaMenuItem,
+        AriaMenuItemCheckbox,
     },
     props: {
         tabindex: {

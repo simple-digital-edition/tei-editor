@@ -9,9 +9,28 @@ import { Component, Vue } from "vue-property-decorator";
 import TeiEditor from "./components/TeiEditor.vue";
 
 @Component({
-  components: {
-    TeiEditor
-  }
+    components: {
+        TeiEditor
+    }
 })
-export default class App extends Vue {}
+export default class App extends Vue {
+    public mounted() {
+        this.$store.commit('init', {
+            sections: {
+                metadaten: {
+                    label: 'Metadaten',
+                    type: 'MetadataEditor',
+                },
+                haupttext: {
+                    label: 'Haupttext',
+                    type: 'TextEditor',
+                },
+                apparat: {
+                    label: 'Apparat',
+                    type: 'TextEditor',
+                },
+            },
+        });
+    }
+}
 </script>
