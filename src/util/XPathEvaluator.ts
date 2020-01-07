@@ -1,4 +1,4 @@
-function nsResolver(prefix: string) {
+function nsResolver(prefix: string | null) {
     if (prefix === 'tei') {
         return 'http://www.tei-c.org/ns/1.0';
     } else if (prefix === 'xml') {
@@ -15,27 +15,27 @@ export default class XPathEvaluator {
         this.dom = dom;
     }
 
-    evaluate(node, xpath, result_type) {
+    evaluate(node: Node, xpath: string, result_type: number) {
         return this.dom.evaluate(xpath, node, nsResolver, result_type, null);
     }
 
-    firstNode(node, xpath) {
+    firstNode(node: Node, xpath: string) {
         return this.evaluate(node, xpath, XPathResult.FIRST_ORDERED_NODE_TYPE).singleNodeValue;
     }
 
-    nodeIterator(node, xpath) {
+    nodeIterator(node: Node, xpath: string) {
         return this.evaluate(node, xpath, XPathResult.ORDERED_NODE_ITERATOR_TYPE);
     }
 
-    stringValue(node, xpath) {
+    stringValue(node: Node, xpath: string) {
         return this.evaluate(node, xpath, XPathResult.STRING_TYPE).stringValue;
     }
 
-    booleanValue(node, xpath) {
+    booleanValue(node: Node, xpath: string) {
         return this.evaluate(node, xpath, XPathResult.BOOLEAN_TYPE).booleanValue;
     }
 
-    numberValue(node, xpath) {
+    numberValue(node: Node, xpath: string) {
         return this.evaluate(node, xpath, XPathResult.NUMBER_TYPE).numberValue;
     }
 }
