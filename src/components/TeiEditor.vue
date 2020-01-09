@@ -63,5 +63,43 @@ export default class TeiEditor extends Vue {
       flex: 1 1 auto;
       overflow: auto;
   }
+
+  svg {
+      width: 24px;
+      height: 24px;
+  }
+
+  ol {
+      margin: 0;
+      padding: 0;
+
+      &.multi-row {
+          > li {
+              display: flex;
+              flex-direction: row;
+
+              > div {
+                  flex: 1 1 auto;
+              }
+
+              > ul {
+                  flex: 0 0 auto;
+              }
+          }
+      }
+
+      &.multi-field {
+          display: flex;
+          flex-direction: row;
+
+          > li {
+              flex: 1 1 auto;
+          }
+      }
+
+      li {
+          list-style-type: none;
+      }
+  }
 }
 </style>

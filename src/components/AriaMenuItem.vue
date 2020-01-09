@@ -1,7 +1,7 @@
 <template>
   <li>
-    <span v-if="item.disabled" role="menuitem" aria-disabled="true">{{ item.label }}</span>
-    <a v-else role="menuitem" :tabindex="tabindex" @click="action" @keyup="keynav">{{ item.label }}</a>
+    <span v-if="item.disabled" role="menuitem" aria-disabled="true" v-html="item.label"></span>
+    <a v-else role="menuitem" :tabindex="tabindex" @click="action" @keyup="keynav" v-html="item.label"></a>
   </li>
 </template>
 
