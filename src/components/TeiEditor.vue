@@ -7,7 +7,7 @@
       <template v-for="(section, sectionName, index) in sections">
         <template v-if="sectionName === currentSection">
           <metadata-editor v-if="section.type === 'MetadataEditor'" :key="index" :config="section"></metadata-editor>
-          <text-editor v-if="section.type === 'TextEditor'" :key="index"></text-editor>
+          <text-editor v-if="section.type === 'TextEditor'" :key="index" :section="sectionName"></text-editor>
         </template>
       </template>
     </div>
@@ -99,6 +99,21 @@ export default class TeiEditor extends Vue {
 
       li {
           list-style-type: none;
+      }
+  }
+
+  .text-editor {
+      display: flex;
+      flex-direction: row;
+      height: 100%;
+      width: 100%;
+
+      > div:first-child {
+          flex: 1 1 auto;
+      }
+
+      > div:last-child {
+          flex: 0 0 auto;
       }
   }
 }

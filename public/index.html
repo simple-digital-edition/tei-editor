@@ -6,6 +6,17 @@
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <link rel="icon" href="<%= BASE_URL %>favicon.ico">
     <title>tei-editor</title>
+    <style>
+    .node-heading {
+        font-weight: bold;
+    }
+    .node-heading[data-level="1"] {
+        font-size: 24pt;
+    }
+    .node-heading[data-level="2"] {
+        font-size: 18pt;
+    }
+    </style>
   </head>
   <body>
     <noscript>
@@ -14,6 +25,41 @@
     <script id="TEIEditorConfig" type="application/json">
       {
           "sections": {
+              "body": {
+                  "label": "Main Text",
+                  "type": "TextEditor",
+                  "schema": [
+                      {
+                          "name": "paragraph",
+                          "label": "Paragraph",
+                          "type": "block"
+                      },
+                      {
+                          "name": "heading",
+                          "label": "Heading",
+                          "type": "block",
+                          "attrs": {
+                              "level": {
+                                  "default": "1",
+                                  "ui": {
+                                      "selectValues": [{"label": "Level 1", "value": "1"}, {"label": "Level 2", "value": "2"}]
+                                  }
+                              },
+                              "navMarker": {
+                                  "default": "",
+                                  "ui": {
+                                      "stringValue": "Navigation Marker"
+                                  }
+                              }
+                          }
+                      }
+                  ],
+                  "ui": []
+              },
+              "apparatus": {
+                  "label": "Apparatus",
+                  "type": "TextEditor"
+              },
               "metadata": {
                   "label": "Metadata",
                   "type": "MetadataEditor",
@@ -137,14 +183,6 @@
                           ]
                       }
                   ]
-              },
-              "body": {
-                  "label": "Main Text",
-                  "type": "TextEditor"
-              },
-              "apparatus": {
-                  "label": "Apparatus",
-                  "type": "TextEditor"
               }
           }
       }
