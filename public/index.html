@@ -95,23 +95,42 @@
                           "label": "Responsibilities",
                           "entries": [
                               {
-                                  "type": "multi-field",
+                                  "type": "multi-row",
                                   "path": "fileDesc.titleStmt.respStmt",
-                                  "entries": [
+                                  "entries":
+                                  [
                                       {
-                                          "type": "single-text",
-                                          "label": "Identifier",
-                                          "path": "_attrs.xml:id"
-                                      },
-                                      {
-                                          "type": "single-text",
-                                          "label": "Responsible for",
-                                          "path": "resp._text"
-                                      },
-                                      {
-                                          "type": "single-text",
-                                          "label": "Name",
-                                          "path": "name._text"
+                                          "type": "multi-field",
+                                          "path": "",
+                                          "entries": [
+                                              {
+                                                  "type": "single-text",
+                                                  "label": "Identifier",
+                                                  "path": "._attrs.xml:id"
+                                              },
+                                              {
+                                                  "type": "multi-row",
+                                                  "path": ".resp",
+                                                  "entries": [
+                                                      {
+                                                          "type": "single-text",
+                                                          "label": "Responsible for",
+                                                          "path": "._text"
+                                                      }
+                                                  ]
+                                              },
+                                              {
+                                                  "type": "multi-row",
+                                                  "path": ".name",
+                                                  "entries": [
+                                                      {
+                                                          "type": "single-text",
+                                                          "label": "Name",
+                                                          "path": "._text"
+                                                      }
+                                                  ]
+                                              }
+                                          ]
                                       }
                                   ]
                               }
@@ -129,6 +148,27 @@
               }
           }
       }
+    </script>
+    <script id="TEIEditorDocument" type="application/xml+tei">
+      <tei:TEI xmlns:tei="http://www.tei-c.org/ns/1.0">
+        <tei:teiHeader>
+          <tei:fileDesc>
+            <tei:titleStmt>
+              <tei:title>Test Document</tei:title>
+              <tei:author>Mark Hall</tei:author>
+              <tei:respStmt xml:id="markhall">
+                <tei:resp>Most things</tei:resp>
+                <tei:resp>Some other things</tei:resp>
+                <tei:name>Mark Hall</tei:name>
+                <tei:name>Mark M Hall</tei:name>
+              </tei:respStmt>
+            </tei:titleStmt>
+            <tei:publicationStmt>
+              <tei:distributor>Mark Hall</tei:distributor>
+            </tei:publicationStmt>
+          </tei:fileDesc>
+        </tei:teiHeader>
+      </tei:TEI>
     </script>
     <div id="app"></div>
     <!-- built files will be auto injected -->

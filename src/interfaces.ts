@@ -1,11 +1,17 @@
 export interface State {
     ui: StateUI;
+    settings: Settings;
+    sections: Sections;
+    data: Data;
 }
 
 export interface StateUI {
     mainMenu: MenuItem[];
-    sections: UISections;
     currentSection: string;
+}
+
+export interface Settings {
+    metadataSection: string;
 }
 
 export interface MenuItem {
@@ -13,8 +19,24 @@ export interface MenuItem {
     children?: MenuItem[];
     action?: string;
     selected?: boolean;
+    disabled?: boolean;
 }
 
-export interface UISections {
-    [x:string]: object;
+export interface Sections {
+    [x:string]: any;
+}
+
+export interface Data {
+    [x:string]: any;
+}
+
+export interface MetadataValueChange {
+    path: string;
+    value: any | null;
+}
+
+export interface MetadataMultiRowMove {
+    path: string;
+    idx: number;
+    move: number;
 }

@@ -33,7 +33,7 @@ export default class TeiEditor extends Vue {
     }
 
     public get sections() {
-        return this.$store.state.ui.sections;
+        return this.$store.state.sections;
     }
 
     public get currentSection() {

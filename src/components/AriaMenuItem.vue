@@ -1,6 +1,7 @@
 <template>
   <li>
-    <a role="menuitem" :tabindex="tabindex" @click="action" @keyup="keynav">{{ item.label }}</a>
+    <span v-if="item.disabled" role="menuitem" aria-disabled="true">{{ item.label }}</span>
+    <a v-else role="menuitem" :tabindex="tabindex" @click="action" @keyup="keynav">{{ item.label }}</a>
   </li>
 </template>
 
@@ -32,7 +33,7 @@ export default class AriaMenuItem extends Vue {
                 parentElement = (parentElement.previousElementSibling as HTMLElement);
                 if (parentElement) {
                     for (let idx = 0; idx < parentElement.children.length; idx++) {
-                        if (parentElement.children[idx].getAttribute('role') === 'menuitem') {
+                        if (parentElement.children[idx].getAttribute('role') === 'menuitem' && parentElement.children[idx].getAttribute('aria-disabled') !== 'true') {
                             (parentElement.children[idx] as HTMLElement).focus();
                             parentElement = null;
                             ev.preventDefault();
@@ -48,7 +49,7 @@ export default class AriaMenuItem extends Vue {
                 parentElement = (parentElement.nextElementSibling as HTMLElement);
                 if (parentElement) {
                     for (let idx = 0; idx < parentElement.children.length; idx++) {
-                        if (parentElement.children[idx].getAttribute('role') === 'menuitem') {
+                        if (parentElement.children[idx].getAttribute('role') === 'menuitem' && parentElement.children[idx].getAttribute('aria-disabled') !== 'true') {
                             (parentElement.children[idx] as HTMLElement).focus();
                             parentElement = null;
                             ev.preventDefault();

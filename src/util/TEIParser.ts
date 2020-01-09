@@ -1,7 +1,7 @@
 import XPathEvaluator from './XPathEvaluator';
 import get from './get';
 
-export default export class TEIParser {
+export default class TEIParser {
     private dom: XMLDocument;
     private xpath: XPathEvaluator;
     private sections: any;
@@ -19,7 +19,7 @@ export default export class TEIParser {
         if (this.parsed[section] === undefined) {
             if (this.sections[section].type === 'single-text') {
                 this.parsed[section] = this.parseSingleText(this.sections[section]);
-            } else if (this.sections[section].type === 'header') {
+            } else if (this.sections[section].type === 'MetadataEditor') {
                 this.parsed[section] = this.parseHeader(this.sections[section]);
             } else if (this.sections[section].type === 'multi-text') {
                 this.parsed[section] = this.parseMultiText(this.sections[section]);
@@ -213,7 +213,7 @@ export default export class TEIParser {
     }
 
     private parseHeader(section: any) {
-        let header = <Element>this.xpath.firstNode(this.dom.documentElement, section.tag);
+        let header = <Element>this.xpath.firstNode(this.dom.documentElement, '/tei:TEI/tei:teiHeader');
         let data = <any>{};
         for (let idx = 0; idx < section.schema.length; idx++) {
             let temp = this.parseHeaderNode(header, section.schema[idx]);

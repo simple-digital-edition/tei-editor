@@ -22,6 +22,10 @@ export default class App extends Vue {
                 this.$store.commit('init', config);
             }
         }
+        let docElement = document.getElementById('TEIEditorDocument');
+        if (docElement) {
+            this.$store.commit('load', docElement.innerHTML);
+        }
     }
 }
 </script>
