@@ -17,7 +17,7 @@ export default class TEIParser {
 
     public get(section: string) {
         if (this.parsed[section] === undefined) {
-            if (this.sections[section].type === 'single-text') {
+            if (this.sections[section].type === 'TextEditor') {
                 this.parsed[section] = this.parseSingleText(this.sections[section]);
             } else if (this.sections[section].type === 'MetadataEditor') {
                 this.parsed[section] = this.parseHeader(this.sections[section]);
@@ -29,12 +29,22 @@ export default class TEIParser {
     }
 
     private parseSingleText(section: any) {
-        let node = <Element>this.xpath.firstNode(this.dom.documentElement, section.parser.selector);
-        if (node) {
-            return this.parseContentNode(node, section);
-        } else {
-            return null;
+        let doc = {
+            type: 'doc',
+            content: [],
+        } as any;
+        if (section.parser && section.parser.selector) {
+            let node = <Element>this.xpath.firstNode(this.dom.documentElement, 'tei:body/' + section.parser.selector);
+            if (node) {
+                for(let idx = 0; idx < node.children.length; idx++) {
+                    let tmp = this.parseContentNode(node.children[idx], section);
+                    if (tmp) {
+                        doc.content.push(tmp);
+                    }
+                }
+            }
         }
+        return doc;
     }
 
     private parseContentAttributes(node: Element, attrs: any) {
@@ -78,27 +88,27 @@ export default class TEIParser {
         return result;
     }
 
-    private parseContentMarks(node: Element, marks: any) {
+    private parseContentMarks(node: Element, schema: any) {
         // Parse the marks of a text node
         let result = <any>[];
-        Object.entries(marks).forEach((entry) => {
-            let key = entry[0];
-            let schema = <any>entry[1];
-            let parsers = <any>[];
-            if (schema.parser) {
-                parsers.push(schema.parser);
-            } else if (schema.parsers) {
-                parsers = schema.parsers;
-            }
-            for (let idx = 0; idx < parsers.length; idx++) {
-                if (this.xpath.booleanValue(node, parsers[idx].selector)) {
-                    let mark = <any>{
-                        type: key
-                    };
-                    if (schema.attrs) {
-                        mark.attrs = this.parseContentAttributes(node, schema.attrs);
+        schema.forEach((entry: any) => {
+            if (entry.type === 'mark') {
+                let parsers = <any>[];
+                if (entry.parser) {
+                    parsers.push(entry.parser);
+                } else if (entry.parsers) {
+                    parsers = entry.parsers;
+                }
+                for (let idx = 0; idx < parsers.length; idx++) {
+                    if (this.xpath.booleanValue(node, parsers[idx].selector)) {
+                        let mark = <any>{
+                            type: entry.name
+                        };
+                        if (schema.attrs) {
+                            mark.attrs = this.parseContentAttributes(node, schema.attrs);
+                        }
+                        result.push(mark);
                     }
-                    result.push(mark);
                 }
             }
         });
@@ -107,9 +117,9 @@ export default class TEIParser {
 
     private parseContentNode(node: Element, section: any) {
         // Parse a single content node
-        let entries = Object.entries(section.schema.nodes);
+        let entries = Object.entries(section.schema);
         for (let idx = 0; idx < entries.length; idx++) {
-            let key = entries[idx][0];
+            //let key = entries[idx][0];
             let nodeSchema = <any>entries[idx][1];
             let parsers = <any>[];
             if (nodeSchema.parser) {
@@ -122,16 +132,16 @@ export default class TEIParser {
                 if (this.xpath.firstNode(node, 'self::' + parser.selector) !== null) {
                     // The first schema node where the parser selector matches is chosen as the result
                     let result = <any>{
-                        type: key
+                        type: nodeSchema.name
                     };
                     if (nodeSchema.attrs) {
                         result.attrs = this.parseContentAttributes(node, nodeSchema.attrs);
                     }
-                    if (nodeSchema.inline) {
+                    if (nodeSchema.type === 'inline') {
                         // Inline nodes are either loaded as text nodes with marks or as complex text nodes
-                        if (key === 'text') {
+                        if (nodeSchema.name === 'text') {
                             result.text = this.xpath.stringValue(node, parser.text);
-                            result.marks = this.parseContentMarks(node, section.schema.marks);
+                            result.marks = this.parseContentMarks(node, section.schema);
                             if (node.children.length === 1) {
                                 let temp = this.parseContentNode(node.children[0], section);
                                 if (temp.text && temp.text !== '') {
@@ -147,7 +157,7 @@ export default class TEIParser {
                                         {
                                             type: 'text',
                                             text: this.xpath.stringValue(node, parser.text),
-                                            marks: this.parseContentMarks(node, section.schema.marks)
+                                            marks: this.parseContentMarks(node, section.schema)
                                         }
                                     ];
                                 }

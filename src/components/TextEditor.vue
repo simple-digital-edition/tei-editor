@@ -3,7 +3,6 @@
     <editor-content :editor="editor"/>
     <editor-menu-bar :editor="editor" v-slot="{ commands, isActive, getMarkAttrs }">
       <div>
-          {{getMarkAttrs()}}
         <div>
           <h2>Blocktypes</h2>
           <ul role="menubar">
@@ -15,7 +14,7 @@
           </ul>
         </div>
         <template v-for="(config, idx) in schema">
-          <div v-if="isActive[config.name]() && config.attrs" :key="idx">
+          <div v-if="isActive[config.name] && isActive[config.name]() && config.attrs" :key="idx">
             <h2>{{ config.label }}</h2>
             <div v-for="(uiBlock, idx2) in config.ui" :key="idx2">
               <ul v-if="uiBlock.type === 'list'">
@@ -47,6 +46,7 @@ import { Component, Vue } from 'vue-property-decorator';
 import { Editor, EditorContent, EditorMenuBar, Doc, Text } from 'tiptap';
 import AriaMenubar from './AriaMenubar.vue';
 import BlockNode from '@/nodes/BlockNode';
+import MarkNode from '@/nodes/MarkNode';
 import { MenuItem } from '@/interfaces';
 
 @Component({
@@ -63,13 +63,16 @@ import { MenuItem } from '@/interfaces';
         this.$store.state.sections[this.$props.section].schema.forEach((config: any) => {
             if (config.type === 'block') {
                 extensions.push(new BlockNode(config));
+            } else if (config.type === 'inline' && config.name !== 'text') {
+            } else if (config.type === 'mark') {
+                extensions.push(new MarkNode(config));
             }
         });
         return {
             editor: new Editor({
                 useBuiltInExtensions: false,
                 extensions: extensions,
-                content: '<div class="node-heading" data-level="1" data-navIdentifier="Test">Testing</div><div class="node-paragraph">Test 1 2 3</div>',
+                content: this.$store.state.data[this.$props.section],
             }),
         };
     },

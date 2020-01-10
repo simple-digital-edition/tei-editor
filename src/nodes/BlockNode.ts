@@ -1,7 +1,7 @@
 // @ts-ignore
 import { Node } from 'tiptap'
 // @ts-ignore
-import { setBlockType, textblockTypeInputRule, toggleBlockType } from 'tiptap-commands';
+import { setBlockType } from 'tiptap-commands';
 
 export default class BlockNode extends Node {
     _config = {} as any;
@@ -40,8 +40,8 @@ export default class BlockNode extends Node {
                 let attributes = {
                     class: `node-${this._config.name}`,
                 } as any;
-                Object.keys(node.attrs).forEach((key) => {
-                    attributes[`data-${key}`] = node.attrs[key];
+                Object.entries(node.attrs).forEach(([key, value]) => {
+                    attributes[`data-${key}`] = value;
                 });
                 return ['div', attributes, 0];
             },

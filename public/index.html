@@ -28,6 +28,9 @@
     .node-paragraph[data-alignment="justify"] {
         text-align: justify;
     }
+    .mark-bold {
+        font-weight: bold;
+    }
     </style>
   </head>
   <body>
@@ -40,6 +43,9 @@
               "body": {
                   "label": "Main Text",
                   "type": "TextEditor",
+                  "parser": {
+                      "selector": "tei:text[@type=\"main\"]"
+                  },
                   "schema": [
                       {
                           "name": "paragraph",
@@ -47,8 +53,33 @@
                           "type": "block",
                           "attrs": {
                               "alignment": {
-                                  "default": "left"
+                                  "default": "left",
+                                  "parsers": [
+                                      {
+                                          "selector": "contains(@style, 'align-left')",
+                                          "type": "static",
+                                          "value": "left"
+                                      },
+                                      {
+                                          "selector": "contains(@style, 'align-center')",
+                                          "type": "static",
+                                          "value": "center"
+                                      },
+                                      {
+                                          "selector": "contains(@style, 'align-right')",
+                                          "type": "static",
+                                          "value": "right"
+                                      },
+                                      {
+                                          "selector": "contains(@style, 'align-justify')",
+                                          "type": "static",
+                                          "value": "justify"
+                                      }
+                                  ]
                               }
+                          },
+                          "parser": {
+                              "selector": "tei:p"
                           },
                           "ui": [
                               {
@@ -94,6 +125,9 @@
                                   "default": ""
                               }
                           },
+                          "parser": {
+                              "selector": "tei:head"
+                          },
                           "ui": [
                               {
                                   "type": "menubar",
@@ -116,9 +150,33 @@
                                   ]
                               }
                           ]
+                      },
+                      {
+                          "name": "text",
+                          "type": "inline",
+                          "parsers": [
+                              {
+                                  "selector": "tei:seg",
+                                  "text": "text()"
+                              },
+                              {
+                                  "selector": "tei:hi",
+                                  "text": "text()"
+                              }
+                          ]
+                      },
+                      {
+                          "name": "bold",
+
+                          "type": "mark",
+                          "parser": {
+                              "selector": "contains(@style, 'bold')"
+                          }
                       }
                   ],
-                  "ui": []
+                  "ui": [
+
+                  ]
               },
               "apparatus": {
                   "label": "Apparatus",
@@ -270,6 +328,21 @@
             </tei:publicationStmt>
           </tei:fileDesc>
         </tei:teiHeader>
+        <tei:body>
+          <tei:text type="main">
+            <tei:head>
+              <tei:seg>TEI Editor Test</tei:seg>
+            </tei:head>
+            <tei:p style="align-left">
+              <tei:seg>This text is </tei:seg>
+              <tei:hi style="bold">bold</tei:hi>
+              <tei:seg> and left aligned.</tei:seg>
+            </tei:p>
+            <tei:p style="align-right">
+              <tei:seg>This text is right aligned.</tei:seg>
+            </tei:p>
+          </tei:text>
+        </tei:body>
       </tei:TEI>
     </script>
     <div id="app"></div>
