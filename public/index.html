@@ -31,6 +31,9 @@
     .mark-bold {
         font-weight: bold;
     }
+    .mark-italic {
+        font-style: italic;
+    }
     </style>
   </head>
   <body>
@@ -114,10 +117,16 @@
                       },
                       {
                           "name": "bold",
-
                           "type": "mark",
                           "parser": {
                               "selector": "contains(@style, 'bold')"
+                          }
+                      },
+                      {
+                          "name": "italic",
+                          "type": "mark",
+                          "parser": {
+                              "selector": "contains(@style, 'italic')"
                           }
                       }
                   ],
@@ -158,6 +167,11 @@
                                           "type": "toggleMark",
                                           "label": "Bold",
                                           "markType": "bold"
+                                      },
+                                      {
+                                          "type": "toggleMark",
+                                          "label": "Italic",
+                                          "markType": "italic"
                                       }
                                   ]
                               }
@@ -396,6 +410,10 @@
             <tei:p style="align-left">
               <tei:seg>This text is </tei:seg>
               <tei:hi style="bold">bold</tei:hi>
+              <tei:seg> and </tei:seg>
+              <tei:hi style="bold">
+                <tei:hi style="italic">bold-italic</tei:hi>
+              </tei:hi>
               <tei:seg> and left aligned.</tei:seg>
             </tei:p>
             <tei:p style="align-right">
