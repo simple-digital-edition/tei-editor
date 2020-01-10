@@ -69,7 +69,7 @@ export default class TeiEditor extends Vue {
       height: 24px;
   }
 
-  ol {
+  ol, ul {
       margin: 0;
       padding: 0;
 

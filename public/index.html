@@ -16,6 +16,18 @@
     .node-heading[data-level="2"] {
         font-size: 18pt;
     }
+    .node-paragraph[data-alignment="left"] {
+        text-align: left;
+    }
+    .node-paragraph[data-alignment="center"] {
+        text-align: center;
+    }
+    .node-paragraph[data-alignment="right"] {
+        text-align: right;
+    }
+    .node-paragraph[data-alignment="justify"] {
+        text-align: justify;
+    }
     </style>
   </head>
   <body>
@@ -32,7 +44,43 @@
                       {
                           "name": "paragraph",
                           "label": "Paragraph",
-                          "type": "block"
+                          "type": "block",
+                          "attrs": {
+                              "alignment": {
+                                  "default": "left"
+                              }
+                          },
+                          "ui": [
+                              {
+                                  "type": "menubar",
+                                  "entities": [
+                                      {
+                                          "type": "button",
+                                          "label": "Left",
+                                          "value": "left",
+                                          "attr": "alignment"
+                                      },
+                                      {
+                                          "type": "button",
+                                          "label": "Center",
+                                          "value": "center",
+                                          "attr": "alignment"
+                                      },
+                                      {
+                                          "type": "button",
+                                          "label": "Right",
+                                          "value": "right",
+                                          "attr": "alignment"
+                                      },
+                                      {
+                                          "type": "button",
+                                          "label": "Justify",
+                                          "value": "justify",
+                                          "attr": "alignment"
+                                      }
+                                  ]
+                              }
+                          ]
                       },
                       {
                           "name": "heading",
@@ -40,18 +88,34 @@
                           "type": "block",
                           "attrs": {
                               "level": {
-                                  "default": "1",
-                                  "ui": {
-                                      "selectValues": [{"label": "Level 1", "value": "1"}, {"label": "Level 2", "value": "2"}]
-                                  }
+                                  "default": "1"
                               },
-                              "navMarker": {
-                                  "default": "",
-                                  "ui": {
-                                      "stringValue": "Navigation Marker"
-                                  }
+                              "navIdentifier": {
+                                  "default": ""
                               }
-                          }
+                          },
+                          "ui": [
+                              {
+                                  "type": "menubar",
+                                  "entities": [
+                                      {
+                                          "type": "select",
+                                          "attr": "level",
+                                          "values": [{"label": "Level 1", "value": "1"}, {"label": "Level 2", "value": "2"}]
+                                      }
+                                  ]
+                              },
+                              {
+                                  "type": "list",
+                                  "entities": [
+                                      {
+                                          "type": "string",
+                                          "label": "Navigation Identifier",
+                                          "attr": "navIdentifier"
+                                      }
+                                  ]
+                              }
+                          ]
                       }
                   ],
                   "ui": []

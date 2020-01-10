@@ -17,16 +17,23 @@
         <template v-for="(config, idx) in schema">
           <div v-if="isActive[config.name]() && config.attrs" :key="idx">
             <h2>{{ config.label }}</h2>
-            <ul role="menubar">
-              <template v-for="(attr, attrName, idx2) in config.attrs">
-                <li v-if="attr.ui" :key="idx2" role="presentation">
-                  <select v-if="attr.ui.selectValues" @change="commands[config.name]({[attrName]: $event.target.value})">
-                    <option v-for="value in attr.ui.selectValues" :key="value.value" :value="value.value" :selected="isActive[config.name]({[attrName]: value.value})">{{ value.label }}</option>
-                  </select>
-                  <input v-if="attr.ui.stringValue" type="text" @change="commands[config.name]({[attrName]: $event.target.value})" :placeholder="attr.ui.stringValue"/>
+            <div v-for="(uiBlock, idx2) in config.ui" :key="idx2">
+              <ul v-if="uiBlock.type === 'list'">
+                <li v-for="(uiElement, idx3) in uiBlock.entities" :key="idx3">
+                  <label>{{ uiElement.label }}
+                    <input v-if="uiElement.type === 'string'" type="text" :value="getNodeAttributeValue(config.name, uiElement.attr)" @change="setNodeAttributeValue(commands, config.name, uiElement.attr, $event.target.value)"/>
+                  </label>
                 </li>
-              </template>
-            </ul>
+              </ul>
+              <ul v-if="uiBlock.type === 'menubar'" role="menubar">
+                <li v-for="(uiElement, idx3) in uiBlock.entities" :key="idx3" role="presentation">
+                  <select v-if="uiElement.type === 'select'" role="menuitem" @change="setNodeAttributeValue(commands, config.name, uiElement.attr, $event.target.value)">
+                    <option v-for="value in uiElement.values" :key="value.value" :selected="hasNodeAttributeValue(config.name, uiElement.attr, value.value)" :value="value.value">{{ value.label }}</option>
+                  </select>
+                  <a v-if="uiElement.type === 'button'" v-html="uiElement.label" role="menuitem" :aria-selected="hasNodeAttributeValue(config.name, uiElement.attr, uiElement.value) ? 'true' : 'false'" @click="setNodeAttributeValue(commands, config.name, uiElement.attr, uiElement.value)"></a>
+                </li>
+              </ul>
+            </div>
           </div>
         </template>
       </div>
@@ -62,7 +69,7 @@ import { MenuItem } from '@/interfaces';
             editor: new Editor({
                 useBuiltInExtensions: false,
                 extensions: extensions,
-                content: '<div class="node-heading" data-level="1">Testing</div><div class="node-paragraph">Test 1 2 3</div>',
+                content: '<div class="node-heading" data-level="1" data-navIdentifier="Test">Testing</div><div class="node-paragraph">Test 1 2 3</div>',
             }),
         };
     },
@@ -79,6 +86,44 @@ export default class TextEditor extends Vue {
 
     get schema() {
         return this.$store.state.sections[this.$props.section].schema;
+    }
+
+    /**
+     * Gets a node attribute value.
+     */
+    getNodeAttributeValue(nodeName: string, attrName: string) {
+        const { from, to } = this.editor.state.selection;
+        let value = '';
+        this.editor.state.doc.nodesBetween(from, to, (node: any) => {
+            if (node.type.name === nodeName) {
+                if (node.attrs[attrName] !== undefined && node.attrs[attrName] !== null) {
+                    value = node.attrs[attrName];
+                }
+            }
+        });
+        return value;
+    }
+
+    /**
+     * Checks whether a node has an attribute with the given value.
+     */
+    hasNodeAttributeValue(nodeName: string, attrName: string, value: string) {
+        return this.getNodeAttributeValue(nodeName, attrName) === value;
+    }
+
+    /**
+     * Set a node attribute to the given value. Keeps all other attributes the same value.
+     */
+    setNodeAttributeValue(commands: any, nodeName: string, attrName: string, value: string) {
+        const { from, to } = this.editor.state.selection;
+        let attributes = {} as any;
+        this.editor.state.doc.nodesBetween(from, to, (node: any) => {
+            if (node.type.name === nodeName) {
+                attributes = {...node.attrs};
+            }
+        });
+        attributes[attrName] = value;
+        commands[nodeName](attributes);
     }
 }
 </script>
