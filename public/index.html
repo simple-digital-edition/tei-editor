@@ -80,38 +80,7 @@
                           },
                           "parser": {
                               "selector": "tei:p"
-                          },
-                          "ui": [
-                              {
-                                  "type": "menubar",
-                                  "entities": [
-                                      {
-                                          "type": "button",
-                                          "label": "Left",
-                                          "value": "left",
-                                          "attr": "alignment"
-                                      },
-                                      {
-                                          "type": "button",
-                                          "label": "Center",
-                                          "value": "center",
-                                          "attr": "alignment"
-                                      },
-                                      {
-                                          "type": "button",
-                                          "label": "Right",
-                                          "value": "right",
-                                          "attr": "alignment"
-                                      },
-                                      {
-                                          "type": "button",
-                                          "label": "Justify",
-                                          "value": "justify",
-                                          "attr": "alignment"
-                                      }
-                                  ]
-                              }
-                          ]
+                          }
                       },
                       {
                           "name": "heading",
@@ -127,29 +96,7 @@
                           },
                           "parser": {
                               "selector": "tei:head"
-                          },
-                          "ui": [
-                              {
-                                  "type": "menubar",
-                                  "entities": [
-                                      {
-                                          "type": "select",
-                                          "attr": "level",
-                                          "values": [{"label": "Level 1", "value": "1"}, {"label": "Level 2", "value": "2"}]
-                                      }
-                                  ]
-                              },
-                              {
-                                  "type": "list",
-                                  "entities": [
-                                      {
-                                          "type": "string",
-                                          "label": "Navigation Identifier",
-                                          "attr": "navIdentifier"
-                                      }
-                                  ]
-                              }
-                          ]
+                          }
                       },
                       {
                           "name": "text",
@@ -175,7 +122,120 @@
                       }
                   ],
                   "ui": [
+                      {
+                          "label": "Blocks",
+                          "entities": [
+                              {
+                                  "type": "menubar",
+                                  "entities": [
+                                      {
+                                          "type": "setNodeType",
+                                          "label": "Heading",
+                                          "nodeType": "heading"
+                                      },
+                                      {
+                                          "type": "setNodeType",
+                                          "label": "Paragraph",
+                                          "nodeType": "paragraph"
+                                      }
+                                  ]
+                              }
+                          ]
+                      },
+                      {
+                          "label": "Annotations",
+                          "entities": [
 
+                          ]
+                      },
+                      {
+                          "label": "Markup",
+                          "entities": [
+                              {
+                                  "type": "menubar",
+                                  "entities": [
+                                      {
+                                          "type": "toggleMark",
+                                          "label": "Bold",
+                                          "markType": "bold"
+                                      }
+                                  ]
+                              }
+                          ]
+                      },
+                      {
+                          "label": "Heading",
+                          "condition": {
+                              "type": "isActive",
+                              "activeType": "heading"
+                          },
+                          "entities": [
+                              {
+                                  "type": "menubar",
+                                  "entities": [
+                                      {
+                                          "type": "selectNodeAttr",
+                                          "nodeType": "heading",
+                                          "attr": "level",
+                                          "values": [{"label": "Level 1", "value": "1"}, {"label": "Level 2", "value": "2"}]
+                                      }
+                                  ]
+                              },
+                              {
+                                  "type": "list",
+                                  "entities": [
+                                      {
+                                          "type": "setNodeAttrString",
+                                          "nodeType": "heading",
+                                          "attr": "navIdentifier",
+                                          "label": "Navigation Identifier"
+                                      }
+                                  ]
+                              }
+                          ]
+                      },
+                      {
+                          "label": "Paragraph",
+                          "condition": {
+                              "type": "isActive",
+                              "activeType": "paragraph"
+                          },
+                          "entities": [
+                              {
+                                  "type": "menubar",
+                                  "entities": [
+                                      {
+                                          "type": "setNodeAttrValue",
+                                          "nodeType": "paragraph",
+                                          "attr": "alignment",
+                                          "value": "left",
+                                          "label": "Left"
+                                      },
+                                      {
+                                          "type": "setNodeAttrValue",
+                                          "nodeType": "paragraph",
+                                          "attr": "alignment",
+                                          "value": "center",
+                                          "label": "Center"
+                                      },
+                                      {
+                                          "type": "setNodeAttrValue",
+                                          "nodeType": "paragraph",
+                                          "attr": "alignment",
+                                          "value": "right",
+                                          "label": "Right"
+                                      },
+                                      {
+                                          "type": "setNodeAttrValue",
+                                          "nodeType": "paragraph",
+                                          "attr": "alignment",
+                                          "value": "justify",
+                                          "label": "Justify"
+                                      }
+                                  ]
+                              }
+                          ]
+                      }
                   ]
               },
               "apparatus": {

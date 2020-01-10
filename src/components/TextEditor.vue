@@ -3,38 +3,28 @@
     <editor-content :editor="editor"/>
     <editor-menu-bar :editor="editor" v-slot="{ commands, isActive, getMarkAttrs }">
       <div>
-        <div>
-          <h2>Blocktypes</h2>
-          <ul role="menubar">
-            <template v-for="(config, idx) in schema">
-              <li v-if="config.type === 'block'" :key="idx">
-                <a role="menuitem" :aria-checked="isActive[config.name]() ? 'true': 'false'" @click="commands[config.name]()">{{ config.label }}</a>
+         <div v-for="(block, idx) in activeUIBlocks" :key="idx">
+          <h2>{{ block.label }}</h2>
+          <template v-for="(section, idx2) in block.entities">
+            <ul v-if="section.type === 'list'" :key="idx2">
+              <li v-for="(menuitem, idx3) in section.entities" :key="idx3" role="presentation">
+                <label>{{ menuitem.label }}
+                  <input v-if="menuitem.type === 'setNodeAttrString'" :value="getNodeAttributeValue(menuitem.nodeType, menuitem.attr)" @change="setNodeAttributeValue(commands, menuitem.nodeType, menuitem.attr, $event.target.value)"/>
+                </label>
               </li>
-            </template>
-          </ul>
+            </ul>
+            <ul v-if="section.type === 'menubar'" :key="idx2" role="menubar">
+              <li v-for="(menuitem, idx3) in section.entities" :key="idx3" role="presentation">
+                <a v-if="menuitem.type === 'setNodeType'" role="menuitem" v-html="menuitem.label" :aria-checked="isActive[menuitem.nodeType]() ? 'true' : 'false'" @click="commands[menuitem.nodeType]()"></a>
+                <a v-if="menuitem.type === 'setNodeAttrValue'" role="menuitem" v-html="menuitem.label" :aria-checked="hasNodeAttributeValue(menuitem.nodeType, menuitem.attr, menuitem.value) ? 'true' : 'false'" @click="setNodeAttributeValue(commands, menuitem.nodeType, menuitem.attr, menuitem.value)"></a>
+                <a v-if="menuitem.type === 'toggleMark'" role="menuitem" v-html="menuitem.label" :aria-checked="isActive[menuitem.markType]() ? 'true' : 'false'" @click="commands[menuitem.markType]()"></a>
+                <select v-if="menuitem.type === 'selectNodeAttr'" role="menuitem" @change="setNodeAttributeValue(commands, menuitem.nodeType, menuitem.attr, $event.target.value)">
+                  <option v-for="value in menuitem.values" :key="value.value" :selected="hasNodeAttributeValue(menuitem.nodeType, menuitem.attr, value.value)" :value="value.value">{{ value.label }}</option>
+                </select>
+              </li>
+            </ul>
+          </template>
         </div>
-        <template v-for="(config, idx) in schema">
-          <div v-if="isActive[config.name] && isActive[config.name]() && config.attrs" :key="idx">
-            <h2>{{ config.label }}</h2>
-            <div v-for="(uiBlock, idx2) in config.ui" :key="idx2">
-              <ul v-if="uiBlock.type === 'list'">
-                <li v-for="(uiElement, idx3) in uiBlock.entities" :key="idx3">
-                  <label>{{ uiElement.label }}
-                    <input v-if="uiElement.type === 'string'" type="text" :value="getNodeAttributeValue(config.name, uiElement.attr)" @change="setNodeAttributeValue(commands, config.name, uiElement.attr, $event.target.value)"/>
-                  </label>
-                </li>
-              </ul>
-              <ul v-if="uiBlock.type === 'menubar'" role="menubar">
-                <li v-for="(uiElement, idx3) in uiBlock.entities" :key="idx3" role="presentation">
-                  <select v-if="uiElement.type === 'select'" role="menuitem" @change="setNodeAttributeValue(commands, config.name, uiElement.attr, $event.target.value)">
-                    <option v-for="value in uiElement.values" :key="value.value" :selected="hasNodeAttributeValue(config.name, uiElement.attr, value.value)" :value="value.value">{{ value.label }}</option>
-                  </select>
-                  <a v-if="uiElement.type === 'button'" v-html="uiElement.label" role="menuitem" :aria-selected="hasNodeAttributeValue(config.name, uiElement.attr, uiElement.value) ? 'true' : 'false'" @click="setNodeAttributeValue(commands, config.name, uiElement.attr, uiElement.value)"></a>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </template>
       </div>
     </editor-menu-bar>
   </div>
@@ -89,6 +79,23 @@ export default class TextEditor extends Vue {
 
     get schema() {
         return this.$store.state.sections[this.$props.section].schema;
+    }
+
+    get ui() {
+        return this.$store.state.sections[this.$props.section].ui;
+    }
+
+    get activeUIBlocks() {
+        const isActive = this.editor.isActive;
+        return this.ui.filter((block: any) => {
+            if (block.condition) {
+                if (block.condition.type === 'isActive') {
+                    return isActive[block.condition.activeType]();
+                }
+                return false;
+            }
+            return true;
+        });
     }
 
     /**
