@@ -34,6 +34,12 @@
     .mark-italic {
         font-style: italic;
     }
+    .mark-fontSize[data-size="large"] {
+        font-size: 120%;
+    }
+    .mark-fontSize[data-size="small"] {
+        font-size: 80%;
+    }
     </style>
   </head>
   <body>
@@ -127,6 +133,45 @@
                           "type": "mark",
                           "parser": {
                               "selector": "contains(@style, 'italic')"
+                          }
+                      },
+                      {
+                          "name": "fontSize",
+                          "type": "mark",
+                          "parsers": [
+                              {
+                                  "selector": "contains(@style, 'font-size-large')"
+                              },
+                              {
+                                  "selector": "contains(@style, 'font-size-small')"
+                              }
+                          ],
+                          "serializer": {
+                              "tag": "tei:hi"
+                          },
+                          "attrs": {
+                              "size": {
+                                  "default": "normal",
+                                  "parsers": [
+                                      {
+                                          "selector": "contains(@style, 'font-size-large')",
+                                          "type": "static",
+                                          "value": "large"
+                                      },
+                                      {
+                                          "selector": "contains(@style, 'font-size-small')",
+                                          "type": "static",
+                                          "value": "small"
+                                      }
+                                  ],
+                                  "serializer": {
+                                      "attr": "style",
+                                      "values": {
+                                          "small": "font-size-small",
+                                          "large": "font-size-large"
+                                      }
+                                  }
+                              }
                           }
                       }
                   ],
@@ -418,6 +463,13 @@
             </tei:p>
             <tei:p style="align-right">
               <tei:seg>This text is right aligned.</tei:seg>
+            </tei:p>
+            <tei:p>
+              <tei:seg>Here is some </tei:seg>
+              <tei:hi style="font-size-large">large</tei:hi>
+              <tei:seg> and </tei:seg>
+              <tei:hi style="font-size-small">small</tei:hi>
+              <tei:seg> text.</tei:seg>
             </tei:p>
           </tei:text>
         </tei:body>

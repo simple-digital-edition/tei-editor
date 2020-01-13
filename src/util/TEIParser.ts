@@ -104,8 +104,8 @@ export default class TEIParser {
                         let mark = <any>{
                             type: entry.name
                         };
-                        if (schema.attrs) {
-                            mark.attrs = this.parseContentAttributes(node, schema.attrs);
+                        if (entry.attrs) {
+                            mark.attrs = this.parseContentAttributes(node, entry.attrs);
                         }
                         result.push(mark);
                     }

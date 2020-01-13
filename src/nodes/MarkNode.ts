@@ -17,6 +17,7 @@ export default class MarkNode extends Mark {
 
     get schema() {
         return {
+            attrs: this._config.attrs,
             parseDOM: [
                 {
                     tag: `span.mark-${this._config.name}`,
@@ -36,12 +37,12 @@ export default class MarkNode extends Mark {
             ],
             toDOM: (mark: any) => {
                 let attributes = {
-                    class: `node-${this._config.name}`,
+                    class: `mark-${this._config.name}`,
                 } as any;
                 Object.entries(mark.attrs).forEach(([key, value]) => {
                     attributes[`data-${key}`] = value;
                 });
-                return ['span', {class: `mark-${this._config.name}`}, 0]
+                return ['span', attributes, 0]
             },
         }
     }
