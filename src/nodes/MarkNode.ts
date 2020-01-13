@@ -40,7 +40,9 @@ export default class MarkNode extends Mark {
                     class: `mark-${this._config.name}`,
                 } as any;
                 Object.entries(mark.attrs).forEach(([key, value]) => {
-                    attributes[`data-${key}`] = value;
+                    if (value) {
+                        attributes[`data-${key}`] = value;
+                    }
                 });
                 return ['span', attributes, 0]
             },

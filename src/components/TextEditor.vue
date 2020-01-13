@@ -21,6 +21,9 @@
                 <select v-if="menuitem.type === 'selectNodeAttr'" role="menuitem" @change="setNodeAttributeValue(commands, menuitem.nodeType, menuitem.attr, $event.target.value)">
                   <option v-for="value in menuitem.values" :key="value.value" :selected="hasNodeAttributeValue(menuitem.nodeType, menuitem.attr, value.value)" :value="value.value">{{ value.label }}</option>
                 </select>
+                <select v-if="menuitem.type === 'selectMarkAttr'" role="menuitem" @change="setMarkAttributeValue(menuitem.markType, menuitem.attr, $event.target.value)">
+                  <option v-for="value in menuitem.values" :key="value.value" :selected="hasMarkAttributeValue(menuitem.markType, menuitem.attr, value.value)" :value="value.value">{{ value.label }}</option>
+                </select>
               </li>
             </ul>
           </template>
@@ -34,6 +37,8 @@
 import { Component, Vue } from 'vue-property-decorator';
 // @ts-ignore
 import { Editor, EditorContent, EditorMenuBar, Doc, Text } from 'tiptap';
+// @ts-ignore
+import { removeMark, updateMark } from 'tiptap-commands'
 import AriaMenubar from './AriaMenubar.vue';
 import BlockNode from '@/nodes/BlockNode';
 import MarkNode from '@/nodes/MarkNode';
@@ -129,11 +134,50 @@ export default class TextEditor extends Vue {
         let attributes = {} as any;
         this.editor.state.doc.nodesBetween(from, to, (node: any) => {
             if (node.type.name === nodeName) {
-                attributes = {...node.attrs};
+                attributes = {...attributes, ...node.attrs};
             }
         });
         attributes[attrName] = value;
         commands[nodeName](attributes);
+    }
+
+    getMarkAttributeValue(markName: string, attrName: string) {
+        const { from, to } = this.editor.state.selection;
+        let value = '';
+        this.editor.state.doc.nodesBetween(from, to, (node: any) => {
+            if (node.marks) {
+                node.marks.forEach((mark: any) => {
+                    if (mark.type.name === markName) {
+                        value = mark.attrs[attrName];
+                    }
+                });
+            }
+        });
+        return value
+    }
+
+    hasMarkAttributeValue(markName: string, attrName: string, value: string) {
+        return this.getMarkAttributeValue(markName, attrName) === value;
+    }
+
+    setMarkAttributeValue(markName: string, attrName: string, value: string) {
+        if (value) {
+            const { from, to } = this.editor.state.selection;
+            let attributes = {} as any;
+            this.editor.state.doc.nodesBetween(from, to, (node: any) => {
+                if (node.marks) {
+                    node.marks.forEach((mark: any) => {
+                        if (mark.type.name === markName) {
+                            attributes = {...attributes, ...mark.attrs};
+                        }
+                    });
+                }
+            });
+            attributes[attrName] = value;
+            updateMark(this.editor.schema.marks[markName], attributes)(this.editor.state, this.editor.dispatchTransaction.bind(this.editor));
+        } else {
+            removeMark(this.editor.schema.marks[markName])(this.editor.state, this.editor.dispatchTransaction.bind(this.editor));
+        }
     }
 }
 </script>

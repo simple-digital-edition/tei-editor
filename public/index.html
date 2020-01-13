@@ -151,7 +151,7 @@
                           },
                           "attrs": {
                               "size": {
-                                  "default": "normal",
+                                  "default": "",
                                   "parsers": [
                                       {
                                           "selector": "contains(@style, 'font-size-large')",
@@ -217,6 +217,12 @@
                                           "type": "toggleMark",
                                           "label": "Italic",
                                           "markType": "italic"
+                                      },
+                                      {
+                                        "type": "selectMarkAttr",
+                                        "markType": "fontSize",
+                                        "attr": "size",
+                                        "values": [{"value": "", "label": "Normal"}, {"value": "small", "label": "Small"}, {"value": "large", "label": "Large"}]
                                       }
                                   ]
                               }
