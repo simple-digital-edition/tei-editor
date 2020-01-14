@@ -84,6 +84,9 @@
     .node-proof::after {
         content: '\25A1';
     }
+    .node-footnote {
+        text-decoration: underline dotted;
+    }
     .mark-bold {
         font-weight: bold;
     }
@@ -235,6 +238,26 @@
                                       "value": "proof"
                                   }
                               }
+                          }
+                      },
+                      {
+                          "name": "footnote",
+                          "type": "inline",
+                          "parser": {
+                              "selector": "tei:ref[@type=\"footnote\"]",
+                              "text": "text()"
+                          },
+                          "serializer": {
+                              "tag": "tei:ref"
+                            },
+                            "attrs": {
+                                "function": {
+                                    "default": "footnote",
+                                    "serializer": {
+                                        "attr": "type",
+                                        "value": "footnote"
+                                    }
+                                }
                           }
                       },
                       {
@@ -617,6 +640,11 @@
             </tei:list>
             <tei:p>
               <tei:metamark function="proof">This is proven.</tei:metamark>
+            </tei:p>
+            <tei:p>
+              <tei:seg>This line has a </tei:seg>
+              <tei:ref type="footnote">footnote</tei:ref>
+              <tei:seg>.</tei:seg>
             </tei:p>
           </tei:text>
         </tei:body>
