@@ -42,6 +42,7 @@ import { removeMark, updateMark } from 'tiptap-commands'
 import AriaMenubar from './AriaMenubar.vue';
 import BlockNode from '@/nodes/BlockNode';
 import WrappingNode from '@/nodes/WrappingNode';
+import InlineNode from '@/nodes/InlineNode';
 import MarkNode from '@/nodes/MarkNode';
 import { MenuItem } from '@/interfaces';
 
@@ -62,6 +63,7 @@ import { MenuItem } from '@/interfaces';
             } else if (config.type === 'wrapping') {
                 extensions.push(new WrappingNode(config));
             } else if (config.type === 'inline' && config.name !== 'text') {
+                extensions.push(new InlineNode(config));
             } else if (config.type === 'mark') {
                 extensions.push(new MarkNode(config));
             }

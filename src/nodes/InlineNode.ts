@@ -1,9 +1,5 @@
 // @ts-ignore
-import { Node } from 'tiptap';
-// @ts-ignore
-import { findParentNode } from 'prosemirror-utils';
-// @ts-ignore
-import { liftTarget } from 'prosemirror-transform';
+import { Node } from 'tiptap'
 
 export default class BlockNode extends Node {
     _config = {} as any;
@@ -19,13 +15,12 @@ export default class BlockNode extends Node {
 
     get schema() {
         return {
-            content: this._config.content + '+',
-            //content: 'block+',
-            group: 'block',
-            draggable: false,
+            content: 'inline*',
+            group: 'inline',
+            inline: true,
             attrs: this._config.attrs,
             parseDOM: [{
-                tag: `div.node-${this._config.name}`,
+                tag: `span.node-${this._config.name}`,
                 getAttrs: (dom: HTMLElement) => {
                     let attrs = {} as any;
                     if (this._config.attrs) {
@@ -46,39 +41,28 @@ export default class BlockNode extends Node {
                 Object.entries(node.attrs).forEach(([key, value]) => {
                     attributes[`data-${key}`] = value;
                 });
-                return ['div', attributes, 0];
+                return ['span', attributes, 0];
             },
         };
     }
 
-    commands({ type, schema }: any) {
-        const itemType = schema.nodes[this._config.content];
-
-        return () => {
+    commands({ type }: any) {
+        return (attrs: any) => {
             return (state: any, dispatch: any) => {
                 const { selection } = state;
                 const { $from, $to, from, to } = selection;
-                const range = $from.blockRange($to);
-                const target = range && liftTarget(range)
-
-                if (!range || target === null) {
-                    return false;
-    		    }
-
-                const parentList = findParentNode(node => node.type === type)(selection);
-
-                if (range.depth >= 1 && parentList && range.depth - parentList.depth <= 1) {
-                    if (parentList.node.type === type) {
-                        let tr = state.tr.lift(range, target);
-                        tr = tr.setBlockType(from, to, schema.nodes.paragraph);
-                        dispatch(tr);
-                        return true;
+                let existing = false;
+                state.doc.nodesBetween(from, to, (node: any) => {
+                    if (node.type === type) {
+                        existing = true;
                     }
+                });
+                let slice = $from.parent.slice($from.parentOffset, $to.parentOffset);
+                if (existing) {
+                    dispatch(state.tr.replaceRange(from-1, to+1, slice));
+                } else {
+                    dispatch(state.tr.replaceRangeWith(from, to, type.create(attrs, slice.content)));
                 }
-
-                let tr = state.tr.setBlockType(from, to, itemType);
-                tr = tr.wrap(range, [{type: type}]);
-                dispatch(tr);
                 return true;
             }
         }

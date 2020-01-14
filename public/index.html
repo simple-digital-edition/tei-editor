@@ -9,12 +9,16 @@
     <style>
     .node-heading {
         font-weight: bold;
+        margin-bottom: 0.5rem;
     }
     .node-heading[data-level="1"] {
         font-size: 24pt;
     }
     .node-heading[data-level="2"] {
         font-size: 18pt;
+    }
+    .node-paragraph {
+        margin-bottom: 0.5rem;
     }
     .node-paragraph[data-alignment="left"] {
         text-align: left;
@@ -30,6 +34,7 @@
     }
     .node-list {
         margin-left: 1rem;
+        margin-bottom: 0.5rem;
     }
     .node-listItem::before {
         content: '\2022';
@@ -39,6 +44,9 @@
         width: 1rem;
         padding-right: 0.2rem;
         margin-left: -1rem;
+    }
+    .node-proof::after {
+        content: '\25A1';
     }
     .mark-bold {
         font-weight: bold;
@@ -151,6 +159,26 @@
                           ]
                       },
                       {
+                          "name": "proof",
+                          "type": "inline",
+                          "parser": {
+                              "selector": "tei:metamark[@function=\"proof\"]",
+                              "text": "text()"
+                          },
+                          "serializer": {
+                              "tag": "tei:metamark"
+                          },
+                          "attrs": {
+                              "function": {
+                                  "default": "proof",
+                                  "serializer": {
+                                      "attr": "function",
+                                      "value": "proof"
+                                  }
+                              }
+                          }
+                      },
+                      {
                           "name": "bold",
                           "type": "mark",
                           "parser": {
@@ -233,7 +261,16 @@
                       {
                           "label": "Annotations",
                           "entities": [
-
+                              {
+                                  "type": "menubar",
+                                  "entities": [
+                                       {
+                                          "type": "setNodeType",
+                                          "label": "Proof",
+                                          "nodeType": "proof"
+                                       }
+                                  ]
+                              }
                           ]
                       },
                       {
@@ -519,6 +556,9 @@
                 <tei:seg>Another bullet point</tei:seg>
               </tei:item>
             </tei:list>
+            <tei:p>
+              <tei:metamark function="proof">This is proven.</tei:metamark>
+            </tei:p>
           </tei:text>
         </tei:body>
       </tei:TEI>
