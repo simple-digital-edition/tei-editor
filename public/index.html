@@ -176,7 +176,10 @@
                                   "default": "1"
                               },
                               "navIdentifier": {
-                                  "default": ""
+                                  "default": "",
+                                  "parser": {
+                                      "selector": "@data-navIdentifier"
+                                  }
                               }
                           },
                           "parser": {
@@ -582,7 +585,7 @@
         </tei:teiHeader>
         <tei:body>
           <tei:text type="main">
-            <tei:head>
+            <tei:head data-navIdentifier="heading-1">
               <tei:seg>TEI Editor Test</tei:seg>
             </tei:head>
             <tei:p style="align-left">
