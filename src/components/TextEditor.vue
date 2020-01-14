@@ -41,6 +41,7 @@ import { Editor, EditorContent, EditorMenuBar, Doc, Text } from 'tiptap';
 import { removeMark, updateMark } from 'tiptap-commands'
 import AriaMenubar from './AriaMenubar.vue';
 import BlockNode from '@/nodes/BlockNode';
+import WrappingNode from '@/nodes/WrappingNode';
 import MarkNode from '@/nodes/MarkNode';
 import { MenuItem } from '@/interfaces';
 
@@ -58,6 +59,8 @@ import { MenuItem } from '@/interfaces';
         this.$store.state.sections[this.$props.section].schema.forEach((config: any) => {
             if (config.type === 'block') {
                 extensions.push(new BlockNode(config));
+            } else if (config.type === 'wrapping') {
+                extensions.push(new WrappingNode(config));
             } else if (config.type === 'inline' && config.name !== 'text') {
             } else if (config.type === 'mark') {
                 extensions.push(new MarkNode(config));
