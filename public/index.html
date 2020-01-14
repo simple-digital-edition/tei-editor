@@ -7,6 +7,42 @@
     <link rel="icon" href="<%= BASE_URL %>favicon.ico">
     <title>tei-editor</title>
     <style>
+    body {
+        margin: 0;
+    }
+    label {
+        display: block;
+    }
+    label input, label select {
+        display: block;
+    }
+    /** Menu styling **/
+    [role="menubar"], [role="menu"] {
+        background: #dddddd;
+    }
+    [role="menu"] {
+        z-index: 1;
+    }
+    [role="menubar"] li {
+        margin-right: 0.1rem;
+    }
+    [role="menubar"] a[role="menuitem"], [role="menubar"] span[role="menuitem"] {
+        display: block;
+        padding: 0.3rem 0.5rem;
+        border-radius: 3px;
+    }
+    [role="menubar"] a[role="menuitem"][aria-checked="true"], [role="menubar"] a[role="menuitem"]:hover {
+        background: #222222;
+        color: #fefefe;
+    }
+    [role="menubar"] a[role="menuitem"][aria-checked="true"] path, [role="menubar"] a[role="menuitem"]:hover path {
+        fill: #fefefe;
+    }
+    [role="menubar"] span[role="menuitem"][aria-disabled="true"] {
+        cursor: not-allowed;
+    }
+
+    /** Text Content Styling */
     .node-heading {
         font-weight: bold;
         margin-bottom: 0.5rem;
@@ -59,6 +95,26 @@
     }
     .mark-fontSize[data-size="small"] {
         font-size: 80%;
+    }
+
+    /** App styling */
+    #tei-editor {
+        height: 100vh !important;
+    }
+
+    /** Texteditor styling */
+    .text-editor .ProseMirror {
+        padding: 0 0.5rem;
+    }
+    .text-editor > div:nth-child(2) {
+        background: #dddddd;
+        padding: 0 0.5rem 0.5rem 0.5rem;
+        overflow-y: auto;
+    }
+
+    /** Metadata styling */
+    .metadata-editor [role="menubar"], .metadata-editor [role="menu"] {
+        background: transparent;
     }
     </style>
   </head>

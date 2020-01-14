@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="metadata-editor">
     <section v-for="(section, idx) in config.ui" :key="idx">
       <h2>{{ section.label }}</h2>
       <div v-for="(entry, idx2) in section.entries" :key="idx2">
