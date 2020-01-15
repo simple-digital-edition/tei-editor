@@ -41,7 +41,7 @@ export default new Vuex.Store({
               menuItems.push({
                   label: config.sections[key].label,
                   action: 'section:' + key,
-                  selected: false,
+                  selected: idx === 0,
               });
               if (idx === 0) {
                   state.ui.currentSection = key;
