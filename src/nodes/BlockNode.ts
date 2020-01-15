@@ -49,6 +49,9 @@ export default class BlockNode extends Node {
     }
 
     commands({ type }: any) {
-        return (attrs: any) => setBlockType(type, attrs);
+        return {
+            [type.name]: (attrs: any) => setBlockType(type, attrs),
+            [type.name + '_setAttribute']: (attrs: any) => setBlockType(type, attrs),
+        };
     }
 }

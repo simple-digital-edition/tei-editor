@@ -4,47 +4,38 @@ import get from './get';
 export default class TEIParser {
     private dom: XMLDocument;
     private xpath: XPathEvaluator;
-    private sections: any;
-    private parsed: any;
+    private config: any;
+    private doc: any;
+    private nestedDocs: any;
 
-    constructor(data: string, sections: any) {
-        let domParser = new DOMParser();
-        this.dom = domParser.parseFromString(data, 'application/xml');
+    constructor(dom: XMLDocument, config: any) {
+        this.dom = dom;
         this.xpath = new XPathEvaluator(this.dom);
-        this.sections = sections;
-        this.parsed = {};
+        this.config = config;
     }
 
-    public get(section: string) {
-        if (this.parsed[section] === undefined) {
-            if (this.sections[section].type === 'TextEditor') {
-                this.parsed[section] = this.parseSingleText(this.sections[section]);
-            } else if (this.sections[section].type === 'MetadataEditor') {
-                this.parsed[section] = this.parseHeader(this.sections[section]);
-            } else if (this.sections[section].type === 'multi-text') {
-                this.parsed[section] = this.parseMultiText(this.sections[section]);
-            }
-        }
-        return this.parsed[section];
-    }
-
-    private parseSingleText(section: any) {
-        let doc = {
-            type: 'doc',
-            content: [],
-        } as any;
-        if (section.parser && section.parser.selector) {
-            let node = <Element>this.xpath.firstNode(this.dom.documentElement, 'tei:body/' + section.parser.selector);
-            if (node) {
-                for(let idx = 0; idx < node.children.length; idx++) {
-                    let tmp = this.parseContentNode(node.children[idx], section);
-                    if (tmp) {
-                        doc.content.push(tmp);
+    public get() {
+        if (!this.doc) {
+            this.doc = {
+                type: 'doc',
+                content: [],
+            };
+            this.nestedDocs = {};
+            if (this.config.parser && this.config.parser.selector) {
+                let node = <Element>this.xpath.firstNode(this.dom.documentElement, 'tei:body/' + this.config.parser.selector);
+                if (node) {
+                    for(let idx = 0; idx < node.children.length; idx++) {
+                        let tmp = this.parseContentNode(node.children[idx], this.config);
+                        if (tmp && !tmp.nestedDoc) {
+                            this.doc.content.push(tmp);
+                        } else if (tmp.nestedDoc) {
+                            this.addNestedDoc(tmp);
+                        }
                     }
                 }
             }
         }
-        return doc;
+        return [this.doc, this.nestedDocs];
     }
 
     private parseContentAttributes(node: Element, attrs: any) {
@@ -137,6 +128,9 @@ export default class TEIParser {
                     if (nodeSchema.attrs) {
                         result.attrs = this.parseContentAttributes(node, nodeSchema.attrs);
                     }
+                    if (nodeSchema.type === 'nested') {
+                        result.nestedDoc = true;
+                    }
                     if (nodeSchema.type === 'inline') {
                         // Inline nodes are either loaded as text nodes with marks or as complex text nodes
                         if (nodeSchema.name === 'text') {
@@ -176,8 +170,10 @@ export default class TEIParser {
                         let content = [];
                         for (let idx3 = 0; idx3 < node.children.length; idx3++) {
                             let child = this.parseContentNode(node.children[idx3], section);
-                            if (child) {
+                            if (child && !child.nestedDoc) {
                                 content.push(child);
+                            } else if (child.nestedDoc) {
+                                this.addNestedDoc(child);
                             }
                         }
                         result.content = content;
@@ -188,70 +184,17 @@ export default class TEIParser {
         }
     }
 
-    private parseHeaderNode(node: Element, schema: any) {
-        let elements = this.xpath.nodeIterator(node, schema.tag);
-        let result = <any>[];
-        let element = <Element>elements.iterateNext();
-        while (element) {
-            let obj = <any>{
-                _attrs: {},
-                _text: element.children.length === 0 ? this.xpath.stringValue(element, 'text()') : null
-            };
-            for(let idx = 0; idx < element.attributes.length; idx++) {
-                obj._attrs[element.attributes[idx].name] = element.attributes[idx].value;
+    private addNestedDoc(nestedParent: any) {
+        if (nestedParent.attrs && nestedParent.attrs.id) {
+            if (!this.nestedDocs[nestedParent.type]) {
+                this.nestedDocs[nestedParent.type] = {};
             }
-            if (schema.children) {
-                for (let idx = 0; idx < schema.children.length; idx++) {
-                    let temp = this.parseHeaderNode(element, schema.children[idx]);
-                    if (temp) {
-                        obj[schema.children[idx].tag.substring(schema.children[idx].tag.indexOf(':') + 1)] = temp;
-                    }
-                }
+            this.nestedDocs[nestedParent.type][nestedParent.attrs.id] = nestedParent;
+            let nestedDoc = {
+                type: 'doc',
+                content: nestedParent.content,
             }
-            result.push(obj);
-            element = <Element>elements.iterateNext();
+            nestedParent.content = [nestedDoc];
         }
-        if (result.length === 0) {
-            return null;
-        } else {
-            if (schema.multiple) {
-                return result;
-            } else {
-                return result[0];
-            }
-        }
-    }
-
-    private parseHeader(section: any) {
-        let header = <Element>this.xpath.firstNode(this.dom.documentElement, '/tei:TEI/tei:teiHeader');
-        let data = <any>{};
-        for (let idx = 0; idx < section.schema.length; idx++) {
-            let temp = this.parseHeaderNode(header, section.schema[idx]);
-            if (temp) {
-                data[section.schema[idx].tag.substring(4)] = temp;
-            }
-        }
-        return data;
-    }
-
-    private parseMultiText(section: any) {
-        let root = this.xpath.firstNode(this.dom.documentElement, section.parser.selector);
-        if (root) {
-            let parts = [];
-            let nodes = this.xpath.nodeIterator(root, section.parts.parser.selector);
-            let node = <Element>nodes.iterateNext();
-            while (node) {
-                let part = this.parseContentNode(node, section);
-                if (part) {
-                    parts.push({
-                        id: node.getAttribute('xml:id'),
-                        text: part
-                    });
-                }
-                node = <Element>nodes.iterateNext();
-            }
-            return parts;
-        }
-        return [];
     }
 }

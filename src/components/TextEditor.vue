@@ -2,7 +2,7 @@
   <div class="text-editor">
     <editor-content :editor="editor"/>
     <editor-menu-bar :editor="editor" v-slot="{ commands, isActive, getMarkAttrs }">
-      <div>
+      <div class="sidebar">
          <div v-for="(block, idx) in activeUIBlocks" :key="idx">
           <h2>{{ block.label }}</h2>
           <template v-for="(section, idx2) in block.entities">
@@ -24,12 +24,17 @@
                 <select v-if="menuitem.type === 'selectMarkAttr'" role="menuitem" @change="setMarkAttributeValue(menuitem.markType, menuitem.attr, $event.target.value)">
                   <option v-for="value in menuitem.values" :key="value.value" :selected="hasMarkAttributeValue(menuitem.markType, menuitem.attr, value.value)" :value="value.value">{{ value.label }}</option>
                 </select>
+                <a v-if="menuitem.type === 'editNestedDoc'" role="menuitem" v-html="menuitem.label" @click="editNestedDoc(commands, menuitem.nodeType, menuitem.attr, menuitem.editNodeType)"></a>
+                <a v-if="menuitem.type === 'closeNested'" role="menuitem" v-html="menuitem.label" @click="closeNestedAction"></a>
               </li>
             </ul>
           </template>
         </div>
       </div>
     </editor-menu-bar>
+    <div v-if="showNested" class="nested">
+      <text-editor :section="section" :dataPath="nestedSettings.dataPath" :uiPath="nestedSettings.uiPath" :closeNestedAction="closeNestedEditor"/>
+    </div>
   </div>
 </template>
 
@@ -45,6 +50,7 @@ import WrappingNode from '@/nodes/WrappingNode';
 import InlineNode from '@/nodes/InlineNode';
 import MarkNode from '@/nodes/MarkNode';
 import { MenuItem } from '@/interfaces';
+import get from '@/util/get';
 
 @Component({
     components: {
@@ -72,16 +78,21 @@ import { MenuItem } from '@/interfaces';
             editor: new Editor({
                 useBuiltInExtensions: false,
                 extensions: extensions,
-                content: this.$store.state.data[this.$props.section],
+                content: get(this.$store.state.data[this.$props.section], this.$props.dataPath),
             }),
         };
     },
     props: {
         section: String,
+        dataPath: String,
+        uiPath: String,
+        closeNestedAction: Function,
     },
 })
 export default class TextEditor extends Vue {
     editor:Editor;
+    showNested = false;
+    nestedSettings = null as any;
 
     public beforeDestroy() {
         this.editor.destroy()
@@ -92,7 +103,7 @@ export default class TextEditor extends Vue {
     }
 
     get ui() {
-        return this.$store.state.sections[this.$props.section].ui;
+        return get(this.$store.state.sections[this.$props.section].ui, this.$props.uiPath);
     }
 
     get activeUIBlocks() {
@@ -143,7 +154,7 @@ export default class TextEditor extends Vue {
             }
         });
         attributes[attrName] = value;
-        commands[nodeName](attributes);
+        commands[nodeName + '_setAttribute'](attributes);
     }
 
     getMarkAttributeValue(markName: string, attrName: string) {
@@ -183,6 +194,31 @@ export default class TextEditor extends Vue {
         } else {
             removeMark(this.editor.schema.marks[markName])(this.editor.state, this.editor.dispatchTransaction.bind(this.editor));
         }
+    }
+
+    editNestedDoc(commands: any, nodeName: string, attrName: string, editNodeName: string) {
+        let nestedId = this.getNodeAttributeValue(nodeName, attrName);
+        if (!nestedId) {
+            let nestedDocs = this.$store.state.data[this.$props.section].nested[editNodeName];
+            nestedId = editNodeName + '-1';
+            let idx = 1;
+            while (nestedDocs && nestedDocs[nestedId]) {
+                idx = idx + 1;
+                nestedId = editNodeName + '-' + idx;
+            }
+            this.setNodeAttributeValue(commands, nodeName, attrName, nestedId);
+            this.$store.commit('addNestedDoc', {section: this.$props.section, nodeType: editNodeName, nodeId: nestedId});
+        }
+        this.showNested = true;
+        this.nestedSettings = {
+            'dataPath': 'nested.' + editNodeName + '.' + nestedId + '.content.[0]',
+            'uiPath': editNodeName,
+        };
+    }
+
+    closeNestedEditor() {
+        this.showNested = false;
+        this.nestedSettings = null;
     }
 }
 </script>

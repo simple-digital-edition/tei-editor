@@ -84,7 +84,7 @@
     .node-proof::after {
         content: '\25A1';
     }
-    .node-footnote {
+    .node-footnoteMarker {
         text-decoration: underline dotted;
     }
     .mark-bold {
@@ -113,6 +113,9 @@
         background: #dddddd;
         padding: 0 0.5rem 0.5rem 0.5rem;
         overflow-y: auto;
+    }
+    .text-editor .nested {
+        background: #ffffff;
     }
 
     /** Metadata styling */
@@ -241,7 +244,7 @@
                           }
                       },
                       {
-                          "name": "footnote",
+                          "name": "footnoteMarker",
                           "type": "inline",
                           "parser": {
                               "selector": "tei:ref[@type=\"footnote\"]",
@@ -251,13 +254,50 @@
                               "tag": "tei:ref"
                             },
                             "attrs": {
-                                "function": {
+                                "type": {
                                     "default": "footnote",
                                     "serializer": {
                                         "attr": "type",
                                         "value": "footnote"
                                     }
+                                },
+                                "target": {
+                                    "default": "",
+                                    "parser": {
+                                        "selector": "substring(@target, 2)"
+                                    },
+                                    "serializer": {
+                                        "attr": "target",
+                                        "value": "#{value}"
+                                    }
                                 }
+                          }
+                      },
+                      {
+                          "name": "footnote",
+                          "type": "nested",
+                          "parser": {
+                              "selector": "tei:note[@type=\"footnote\"]"
+                          },
+                          "serializer": {
+                              "tag": "tei:ref"
+                          },
+                          "attrs": {
+                              "id": {
+                                  "parser": {
+                                      "selector": "@xml:id"
+                                  },
+                                  "seralizer": {
+                                      "attr": "xml:id"
+                                  }
+                              },
+                              "type": {
+                                  "default": "footnote",
+                                  "serializer": {
+                                      "attr": "type",
+                                      "value": "footnote"
+                                  }
+                              }
                           }
                       },
                       {
@@ -314,147 +354,217 @@
                           }
                       }
                   ],
-                  "ui": [
-                      {
-                          "label": "Blocks",
-                          "entities": [
-                              {
-                                  "type": "menubar",
-                                  "entities": [
-                                      {
-                                          "type": "setNodeType",
-                                          "label": "Heading",
-                                          "nodeType": "heading"
-                                      },
-                                      {
-                                          "type": "setNodeType",
-                                          "label": "Paragraph",
-                                          "nodeType": "paragraph"
-                                      },
-                                      {
-                                          "type": "setNodeType",
-                                          "label": "List",
-                                          "nodeType": "list"
-                                      }
-                                  ]
-                              }
-                          ]
-                      },
-                      {
-                          "label": "Annotations",
-                          "entities": [
-                              {
-                                  "type": "menubar",
-                                  "entities": [
-                                       {
-                                          "type": "setNodeType",
-                                          "label": "Proof",
-                                          "nodeType": "proof"
-                                       }
-                                  ]
-                              }
-                          ]
-                      },
-                      {
-                          "label": "Markup",
-                          "entities": [
-                              {
-                                  "type": "menubar",
-                                  "entities": [
-                                      {
-                                          "type": "toggleMark",
-                                          "label": "Bold",
-                                          "markType": "bold"
-                                      },
-                                      {
-                                          "type": "toggleMark",
-                                          "label": "Italic",
-                                          "markType": "italic"
-                                      },
-                                      {
-                                        "type": "selectMarkAttr",
-                                        "markType": "fontSize",
-                                        "attr": "size",
-                                        "values": [{"value": "", "label": "Normal"}, {"value": "small", "label": "Small"}, {"value": "large", "label": "Large"}]
-                                      }
-                                  ]
-                              }
-                          ]
-                      },
-                      {
-                          "label": "Heading",
-                          "condition": {
-                              "type": "isActive",
-                              "activeType": "heading"
+                  "ui": {
+                      "doc": [
+                          {
+                              "label": "Blocks",
+                              "entities": [
+                                  {
+                                      "type": "menubar",
+                                      "entities": [
+                                          {
+                                              "type": "setNodeType",
+                                              "label": "Heading",
+                                              "nodeType": "heading"
+                                          },
+                                          {
+                                              "type": "setNodeType",
+                                              "label": "Paragraph",
+                                              "nodeType": "paragraph"
+                                          },
+                                          {
+                                              "type": "setNodeType",
+                                              "label": "List",
+                                              "nodeType": "list"
+                                          }
+                                      ]
+                                  }
+                              ]
                           },
-                          "entities": [
-                              {
-                                  "type": "menubar",
-                                  "entities": [
-                                      {
-                                          "type": "selectNodeAttr",
-                                          "nodeType": "heading",
-                                          "attr": "level",
-                                          "values": [{"label": "Level 1", "value": "1"}, {"label": "Level 2", "value": "2"}]
-                                      }
-                                  ]
+                          {
+                              "label": "Annotations",
+                              "entities": [
+                                  {
+                                      "type": "menubar",
+                                      "entities": [
+                                          {
+                                             "type": "setNodeType",
+                                             "label": "Proof",
+                                             "nodeType": "proof"
+                                         },
+                                          {
+                                             "type": "setNodeType",
+                                             "label": "Footnote",
+                                             "nodeType": "footnoteMarker"
+                                          }
+                                      ]
+                                  }
+                              ]
+                          },
+                          {
+                              "label": "Markup",
+                              "entities": [
+                                  {
+                                      "type": "menubar",
+                                      "entities": [
+                                          {
+                                              "type": "toggleMark",
+                                              "label": "Bold",
+                                              "markType": "bold"
+                                          },
+                                          {
+                                              "type": "toggleMark",
+                                              "label": "Italic",
+                                              "markType": "italic"
+                                          },
+                                          {
+                                            "type": "selectMarkAttr",
+                                            "markType": "fontSize",
+                                            "attr": "size",
+                                            "values": [{"value": "", "label": "Normal"}, {"value": "small", "label": "Small"}, {"value": "large", "label": "Large"}]
+                                          }
+                                      ]
+                                  }
+                              ]
+                          },
+                          {
+                              "label": "Heading",
+                              "condition": {
+                                  "type": "isActive",
+                                  "activeType": "heading"
                               },
-                              {
-                                  "type": "list",
-                                  "entities": [
-                                      {
-                                          "type": "setNodeAttrString",
-                                          "nodeType": "heading",
-                                          "attr": "navIdentifier",
-                                          "label": "Navigation Identifier"
-                                      }
-                                  ]
-                              }
-                          ]
-                      },
-                      {
-                          "label": "Paragraph",
-                          "condition": {
-                              "type": "isActive",
-                              "activeType": "paragraph"
+                              "entities": [
+                                  {
+                                      "type": "menubar",
+                                      "entities": [
+                                          {
+                                              "type": "selectNodeAttr",
+                                              "nodeType": "heading",
+                                              "attr": "level",
+                                              "values": [{"label": "Level 1", "value": "1"}, {"label": "Level 2", "value": "2"}]
+                                          }
+                                      ]
+                                  },
+                                  {
+                                      "type": "list",
+                                      "entities": [
+                                          {
+                                              "type": "setNodeAttrString",
+                                              "nodeType": "heading",
+                                              "attr": "navIdentifier",
+                                              "label": "Navigation Identifier"
+                                          }
+                                      ]
+                                  }
+                              ]
                           },
-                          "entities": [
-                              {
-                                  "type": "menubar",
-                                  "entities": [
-                                      {
-                                          "type": "setNodeAttrValue",
-                                          "nodeType": "paragraph",
-                                          "attr": "alignment",
-                                          "value": "left",
-                                          "label": "Left"
-                                      },
-                                      {
-                                          "type": "setNodeAttrValue",
-                                          "nodeType": "paragraph",
-                                          "attr": "alignment",
-                                          "value": "center",
-                                          "label": "Center"
-                                      },
-                                      {
-                                          "type": "setNodeAttrValue",
-                                          "nodeType": "paragraph",
-                                          "attr": "alignment",
-                                          "value": "right",
-                                          "label": "Right"
-                                      },
-                                      {
-                                          "type": "setNodeAttrValue",
-                                          "nodeType": "paragraph",
-                                          "attr": "alignment",
-                                          "value": "justify",
-                                          "label": "Justify"
-                                      }
-                                  ]
-                              }
-                          ]
-                      }
-                  ]
+                          {
+                              "label": "Paragraph",
+                              "condition": {
+                                  "type": "isActive",
+                                  "activeType": "paragraph"
+                              },
+                              "entities": [
+                                  {
+                                      "type": "menubar",
+                                      "entities": [
+                                          {
+                                              "type": "setNodeAttrValue",
+                                              "nodeType": "paragraph",
+                                              "attr": "alignment",
+                                              "value": "left",
+                                              "label": "Left"
+                                          },
+                                          {
+                                              "type": "setNodeAttrValue",
+                                              "nodeType": "paragraph",
+                                              "attr": "alignment",
+                                              "value": "center",
+                                              "label": "Center"
+                                          },
+                                          {
+                                              "type": "setNodeAttrValue",
+                                              "nodeType": "paragraph",
+                                              "attr": "alignment",
+                                              "value": "right",
+                                              "label": "Right"
+                                          },
+                                          {
+                                              "type": "setNodeAttrValue",
+                                              "nodeType": "paragraph",
+                                              "attr": "alignment",
+                                              "value": "justify",
+                                              "label": "Justify"
+                                          }
+                                      ]
+                                  }
+                              ]
+                          },
+                          {
+                              "label": "Footnote",
+                              "condition": {
+                                  "type": "isActive",
+                                  "activeType": "footnoteMarker"
+                              },
+                              "entities": [
+                                  {
+                                      "type": "menubar",
+                                      "entities": [
+                                          {
+                                              "type": "editNestedDoc",
+                                              "nodeType": "footnoteMarker",
+                                              "attr": "target",
+                                              "label": "Edit",
+                                              "editNodeType": "footnote"
+                                          }
+                                      ]
+                                  }
+                              ]
+                          }
+                      ],
+                      "footnote": [
+                          {
+                              "label": "Footnote",
+                              "entities": [
+                                  {
+                                      "type": "menubar",
+                                      "entities": [
+                                          {
+                                              "type": "closeNested",
+                                              "label": "Close"
+                                          }
+                                      ]
+                                  }
+                              ]
+                          },
+                          {
+                              "label": "Markup",
+                              "entities": [
+                                  {
+                                      "type": "menubar",
+                                      "entities": [
+                                          {
+                                              "type": "toggleMark",
+                                              "label": "Bold",
+                                              "markType": "bold"
+                                          },
+                                          {
+                                              "type": "toggleMark",
+                                              "label": "Italic",
+                                              "markType": "italic"
+                                          },
+                                          {
+                                            "type": "selectMarkAttr",
+                                            "markType": "fontSize",
+                                            "attr": "size",
+                                            "values": [{"value": "", "label": "Normal"}, {"value": "small", "label": "Small"}, {"value": "large", "label": "Large"}]
+                                          }
+                                      ]
+                                  }
+                              ]
+                          }
+                      ]
+                  }
               },
               "apparatus": {
                   "label": "Apparatus",
@@ -643,9 +753,16 @@
             </tei:p>
             <tei:p>
               <tei:seg>This line has a </tei:seg>
-              <tei:ref type="footnote">footnote</tei:ref>
+              <tei:ref type="footnote" target="#footnote-1">footnote</tei:ref>
               <tei:seg>.</tei:seg>
             </tei:p>
+            <tei:note xml:id="footnote-1" type="footnote">
+              <tei:p>
+                <tei:seg>This is </tei:seg>
+                <tei:hi style="bold">just</tei:hi>
+                <tei:seg> a simple footnote.</tei:seg>
+              </tei:p>
+            </tei:note>
           </tei:text>
         </tei:body>
       </tei:TEI>

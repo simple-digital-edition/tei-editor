@@ -2,7 +2,8 @@ import Vue from "vue";
 import Vuex from "vuex";
 
 import { State, MenuItem, MetadataValueChange, MetadataMultiRowMove } from '@/interfaces';
-import TEIParser from '@/util/TEIParser';
+import TEIMetadataParser from '@/util/TEIMetadataParser';
+import TEITextParser from '@/util/TEITextParser';
 import deepclone from '@/util/deepclone';
 import get from '@/util/get';
 
@@ -62,9 +63,15 @@ export default new Vuex.Store({
       },
 
       load(state, sourceData: string) {
-          let parser = new TEIParser(sourceData, state.sections);
-          Object.keys(state.sections).forEach((key) => {
-              Vue.set(state.data, key, parser.get(key));
+          let domParser = new DOMParser();
+          let dom = domParser.parseFromString(sourceData, 'application/xml');
+          Object.entries(state.sections).forEach(([key, config]) => {
+              if (config.type === 'MetadataEditor') {
+                  Vue.set(state.data, key, (new TEIMetadataParser(dom, config)).get());
+              } else if (config.type === 'TextEditor') {
+                  let [doc, nestedDocs] = (new TEITextParser(dom, config)).get();
+                  Vue.set(state.data, key, {doc: doc, nested: nestedDocs});
+              }
           });
       },
 
@@ -144,6 +151,21 @@ export default new Vuex.Store({
                   Vue.set(state.data, state.settings.metadataSection, metadata);
               }
           }
+      },
+
+      addNestedDoc(state, payload: any) {
+          Vue.set(state.data[payload.section].nested[payload.nodeType], payload.nodeId, {
+              type: payload.nodeType,
+              content: [
+                  {
+                      type: 'doc',
+                      content: []
+                  }
+              ],
+              attrs: {
+                  'xml:id': payload.nodeId
+              }
+          })
       }
   },
   actions: {},

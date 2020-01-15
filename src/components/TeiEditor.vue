@@ -7,7 +7,7 @@
       <template v-for="(section, sectionName, index) in sections">
         <template v-if="sectionName === currentSection">
           <metadata-editor v-if="section.type === 'MetadataEditor'" :key="index" :config="section"></metadata-editor>
-          <text-editor v-if="section.type === 'TextEditor'" :key="index" :section="sectionName"></text-editor>
+          <text-editor v-if="section.type === 'TextEditor'" :key="index" :section="sectionName" :dataPath="'doc'" :uiPath="'doc'"></text-editor>
         </template>
       </template>
     </div>
@@ -107,13 +107,20 @@ export default class TeiEditor extends Vue {
       flex-direction: row;
       height: 100%;
       width: 100%;
+      position: relative;
 
-      > div:first-child {
+      > div:nth-child(1) {
           flex: 1 1 auto;
       }
 
-      > div:last-child {
+      > div.sidebar {
           flex: 0 0 auto;
+      }
+
+      > div.nested {
+          position: absolute;
+          width: 100%;
+          height: 100%;
       }
   }
 }

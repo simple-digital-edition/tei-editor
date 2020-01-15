@@ -47,23 +47,38 @@ export default class BlockNode extends Node {
     }
 
     commands({ type }: any) {
-        return (attrs: any) => {
-            return (state: any, dispatch: any) => {
-                const { selection } = state;
-                const { $from, $to, from, to } = selection;
-                let existing = false;
-                state.doc.nodesBetween(from, to, (node: any) => {
-                    if (node.type === type) {
-                        existing = true;
+        return {
+            [type.name]: (attrs: any) => {
+                return (state: any, dispatch: any) => {
+                    const { selection } = state;
+                    const { $from, $to, from, to } = selection;
+                    let existing = false;
+                    state.doc.nodesBetween(from, to, (node: any) => {
+                        if (node.type === type) {
+                            existing = true;
+                        }
+                    });
+                    let slice = $from.parent.slice($from.parentOffset, $to.parentOffset);
+                    if (existing) {
+                        dispatch(state.tr.replaceRange(from - 1, to + 1, slice));
+                    } else {
+                        dispatch(state.tr.replaceRangeWith(from, to, type.create(attrs, slice.content)));
                     }
-                });
-                let slice = $from.parent.slice($from.parentOffset, $to.parentOffset);
-                if (existing) {
-                    dispatch(state.tr.replaceRange(from-1, to+1, slice));
-                } else {
-                    dispatch(state.tr.replaceRangeWith(from, to, type.create(attrs, slice.content)));
+                    return true;
                 }
-                return true;
+            },
+            [type.name + '_setAttribute']: (attrs: any) => {
+                return (state: any, dispatch: any) => {
+                    const { selection } = state;
+                    const { $from, $to, from, to } = selection;
+                    const range = $from.blockRange($to);
+                    if (!range) {
+                        return false;
+        		    }
+                    let slice = state.doc.slice(range.start + 1, range.end - 1);
+                    dispatch(state.tr.replaceRangeWith(range.start, range.end, type.create(attrs, slice.content)));
+                    return true;
+                }
             }
         }
     }
