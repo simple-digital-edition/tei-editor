@@ -166,6 +166,31 @@ export default new Vuex.Store({
                   'xml:id': payload.nodeId
               }
           })
+      },
+
+      setTextDoc(state, payload: any) {
+          let path = payload.path.split('.');
+          let obj = state.data[payload.section];
+          while (path.length > 0) {
+              let pathElement = path[0];
+              if (pathElement[0] === '[' && pathElement[pathElement.length - 1] === ']') {
+                  pathElement = Number.parseInt(pathElement.slice(1, pathElement.length - 1));
+              }
+              if (obj[pathElement]) {
+                  if (path.length > 1) {
+                      obj = obj[pathElement];
+                  } else {
+                      Vue.set(obj, pathElement, payload.doc);
+                  }
+              } else {
+                  if (path.length > 1) {
+                      Vue.set(obj, pathElement, {});
+                  } else {
+                      Vue.set(obj, pathElement, payload.doc);
+                  }
+              }
+              path.splice(0, 1);
+          }
       }
   },
   actions: {},

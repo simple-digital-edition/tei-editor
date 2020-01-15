@@ -79,6 +79,13 @@ import get from '@/util/get';
                 useBuiltInExtensions: false,
                 extensions: extensions,
                 content: get(this.$store.state.data[this.$props.section], this.$props.dataPath),
+                onUpdate: ({ getJSON }: any) => {
+                    this.$store.commit('setTextDoc', {
+                        section: this.$props.section,
+                        path: this.$props.dataPath,
+                        doc: getJSON(),
+                    });
+                }
             }),
         };
     },
@@ -93,6 +100,10 @@ export default class TextEditor extends Vue {
     editor:Editor;
     showNested = false;
     nestedSettings = null as any;
+
+    public mounted() {
+        this.editor.focus();
+    }
 
     public beforeDestroy() {
         this.editor.destroy()
