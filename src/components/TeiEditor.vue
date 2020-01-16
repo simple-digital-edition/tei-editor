@@ -1,7 +1,23 @@
 <template>
   <div id="tei-editor">
     <nav>
-      <aria-menubar :items="menuItems" @action="menuAction" />
+      <aria-menubar v-slot="{ keyboardNav, mouseClickNav }">
+        <ul role="menubar">
+          <li role="presentation">
+            <a role="menuitem" tabindex="0" aria-expanded="false" @keyup="keyboardNav" @click="mouseClickNav">File</a>
+            <aria-menu v-slot="{ keyboardNav, mouseClickNav }">
+              <ul role="menu" aria-hidden="true">
+                <li role="presentation">
+                  <a role="menuitem" tabindex="-1" @click="mouseClickNav($event); save()" @keyup="keyboardNav">Save</a>
+                </li>
+              </ul>
+           </aria-menu>
+          </li>
+          <li v-for="(section, key, idx) in sections" :key="idx" role="presentation">
+            <a role="menuitem" tabindex="-1" :aria-checked="(key === currentSection) ? 'true' : 'false'" @click="mouseClickNav($event); setCurrentSection(key)" @keyup="keyboardNav">{{ section.label }}</a>
+          </li>
+        </ul>
+      </aria-menubar>
     </nav>
     <div>
       <template v-for="(section, sectionName, index) in sections">
@@ -17,12 +33,14 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
 import AriaMenubar from './AriaMenubar.vue';
+import AriaMenu from './AriaMenu.vue';
 import MetadataEditor from './MetadataEditor.vue';
 import TextEditor from './TextEditor.vue';
 
 @Component({
     components: {
         AriaMenubar,
+        AriaMenu,
         MetadataEditor,
         TextEditor,
     },
@@ -40,10 +58,12 @@ export default class TeiEditor extends Vue {
         return this.$store.state.ui.currentSection;
     }
 
-    menuAction(name: string) {
-        if (name.substring(0, 8) === 'section:') {
-            this.$store.commit('setCurrentSection', name.substring(8));
-        }
+    public save() {
+        console.log('Saving');
+    }
+
+    public setCurrentSection(section: string) {
+        this.$store.commit('setCurrentSection', section);
     }
 }
 </script>

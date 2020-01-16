@@ -1,7 +1,7 @@
 import Vue from "vue";
 import Vuex from "vuex";
 
-import { State, MenuItem, MetadataValueChange, MetadataMultiRowMove } from '@/interfaces';
+import { State, MetadataValueChange, MetadataMultiRowMove } from '@/interfaces';
 import TEIMetadataParser from '@/util/TEIMetadataParser';
 import TEITextParser from '@/util/TEITextParser';
 import deepclone from '@/util/deepclone';
@@ -11,17 +11,6 @@ Vue.use(Vuex);
 
 const defaultState: State = {
     ui: {
-        mainMenu: [
-            {
-                label: 'File',
-                children: [
-                    {
-                        label: 'Save',
-                        action: 'save',
-                    }
-                ],
-            },
-        ],
         currentSection: '',
     },
     settings: {
@@ -36,13 +25,7 @@ export default new Vuex.Store({
   mutations: {
       init(state, config) {
           state.sections = config.sections;
-          let menuItems = state.ui.mainMenu.slice();
           Object.keys(config.sections).forEach((key, idx) => {
-              menuItems.push({
-                  label: config.sections[key].label,
-                  action: 'section:' + key,
-                  selected: idx === 0,
-              });
               if (idx === 0) {
                   state.ui.currentSection = key;
               }
@@ -50,16 +33,10 @@ export default new Vuex.Store({
                   state.settings.metadataSection = key;
               }
           });
-          state.ui.mainMenu = menuItems;
       },
 
       setCurrentSection(state, sectionName: string) {
           state.ui.currentSection = sectionName;
-          let menuItems = state.ui.mainMenu.slice();
-          menuItems.forEach((item: MenuItem) => {
-              item.selected = (item.action === 'section:' + sectionName);
-          });
-          state.ui.mainMenu = menuItems;
       },
 
       load(state, sourceData: string) {

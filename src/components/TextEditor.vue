@@ -49,7 +49,6 @@ import BlockNode from '@/nodes/BlockNode';
 import WrappingNode from '@/nodes/WrappingNode';
 import InlineNode from '@/nodes/InlineNode';
 import MarkNode from '@/nodes/MarkNode';
-import { MenuItem } from '@/interfaces';
 import get from '@/util/get';
 
 @Component({

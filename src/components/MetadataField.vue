@@ -28,7 +28,6 @@
 import { Component, Vue } from 'vue-property-decorator';
 import AriaMenubar from './AriaMenubar.vue';
 import get from '@/util/get';
-import { MenuItem } from '@/interfaces';
 
 
 @Component({

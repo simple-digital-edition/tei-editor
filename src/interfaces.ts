@@ -6,20 +6,11 @@ export interface State {
 }
 
 export interface StateUI {
-    mainMenu: MenuItem[];
     currentSection: string;
 }
 
 export interface Settings {
     metadataSection: string;
-}
-
-export interface MenuItem {
-    label: string;
-    children?: MenuItem[];
-    action?: string;
-    selected?: boolean;
-    disabled?: boolean;
 }
 
 export interface Sections {
