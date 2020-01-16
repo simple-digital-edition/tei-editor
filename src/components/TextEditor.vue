@@ -13,21 +13,23 @@
                 </label>
               </li>
             </ul>
-            <ul v-if="section.type === 'menubar'" :key="idx2" role="menubar">
-              <li v-for="(menuitem, idx3) in section.entities" :key="idx3" role="presentation">
-                <a v-if="menuitem.type === 'setNodeType'" role="menuitem" v-html="menuitem.label" :aria-checked="isActive[menuitem.nodeType]() ? 'true' : 'false'" @click="commands[menuitem.nodeType]()"></a>
-                <a v-if="menuitem.type === 'setNodeAttrValue'" role="menuitem" v-html="menuitem.label" :aria-checked="hasNodeAttributeValue(menuitem.nodeType, menuitem.attr, menuitem.value) ? 'true' : 'false'" @click="setNodeAttributeValue(commands, menuitem.nodeType, menuitem.attr, menuitem.value)"></a>
-                <a v-if="menuitem.type === 'toggleMark'" role="menuitem" v-html="menuitem.label" :aria-checked="isActive[menuitem.markType]() ? 'true' : 'false'" @click="commands[menuitem.markType]()"></a>
-                <select v-if="menuitem.type === 'selectNodeAttr'" role="menuitem" @change="setNodeAttributeValue(commands, menuitem.nodeType, menuitem.attr, $event.target.value)">
-                  <option v-for="value in menuitem.values" :key="value.value" :selected="hasNodeAttributeValue(menuitem.nodeType, menuitem.attr, value.value)" :value="value.value">{{ value.label }}</option>
-                </select>
-                <select v-if="menuitem.type === 'selectMarkAttr'" role="menuitem" @change="setMarkAttributeValue(menuitem.markType, menuitem.attr, $event.target.value)">
-                  <option v-for="value in menuitem.values" :key="value.value" :selected="hasMarkAttributeValue(menuitem.markType, menuitem.attr, value.value)" :value="value.value">{{ value.label }}</option>
-                </select>
-                <a v-if="menuitem.type === 'editNestedDoc'" role="menuitem" v-html="menuitem.label" @click="editNestedDoc(commands, menuitem.nodeType, menuitem.attr, menuitem.editNodeType)"></a>
-                <a v-if="menuitem.type === 'closeNested'" role="menuitem" v-html="menuitem.label" @click="closeNestedAction"></a>
-              </li>
-            </ul>
+            <aria-menubar v-if="section.type === 'menubar'" :key="idx2" v-slot="{ keyboardNav }">
+              <ul role="menubar">
+                <li v-for="(menuitem, idx3) in section.entities" :key="idx3" role="presentation">
+                  <a v-if="menuitem.type === 'setNodeType'" role="menuitem" :tabindex="idx3 === 0 ? '0' : '-1'" v-html="menuitem.label" :aria-checked="isActive[menuitem.nodeType]() ? 'true' : 'false'" @keyup="keyboardNav" @click="commands[menuitem.nodeType]()"></a>
+                  <a v-if="menuitem.type === 'setNodeAttrValue'" role="menuitem" :tabindex="idx3 === 0 ? '0' : '-1'" v-html="menuitem.label" :aria-checked="hasNodeAttributeValue(menuitem.nodeType, menuitem.attr, menuitem.value) ? 'true' : 'false'" @keyup="keyboardNav" @click="setNodeAttributeValue(commands, menuitem.nodeType, menuitem.attr, menuitem.value)"></a>
+                  <a v-if="menuitem.type === 'toggleMark'" role="menuitem" :tabindex="idx3 === 0 ? '0' : '-1'" v-html="menuitem.label" :aria-checked="isActive[menuitem.markType]() ? 'true' : 'false'" @keyup="keyboardNav" @click="commands[menuitem.markType]()"></a>
+                  <select v-if="menuitem.type === 'selectNodeAttr'" role="menuitem" :tabindex="idx3 === 0 ? '0' : '-1'" @keyup="keyboardNav" @change="setNodeAttributeValue(commands, menuitem.nodeType, menuitem.attr, $event.target.value)">
+                    <option v-for="value in menuitem.values" :key="value.value" :selected="hasNodeAttributeValue(menuitem.nodeType, menuitem.attr, value.value)" :value="value.value">{{ value.label }}</option>
+                  </select>
+                  <select v-if="menuitem.type === 'selectMarkAttr'" role="menuitem" :tabindex="idx3 === 0 ? '0' : '-1'" @keyup="keyboardNav" @change="setMarkAttributeValue(menuitem.markType, menuitem.attr, $event.target.value)">
+                    <option v-for="value in menuitem.values" :key="value.value" :selected="hasMarkAttributeValue(menuitem.markType, menuitem.attr, value.value)" :value="value.value">{{ value.label }}</option>
+                  </select>
+                  <a v-if="menuitem.type === 'editNestedDoc'" role="menuitem" :tabindex="idx3 === 0 ? '0' : '-1'" v-html="menuitem.label" @keyup="keyboardNav" @click="editNestedDoc(commands, menuitem.nodeType, menuitem.attr, menuitem.editNodeType)"></a>
+                  <a v-if="menuitem.type === 'closeNested'" role="menuitem" :tabindex="idx3 === 0 ? '0' : '-1'" v-html="menuitem.label" @keyup="keyboardNav" @click="closeNestedAction"></a>
+                </li>
+              </ul>
+            </aria-menubar>
           </template>
         </div>
       </div>
