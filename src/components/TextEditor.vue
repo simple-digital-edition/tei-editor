@@ -25,8 +25,11 @@
                   <select v-if="menuitem.type === 'selectMarkAttr'" role="menuitem" :tabindex="idx3 === 0 ? '0' : '-1'" @keyup="keyboardNav" @change="setMarkAttributeValue(menuitem.markType, menuitem.attr, $event.target.value)">
                     <option v-for="value in menuitem.values" :key="value.value" :selected="hasMarkAttributeValue(menuitem.markType, menuitem.attr, value.value)" :value="value.value">{{ value.label }}</option>
                   </select>
-                  <a v-if="menuitem.type === 'editNestedDoc'" role="menuitem" :tabindex="idx3 === 0 ? '0' : '-1'" v-html="menuitem.label" @keyup="keyboardNav" @click="editNestedDoc(commands, menuitem.nodeType, menuitem.attr, menuitem.editNodeType)"></a>
+                  <a v-if="menuitem.type === 'editNestedDoc'" role="menuitem" :tabindex="idx3 === 0 ? '0' : '-1'" v-html="menuitem.label" @keyup="keyboardNav" @click="editNestedDoc(commands, menuitem.nodeType, menuitem.attr, menuitem.targetNodeType)"></a>
                   <a v-if="menuitem.type === 'closeNested'" role="menuitem" :tabindex="idx3 === 0 ? '0' : '-1'" v-html="menuitem.label" @keyup="keyboardNav" @click="closeNestedAction"></a>
+                  <select v-if="menuitem.type === 'linkNestedDoc'" role="menuitem" :tabindex="idx3 === 0 ? '0' : '-1'" @keyup="keyboardNav" @change="setNodeAttributeValue(commands, menuitem.nodeType, menuitem.attr, $event.target.value)">
+                    <option v-for="value in getNestedIds(menuitem.targetNodeType)" :key="value.value" :selected="hasNodeAttributeValue(menuitem.nodeType, menuitem.attr, value.value)" :value="value.value">{{ value.label }}</option>
+                  </select>
                 </li>
               </ul>
             </aria-menubar>
@@ -231,6 +234,14 @@ export default class TextEditor extends Vue {
     closeNestedEditor() {
         this.showNested = false;
         this.nestedSettings = null;
+    }
+
+    getNestedIds(targetType: string) {
+        let nestedIds = [{value: '', label: 'New'}];
+        Object.keys(this.$store.state.data[this.$props.section].nested[targetType]).forEach((key) => {
+            nestedIds.push({value: key, label: key});
+        });
+        return nestedIds;
     }
 }
 </script>

@@ -87,6 +87,9 @@
     .node-footnoteMarker {
         text-decoration: underline dotted;
     }
+    .node-annotationMarker {
+        text-decoration: underline dashed;
+    }
     .mark-bold {
         font-weight: bold;
     }
@@ -252,25 +255,25 @@
                           },
                           "serializer": {
                               "tag": "tei:ref"
-                            },
-                            "attrs": {
-                                "type": {
-                                    "default": "footnote",
-                                    "serializer": {
-                                        "attr": "type",
-                                        "value": "footnote"
-                                    }
-                                },
-                                "target": {
-                                    "default": "",
-                                    "parser": {
-                                        "selector": "substring(@target, 2)"
-                                    },
-                                    "serializer": {
-                                        "attr": "target",
-                                        "value": "#{value}"
-                                    }
-                                }
+                          },
+                          "attrs": {
+                              "type": {
+                                  "default": "footnote",
+                                  "serializer": {
+                                      "attr": "type",
+                                      "value": "footnote"
+                                  }
+                              },
+                              "target": {
+                                  "default": "",
+                                  "parser": {
+                                      "selector": "substring(@target, 2)"
+                                  },
+                                  "serializer": {
+                                      "attr": "target",
+                                      "value": "#{value}"
+                                  }
+                              }
                           }
                       },
                       {
@@ -296,6 +299,56 @@
                                   "serializer": {
                                       "attr": "type",
                                       "value": "footnote"
+                                  }
+                              }
+                          }
+                      },
+                      {
+                          "name": "annotationMarker",
+                          "type": "inline",
+                          "parser": {
+                              "selector": "tei:ref[@type=\"annotation\"]",
+                              "text": "text()"
+                          },
+                          "serializer": {
+                              "tag": "tei:ref"
+                          },
+                          "attrs": {
+                              "type": {
+                                  "default": "annotation",
+                                  "serializer": {
+                                      "attr": "type",
+                                      "value": "annotation"
+                                  }
+                              },
+                              "target": {
+                                  "default": "",
+                                  "parser": {
+                                      "selector": "substring(@target, 2)"
+                                  },
+                                  "serializer": {
+                                      "attr": "target",
+                                      "value": "#{value}"
+                                  }
+                              }
+                          }
+                      },
+                      {
+                          "name": "annotation",
+                          "type": "nested",
+                          "parser": {
+                              "selector": "tei:interp"
+                          },
+                          "serializer": {
+                              "tag": "tei:interp"
+                          },
+                          "attrs": {
+                              "id": {
+                                  "parser": {
+                                      "selector": "@xml:id"
+                                  },
+                                  "seralizer": {
+                                      "attr": "xml:id"
                                   }
                               }
                           }
@@ -515,7 +568,34 @@
                                               "nodeType": "footnoteMarker",
                                               "attr": "target",
                                               "label": "Edit",
-                                              "editNodeType": "footnote"
+                                              "targetNodeType": "footnote"
+                                          }
+                                      ]
+                                  }
+                              ]
+                          },
+                          {
+                              "label": "Annotation",
+                              "condition": {
+                                  "type": "isActive",
+                                  "activeType": "annotationMarker"
+                              },
+                              "entities": [
+                                  {
+                                      "type": "menubar",
+                                      "entities": [
+                                          {
+                                              "type": "linkNestedDoc",
+                                              "nodeType": "annotationMarker",
+                                              "attr": "target",
+                                              "targetNodeType": "annotation"
+                                          },
+                                          {
+                                              "type": "editNestedDoc",
+                                              "nodeType": "annotationMarker",
+                                              "attr": "target",
+                                              "label": "Edit",
+                                              "targetNodeType": "annotation"
                                           }
                                       ]
                                   }
@@ -525,6 +605,48 @@
                       "footnote": [
                           {
                               "label": "Footnote",
+                              "entities": [
+                                  {
+                                      "type": "menubar",
+                                      "entities": [
+                                          {
+                                              "type": "closeNested",
+                                              "label": "Close"
+                                          }
+                                      ]
+                                  }
+                              ]
+                          },
+                          {
+                              "label": "Markup",
+                              "entities": [
+                                  {
+                                      "type": "menubar",
+                                      "entities": [
+                                          {
+                                              "type": "toggleMark",
+                                              "label": "Bold",
+                                              "markType": "bold"
+                                          },
+                                          {
+                                              "type": "toggleMark",
+                                              "label": "Italic",
+                                              "markType": "italic"
+                                          },
+                                          {
+                                            "type": "selectMarkAttr",
+                                            "markType": "fontSize",
+                                            "attr": "size",
+                                            "values": [{"value": "", "label": "Normal"}, {"value": "small", "label": "Small"}, {"value": "large", "label": "Large"}]
+                                          }
+                                      ]
+                                  }
+                              ]
+                          }
+                      ],
+                      "annotation": [
+                          {
+                              "label": "Annotation",
                               "entities": [
                                   {
                                       "type": "menubar",
@@ -752,6 +874,16 @@
               <tei:ref type="footnote" target="#footnote-1">footnote</tei:ref>
               <tei:seg>.</tei:seg>
             </tei:p>
+            <tei:p>
+              <tei:seg>This is </tei:seg>
+              <tei:ref type="annotation" target="#annotation-1">annotated</tei:ref>
+              <tei:seg>.</tei:seg>
+            </tei:p>
+            <tei:p>
+              <tei:seg>Unlike the footnote, the </tei:seg>
+              <tei:ref type="annotation" target="#annotation-1">annotation</tei:ref>
+              <tei:seg> is referenced multiple times.</tei:seg>
+            </tei:p>
             <tei:note xml:id="footnote-1" type="footnote">
               <tei:p>
                 <tei:seg>This is </tei:seg>
@@ -759,6 +891,15 @@
                 <tei:seg> a simple footnote.</tei:seg>
               </tei:p>
             </tei:note>
+            <tei:interp xml:id="annotation-1">
+              <tei:p>
+                <tei:hi style="bold">1, annotation</tei:hi>
+                <tei:seg>]</tei:seg>
+              </tei:p>
+              <tei:p>
+                <tei:seg>An annotation is a piece of commentary on the text.</tei:seg>
+              </tei:p>
+            </tei:interp>
           </tei:text>
         </tei:body>
       </tei:TEI>
