@@ -36,6 +36,7 @@ import AriaMenubar from './AriaMenubar.vue';
 import AriaMenu from './AriaMenu.vue';
 import MetadataEditor from './MetadataEditor.vue';
 import TextEditor from './TextEditor.vue';
+import TEISeraliser from '@/util/TEISerialiser';
 
 @Component({
     components: {
@@ -59,7 +60,8 @@ export default class TeiEditor extends Vue {
     }
 
     public save() {
-        console.log('Saving');
+        let serialiser = new TEISeraliser();
+        console.log(serialiser.serialise(this.$store.state.data, this.$store.state.sections));
     }
 
     public setCurrentSection(section: string) {
