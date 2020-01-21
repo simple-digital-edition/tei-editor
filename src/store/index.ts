@@ -18,6 +18,7 @@ const defaultState: State = {
     },
     sections: {},
     data: {},
+    callbacks: {}
 };
 
 export default new Vuex.Store({
@@ -33,6 +34,15 @@ export default new Vuex.Store({
                   state.settings.metadataSection = key;
               }
           });
+          // @ts-ignore
+          if (window.TEIEditor && window.TEIEditor.callbacks) {
+              // @ts-ignore
+              state.callbacks.save = window.TEIEditor.callbacks.save || null;
+              // @ts-ignore
+              state.callbacks.load = window.TEIEditor.callbacks.load || null;
+              // @ts-ignore
+              state.callbacks.autoLoad = window.TEIEditor.callbacks.autoLoad || null;
+          }
       },
 
       setCurrentSection(state, sectionName: string) {
@@ -42,6 +52,7 @@ export default new Vuex.Store({
       load(state, sourceData: string) {
           let domParser = new DOMParser();
           let dom = domParser.parseFromString(sourceData, 'application/xml');
+          Vue.set(state, 'data', {});
           Object.entries(state.sections).forEach(([key, config]) => {
               if (config.type === 'MetadataEditor') {
                   Vue.set(state.data, key, (new TEIMetadataParser(dom, config)).get());
@@ -50,6 +61,10 @@ export default new Vuex.Store({
                   Vue.set(state.data, key, {doc: doc, nested: nestedDocs});
               }
           });
+      },
+
+      setSections(state, sections: any) {
+          Vue.set(state, 'sections', sections);
       },
 
       setMetadataValue(state, payload: MetadataValueChange) {
@@ -170,6 +185,15 @@ export default new Vuex.Store({
           }
       }
   },
-  actions: {},
+  actions: {
+      load({ commit, state }, sourceData: string) {
+          commit('load', sourceData);
+          let sections = deepclone(state.sections);
+          commit('setSections', []);
+          Vue.nextTick(() => {
+              commit('setSections', sections);
+          })
+      }
+  },
   modules: {}
 });

@@ -3,6 +3,7 @@ export interface State {
     settings: Settings;
     sections: Sections;
     data: Data;
+    callbacks: Callbacks;
 }
 
 export interface StateUI {
@@ -19,6 +20,11 @@ export interface Sections {
 
 export interface Data {
     [x:string]: any;
+}
+
+export interface Callbacks {
+    save?: (data: any) => {};
+    load?: ((data: any) => {}) => {};
 }
 
 export interface MetadataValueChange {

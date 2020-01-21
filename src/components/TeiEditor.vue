@@ -3,11 +3,14 @@
     <nav>
       <aria-menubar v-slot="{ keyboardNav, mouseClickNav }">
         <ul role="menubar">
-          <li role="presentation">
+          <li v-if="hasSaveCallback || hasLoadCallback" role="presentation">
             <a role="menuitem" tabindex="0" aria-expanded="false" @keyup="keyboardNav" @click="mouseClickNav">File</a>
             <aria-menu v-slot="{ keyboardNav, mouseClickNav }">
               <ul role="menu" aria-hidden="true">
-                <li role="presentation">
+                <li v-if="hasLoadCallback" role="presentation">
+                  <a role="menuitem" tabindex="-1" @click="mouseClickNav($event); load()" @keyup="keyboardNav">Load</a>
+                </li>
+                <li v-if="hasSaveCallback" role="presentation">
                   <a role="menuitem" tabindex="-1" @click="mouseClickNav($event); save()" @keyup="keyboardNav">Save</a>
                 </li>
               </ul>
@@ -59,9 +62,27 @@ export default class TeiEditor extends Vue {
         return this.$store.state.ui.currentSection;
     }
 
+    public get hasSaveCallback() {
+        return this.$store.state.callbacks.save !== null;
+    }
+
+    public get hasLoadCallback() {
+        return this.$store.state.callbacks.load !== null;
+    }
+
     public save() {
-        let serialiser = new TEISeraliser();
-        console.log(serialiser.serialise(this.$store.state.data, this.$store.state.sections));
+        if (this.hasSaveCallback) {
+            let serialiser = new TEISeraliser();
+            this.$store.state.callbacks.save(serialiser.serialise(this.$store.state.data, this.$store.state.sections));
+        }
+    }
+
+    public load() {
+        if (this.hasLoadCallback) {
+            this.$store.state.callbacks.load((data: string) => {
+                this.$store.dispatch('load', data);
+            });
+        }
     }
 
     public setCurrentSection(section: string) {
