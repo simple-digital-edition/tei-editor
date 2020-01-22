@@ -58,6 +58,7 @@ export default class TEIParser {
                     try {
                         result[key] = this.xpath.numberValue(node, parser.selector);
                     } catch(e) {
+                        // eslint-disable-next-line
                         console.log(e);
                     }
                 } else if (parser.type === 'static') {
@@ -71,6 +72,7 @@ export default class TEIParser {
                             result[key] = value;
                         }
                     } catch(e) {
+                        // eslint-disable-next-line
                         console.log(e);
                     }
                 }
