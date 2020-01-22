@@ -15,7 +15,7 @@
             </ul>
             <aria-menubar v-if="section.type === 'menubar'" :key="idx2" v-slot="{ keyboardNav }">
               <ul role="menubar">
-                <li v-for="(menuitem, idx3) in section.entities" :key="idx3" role="presentation">
+                <li v-for="(menuitem, idx3) in section.entities" :key="idx3" role="presentation" :class="menuitem.type === 'separator' ? 'separator' : null">
                   <a v-if="menuitem.type === 'setNodeType'" role="menuitem" :tabindex="idx3 === 0 ? '0' : '-1'" v-html="menuitem.label" :aria-checked="isActive[menuitem.nodeType]() ? 'true' : 'false'" @keyup="keyboardNav" @click="commands[menuitem.nodeType]()"></a>
                   <a v-if="menuitem.type === 'setNodeAttrValue'" role="menuitem" :tabindex="idx3 === 0 ? '0' : '-1'" v-html="menuitem.label" :aria-checked="hasNodeAttributeValue(menuitem.nodeType, menuitem.attr, menuitem.value) ? 'true' : 'false'" @keyup="keyboardNav" @click="setNodeAttributeValue(commands, menuitem.nodeType, menuitem.attr, menuitem.value)"></a>
                   <a v-if="menuitem.type === 'toggleMark'" role="menuitem" :tabindex="idx3 === 0 ? '0' : '-1'" v-html="menuitem.label" :aria-checked="isActive[menuitem.markType]() ? 'true' : 'false'" @keyup="keyboardNav" @click="commands[menuitem.markType]()"></a>

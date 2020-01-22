@@ -28,7 +28,7 @@ export default class TEIParser {
                         let tmp = this.parseContentNode(node.children[idx], this.config);
                         if (tmp && !tmp.nestedDoc) {
                             this.doc.content.push(tmp);
-                        } else if (tmp.nestedDoc) {
+                        } else if (tmp && tmp.nestedDoc) {
                             this.addNestedDoc(tmp);
                         }
                     }
@@ -41,9 +41,7 @@ export default class TEIParser {
     private parseContentAttributes(node: Element, attrs: any) {
         // Parse attributes for nodes or marks. Attributes can have a type which is boolean, number, static, or string (default).
         let result = <any>{};
-        Object.entries(attrs).forEach((entry) => {
-            let key = entry[0];
-            let schema = <any>entry[1];
+        Object.entries(attrs).forEach(([key, schema]: any) => {
             let parsers = <any>[];
             if (schema.parser) {
                 parsers.push(schema.parser);
@@ -174,7 +172,7 @@ export default class TEIParser {
                             let child = this.parseContentNode(node.children[idx3], section);
                             if (child && !child.nestedDoc) {
                                 content.push(child);
-                            } else if (child.nestedDoc) {
+                            } else if (child && child.nestedDoc) {
                                 this.addNestedDoc(child);
                             }
                         }
@@ -184,6 +182,7 @@ export default class TEIParser {
                 }
             }
         }
+        return null;
     }
 
     private addNestedDoc(nestedParent: any) {
