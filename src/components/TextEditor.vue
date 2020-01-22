@@ -98,6 +98,7 @@ import get from '@/util/get';
         dataPath: String,
         uiPath: String,
         closeNestedAction: Function,
+        data: Object,
     },
 })
 export default class TextEditor extends Vue {

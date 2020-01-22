@@ -26,7 +26,7 @@
       <template v-for="(section, sectionName, index) in sections">
         <template v-if="sectionName === currentSection">
           <metadata-editor v-if="section.type === 'MetadataEditor'" :key="index" :config="section"></metadata-editor>
-          <text-editor v-if="section.type === 'TextEditor'" :key="index" :section="sectionName" :dataPath="'doc'" :uiPath="'doc'"></text-editor>
+          <text-editor v-if="section.type === 'TextEditor'" :key="index" :section="sectionName" :data="sectionData(sectionName)" :dataPath="'doc'" :uiPath="'doc'"></text-editor>
         </template>
       </template>
     </div>
@@ -68,6 +68,10 @@ export default class TeiEditor extends Vue {
 
     public get hasLoadCallback() {
         return this.$store.state.callbacks.load !== null;
+    }
+
+    public sectionData(sectionName: string) {
+        return this.$store.state.data[sectionName];
     }
 
     public save() {
