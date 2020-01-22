@@ -22,7 +22,7 @@ export default class TEIParser {
             };
             this.nestedDocs = {};
             if (this.config.parser && this.config.parser.selector) {
-                let node = <Element>this.xpath.firstNode(this.dom.documentElement, 'tei:body/' + this.config.parser.selector);
+                let node = <Element>this.xpath.firstNode(this.dom.documentElement, this.config.parser.selector);
                 if (node) {
                     for(let idx = 0; idx < node.children.length; idx++) {
                         let tmp = this.parseContentNode(node.children[idx], this.config);

@@ -75,9 +75,10 @@ export default class TEISerialiser {
 
     private serialiseSingleText(data: any, section: any) {
         if (data) {
+            let rootPath = section.serialiser.tag.split('/');
             this.nested = {} as any;
             let text = {
-                node: section.serialiser.tag,
+                node: rootPath[rootPath.length - 1],
                 children: data.doc.content.map((item: any) => {
                     return this.serialiseTextNode(item, section.schema);
                 }),
@@ -100,15 +101,19 @@ export default class TEISerialiser {
                 })
             });
 
+            for (let idx = rootPath.length - 2; idx >= 0; idx--) {
+                text = {
+                    node: rootPath[idx],
+                    children: [
+                        text,
+                    ]
+                };
+            }
+
             return {
                 node: 'tei:TEI',
                 children: [
-                    {
-                        node: 'tei:body',
-                        children: [
-                            text
-                        ]
-                    }
+                    text
                 ]
             }
         } else {

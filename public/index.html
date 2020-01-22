@@ -138,13 +138,10 @@
                   "label": "Main Text",
                   "type": "TextEditor",
                   "parser": {
-                      "selector": "tei:text[@type=\"main\"]"
+                      "selector": "tei:text/tei:body"
                   },
                   "serialiser": {
-                      "tag": "tei:text",
-                      "attrs": {
-                          "type": "main"
-                      }
+                      "tag": "tei:text/tei:body"
                   },
                   "schema": [
                       {
@@ -893,8 +890,8 @@
             </tei:publicationStmt>
           </tei:fileDesc>
         </tei:teiHeader>
-        <tei:body>
-          <tei:text type="main">
+        <tei:text>
+          <tei:body>
             <tei:head type="level-1" data-navIdentifier="heading-1">
               <tei:seg>TEI Editor Test</tei:seg>
             </tei:head>
@@ -957,8 +954,8 @@
                 <tei:seg>An annotation is a piece of commentary on the text.</tei:seg>
               </tei:p>
             </tei:interp>
-          </tei:text>
-        </tei:body>
+          </tei:body>
+        </tei:text>
       </tei:TEI>
     </script>
     <script type="application/javascript">
