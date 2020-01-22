@@ -40,7 +40,8 @@ import get from '@/util/get';
             type: String,
             default: '',
         },
-    }
+    },
+    name: 'metadata-field',
 })
 export default class MetadataField extends Vue {
     addMenuItems = [
@@ -51,6 +52,7 @@ export default class MetadataField extends Vue {
     ];
 
     get value() {
+        // eslint-disable-next-line
         let value = get(this.$store.state.data[this.$store.state.settings.metadataSection], this.$props.parent + this.$props.config.path);
         if (value) {
             return value;

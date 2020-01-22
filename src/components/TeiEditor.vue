@@ -63,11 +63,11 @@ export default class TeiEditor extends Vue {
     }
 
     public get hasSaveCallback() {
-        return this.$store.state.callbacks.save !== null;
+        return this.$store.state.callbacks.save !== null && this.$store.state.callbacks.save !== undefined;
     }
 
     public get hasLoadCallback() {
-        return this.$store.state.callbacks.load !== null;
+        return this.$store.state.callbacks.load !== null && this.$store.state.callbacks.load !== undefined;
     }
 
     public save() {
