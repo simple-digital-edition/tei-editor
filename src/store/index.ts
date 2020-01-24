@@ -15,7 +15,11 @@ const defaultState: State = {
     },
     sections: {},
     content: {},
-    callbacks: {}
+    callbacks: {
+        save: undefined,
+        load: undefined,
+        autoLoad: undefined,
+    },
 };
 
 export default new Vuex.Store({
@@ -34,11 +38,11 @@ export default new Vuex.Store({
           // @ts-ignore
           if (window.TEIEditor && window.TEIEditor.callbacks) {
               // @ts-ignore
-              state.callbacks.save = window.TEIEditor.callbacks.save || null;
+              Vue.set(state.callbacks, 'save', window.TEIEditor.callbacks.save);
               // @ts-ignore
-              state.callbacks.load = window.TEIEditor.callbacks.load || null;
+              Vue.set(state.callbacks, 'load', window.TEIEditor.callbacks.load);
               // @ts-ignore
-              state.callbacks.autoLoad = window.TEIEditor.callbacks.autoLoad || null;
+              Vue.set(state.callbacks, 'autoLoad', window.TEIEditor.callbacks.autoLoad);
           }
       },
 

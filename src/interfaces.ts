@@ -20,6 +20,7 @@ export interface Data {
 export interface Callbacks {
     save?: (data: any) => {};
     load?: (callback: (data: any) => {}) => {};
+    autoLoad?: (callback: (data: any) => {}) => {};
 }
 
 export interface MetadataValueChange {
