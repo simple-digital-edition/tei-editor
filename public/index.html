@@ -38,8 +38,18 @@
     [role="menubar"] a[role="menuitem"][aria-checked="true"] path, [role="menubar"] a[role="menuitem"]:hover path {
         fill: #fefefe;
     }
-    [role="menubar"] span[role="menuitem"][aria-disabled="true"] {
+    [role="menubar"] a[role="menuitem"][aria-disabled="true"] {
         cursor: not-allowed;
+    }
+    [role="menubar"] a[role="menuitem"][aria-disabled="true"] path {
+        fill: #dedede;
+        color: #fefefe;
+    }
+    [role="menubar"] a[role="menuitem"][aria-checked="true"][aria-disabled="true"], [role="menubar"] a[role="menuitem"][aria-disabled="true"]:hover {
+        background: transparent;
+    }
+    [role="menubar"] a[role="menuitem"][aria-checked="true"][aria-disabled="true"] path, [role="menubar"] a[role="menuitem"][aria-disabled="true"]:hover path {
+        fill: #dedede;
     }
 
     /** Text Content Styling */
@@ -122,6 +132,9 @@
     }
 
     /** Metadata styling */
+    .metadata-editor {
+        padding: 0 0.5rem;
+    }
     .metadata-editor [role="menubar"], .metadata-editor [role="menu"] {
         background: transparent;
     }

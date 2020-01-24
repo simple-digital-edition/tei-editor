@@ -42,13 +42,13 @@ export default new Vuex.Store({
           }
       },
 
-      /*setMetadata(state, metadata: any) {
-          Vue.set(state.data, state.settings.metadataSection, metadata);
+      setMetadata(state, metadata: any) {
+          Vue.set(state.content, state.settings.metadataSection, metadata);
       },
 
       setMetadataValue(state, payload: MetadataValueChange) {
           // Set a metadata value. Will create missing data structures, except for missing multi-row fields
-          let metadata = state.data[state.settings.metadataSection];
+          let metadata = state.content[state.settings.metadataSection];
           if (metadata) {
               metadata = deepclone(metadata);
               let current = metadata;
@@ -82,36 +82,36 @@ export default new Vuex.Store({
                   }
                   pathElements.splice(0, 1);
               }
-              Vue.set(state.data, state.settings.metadataSection, metadata);
+              Vue.set(state.content, state.settings.metadataSection, metadata);
           }
       },
 
       addMetadataMuliRow(state, payload: MetadataValueChange) {
-          let metadata = state.data[state.settings.metadataSection];
+          let metadata = state.content[state.settings.metadataSection];
           if (metadata) {
               metadata = deepclone(metadata);
               let parent = get(metadata, payload.path);
               if (parent) {
                   parent.push(payload.value);
-                  Vue.set(state.data, state.settings.metadataSection, metadata);
+                  Vue.set(state.content, state.settings.metadataSection, metadata);
               }
           }
       },
 
       removeMetadataMultiRow(state, payload: MetadataValueChange) {
-          let metadata = state.data[state.settings.metadataSection];
+          let metadata = state.content[state.settings.metadataSection];
           if (metadata) {
               metadata = deepclone(metadata);
               let parent = get(metadata, payload.path);
               if (parent && payload.value >= 0 && payload.value < parent.length) {
                   parent.splice(payload.value, 1);
-                  Vue.set(state.data, state.settings.metadataSection, metadata);
+                  Vue.set(state.content, state.settings.metadataSection, metadata);
               }
           }
       },
 
       moveMetadataMultiRow(state, payload: MetadataMultiRowMove) {
-          let metadata = state.data[state.settings.metadataSection];
+          let metadata = state.content[state.settings.metadataSection];
           if (metadata) {
               metadata = deepclone(metadata);
               let parent = get(metadata, payload.path);
@@ -119,10 +119,10 @@ export default new Vuex.Store({
                   let item = parent[payload.idx];
                   parent.splice(payload.idx, 1);
                   parent.splice(payload.idx + payload.move, 0, item);
-                  Vue.set(state.data, state.settings.metadataSection, metadata);
+                  Vue.set(state.content, state.settings.metadataSection, metadata);
               }
           }
-      },*/
+      },
 
       setTextDoc(state, payload: any) {
           let path = payload.path.split('.');
@@ -167,8 +167,7 @@ export default new Vuex.Store({
           });
           Object.entries(state.sections).forEach(([key, config]) => {
               if (config.type === 'MetadataEditor') {
-                  //console.log((new TEIMetadataParser(dom, config)).get());
-                  //Vue.set(state.data, key, (new TEIMetadataParser(dom, config)).get());
+                  commit('setMetadata', (new TEIMetadataParser(dom, config)).get())
               } else if (config.type === 'TextEditor') {
                   let [doc, nestedDocs] = (new TEITextParser(dom, config)).get();
                   commit('setTextDoc', { path: key + '.doc', doc: doc });
