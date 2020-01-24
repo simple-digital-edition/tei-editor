@@ -129,10 +129,7 @@ export default new Vuex.Store({
           if (path.length === 2) {
               Vue.set(state.content[path[0]], path[1], payload.doc);
           } else if(path.length === 4) {
-              console.log(path);
               Vue.set(state.content[path[0]].nested[path[2]][path[3]], 'content', [payload.doc]);
-          } else {
-              console.log(path);
           }
       },
 

@@ -87,7 +87,7 @@ export default class TeiEditor extends Vue {
     public save() {
         if (this.hasSaveCallback) {
             let serialiser = new TEISeraliser();
-            this.$store.state.callbacks.save(serialiser.serialise(this.$store.state.data, this.$store.state.sections));
+            this.$store.state.callbacks.save(serialiser.serialise(this.$store.state.content, this.$store.state.sections));
         }
     }
 
