@@ -122,68 +122,61 @@ export default new Vuex.Store({
                   Vue.set(state.data, state.settings.metadataSection, metadata);
               }
           }
-      },
-
-      addNestedDoc(state, payload: any) {
-          Vue.set(state.data[payload.section].nested[payload.nodeType], payload.nodeId, {
-              type: payload.nodeType,
-              content: [
-                  {
-                      type: 'doc',
-                      content: []
-                  }
-              ],
-              attrs: {
-                  'xml:id': payload.nodeId
-              }
-          })
       },*/
 
       setTextDoc(state, payload: any) {
           let path = payload.path.split('.');
           if (path.length === 2) {
               Vue.set(state.content[path[0]], path[1], payload.doc);
+          } else if(path.length === 4) {
+              console.log(path);
+              Vue.set(state.content[path[0]].nested[path[2]][path[3]], 'content', [payload.doc]);
           } else {
               console.log(path);
           }
-          /*
-          let obj = state.data;
-          while (path.length > 0) {
-              let pathElement = path[0];
-              if (pathElement[0] === '[' && pathElement[pathElement.length - 1] === ']') {
-                  pathElement = Number.parseInt(pathElement.slice(1, pathElement.length - 1));
+      },
+
+      addNestedDoc(state, payload: any) {
+          let path = payload.path.split('.');
+          if (path.length === 4) {
+              if (!state.content[path[0]].nested[path[2]]) {
+                  Vue.set(state.content[path[0]].nested, path[2], {});
               }
-              if (obj[pathElement]) {
-                  if (path.length > 1) {
-                      obj = obj[pathElement];
-                  } else {
-                      Vue.set(obj, pathElement, payload.doc);
-                  }
-              } else {
-                  if (path.length > 1) {
-                      Vue.set(obj, pathElement, {});
-                  } else {
-                      Vue.set(obj, pathElement, payload.doc);
-                  }
-              }
-              path.splice(0, 1);
-          }*/
+              Vue.set(state.content[path[0]].nested[path[2]], path[3], {
+                  attrs: {
+                      id: path[3],
+                  },
+                  content: [
+                      payload.doc,
+                  ],
+                  nestedDoc: true,
+                  type: path[2],
+              });
+          }
       },
   },
   actions: {
       load({ commit, state }, sourceData: string) {
           let domParser = new DOMParser();
           let dom = domParser.parseFromString(sourceData, 'application/xml');
-          Vue.set(state, 'data', {});
+          Vue.set(state, 'content', {});
+          Object.keys(state.sections).forEach((key, idx) => {
+              Vue.set(state.content, key, {});
+              Vue.set(state.content[key], 'doc', null);
+              Vue.set(state.content[key], 'nested', {});
+          });
           Object.entries(state.sections).forEach(([key, config]) => {
               if (config.type === 'MetadataEditor') {
                   //console.log((new TEIMetadataParser(dom, config)).get());
                   //Vue.set(state.data, key, (new TEIMetadataParser(dom, config)).get());
               } else if (config.type === 'TextEditor') {
                   let [doc, nestedDocs] = (new TEITextParser(dom, config)).get();
-                  commit('setTextDoc', { path: key + '.doc', doc: null });
                   commit('setTextDoc', { path: key + '.doc', doc: doc });
-                  //Vue.set(state.data, key, {doc: doc, nested: nestedDocs});
+                  Object.entries(nestedDocs).forEach(([nestedKey, docs]: any) => {
+                      Object.entries(docs).forEach(([docKey, doc]: any) => {
+                          commit('addNestedDoc', {path: key + '.nested.' + nestedKey + '.' + docKey, doc: doc.content[0]});
+                      });
+                  })
               }
           });
       }

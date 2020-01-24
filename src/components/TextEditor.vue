@@ -1,7 +1,7 @@
 <template>
   <div class="text-editor">
     <editor-content :editor="editor"/>
-    <!--<editor-menu-bar :editor="editor" v-slot="{ commands, isActive, getMarkAttrs }">
+    <editor-menu-bar :editor="editor" v-slot="{ commands, isActive, getMarkAttrs }">
       <div class="sidebar">
          <div v-for="(block, idx) in activeUIBlocks" :key="idx">
           <h2>{{ block.label }}</h2>
@@ -36,9 +36,9 @@
           </template>
         </div>
       </div>
-  </editor-menu-bar>-->
+  </editor-menu-bar>
     <div v-if="showNested" class="nested">
-      <text-editor :section="section" :dataPath="nestedSettings.dataPath" :uiPath="nestedSettings.uiPath" :closeNestedAction="closeNestedEditor"/>
+      <text-editor :section="section" :nestedSection="nestedSettings.section" :nestedId="nestedSettings.id" :closeNestedAction="closeNestedEditor"/>
     </div>
   </div>
 </template>
@@ -62,57 +62,19 @@ import get from '@/util/get';
         EditorMenuBar,
         AriaMenubar,
     },
-/*    data() {
-        let extensions = [
-            new Doc(),
-            new Text(),
-        ];
-        let defaultNodeName = '';
-        this.$store.state.sections[this.$props.section].schema.forEach((config: any) => {
-            if (config.type === 'block') {
-                extensions.push(new BlockNode(config));
-                if (defaultNodeName === '') {
-                    defaultNodeName = config.name;
-                }
-            } else if (config.type === 'wrapping') {
-                extensions.push(new WrappingNode(config));
-            } else if (config.type === 'inline' && config.name !== 'text') {
-                extensions.push(new InlineNode(config));
-            } else if (config.type === 'mark') {
-                extensions.push(new MarkNode(config));
-            }
-        });
-        return {
-            editor: new Editor({
-                useBuiltInExtensions: false,
-                extensions: extensions,
-                content: {type: 'doc', content: [{type: defaultNodeName, content: []}]},
-                onUpdate: ({ getJSON }: any) => {
-                    this.$store.commit('setTextDoc', {
-                        section: this.$props.section,
-                        path: this.$props.dataPath,
-                        doc: getJSON(),
-                    });
-                }
-            }),
-        };
-    },
-    props: {
-        section: String,
-        dataPath: String,
-        uiPath: String,
-        closeNestedAction: Function,
-    },*/
 })
 export default class TextEditor extends Vue {
     @Prop({type: String})
     readonly section!: string;
 
-    @Prop({type: Array, default: []})
-    readonly schema!: any[];
+    @Prop({type: String})
+    readonly nestedSection!: string;
 
-    @Prop({type: Object})
-    readonly content!: any;
+    @Prop({type: String})
+    readonly nestedId!: string;
+
+    @Prop({type: Function})
+    readonly closeNestedAction!: any;
 
     editor: Editor | null = null;
     showNested = false;
@@ -120,101 +82,33 @@ export default class TextEditor extends Vue {
     internalContentUpdate = false;
     defaultNodeName = '';
 
-    public mounted() {
-        let extensions = [
-            new Doc(),
-            new Text(),
-        ];
-        this.defaultNodeName = '';
-        this.$props.schema.forEach((config: any) => {
-            if (config.type === 'block') {
-                extensions.push(new BlockNode(config));
-                if (this.defaultNodeName === '') {
-                    this.defaultNodeName = config.name;
-                }
-            } else if (config.type === 'wrapping') {
-                extensions.push(new WrappingNode(config));
-            } else if (config.type === 'inline' && config.name !== 'text') {
-                extensions.push(new InlineNode(config));
-            } else if (config.type === 'mark') {
-                extensions.push(new MarkNode(config));
-            }
-        });
-        this.editor = new Editor({
-            useBuiltInExtensions: false,
-            extensions: extensions,
-            content: {type: 'doc', content: [{type: this.defaultNodeName, content: []}]},
-            onUpdate: ({ getJSON }: any) => {
-                this.internalContentUpdate = true;
-                this.$emit('content-update', this.$props.section, getJSON());
-            }
-        });
-        if (this.$props.content) {
-            this.editor.setContent(this.$props.content);
-        }
-        this.editor.focus();
-    }
-
-    public beforeDestroy() {
-        if (this.editor) {
-            this.editor.destroy();
-        }
-    }
-
-    @Watch('schema')
-    public updateSchema(newValue: any) {
-        if (this.editor) {
-            this.editor.destroy();
-        }
-        let extensions = [
-            new Doc(),
-            new Text(),
-        ];
-        this.defaultNodeName = '';
-        this.$props.schema.forEach((config: any) => {
-            if (config.type === 'block') {
-                extensions.push(new BlockNode(config));
-                if (this.defaultNodeName === '') {
-                    this.defaultNodeName = config.name;
-                }
-            } else if (config.type === 'wrapping') {
-                extensions.push(new WrappingNode(config));
-            } else if (config.type === 'inline' && config.name !== 'text') {
-                extensions.push(new InlineNode(config));
-            } else if (config.type === 'mark') {
-                extensions.push(new MarkNode(config));
-            }
-        });
-        this.editor = new Editor({
-            useBuiltInExtensions: false,
-            extensions: extensions,
-            content: {type: 'doc', content: [{type: this.defaultNodeName, content: []}]},
-            onUpdate: ({ getJSON }: any) => {
-                this.internalContentUpdate = true;
-                this.$emit('content-update', this.$props.section, getJSON());
-            }
-        });
-        if (this.$props.content) {
-            this.editor.setContent(this.$props.content);
-        }
-        this.editor.focus();
-    }
-
-    @Watch('content')
-    public updateContent(newValue: any) {
-        if (!this.internalContentUpdate && this.editor) {
-            this.editor.setContent(newValue);
-        }
-        this.internalContentUpdate = false;
-    }
-
-    /*
-    get schema() {
+    public get schema() {
         return this.$store.state.sections[this.$props.section].schema;
     }
 
-    get ui() {
-        return get(this.$store.state.sections[this.$props.section].ui, this.$props.uiPath);
+    public get content() {
+        return this.$store.state.content[this.$props.section];
+    }
+
+    public get doc() {
+        if (this.content) {
+            if (this.$props.nestedSection && this.$props.nestedId) {
+                if (this.content.nested && this.content.nested[this.$props.nestedSection] && this.content.nested[this.$props.nestedSection][this.$props.nestedId]) {
+                    return this.content.nested[this.$props.nestedSection][this.$props.nestedId].content[0];
+                }
+            } else {
+                return this.content.doc;
+            }
+        }
+        return null;
+    }
+
+    public get ui() {
+        if (this.$props.nestedSection && this.$store.state.sections[this.$props.section].ui[this.$props.nestedSection]) {
+            return this.$store.state.sections[this.$props.section].ui[this.$props.nestedSection];
+        } else {
+            return this.$store.state.sections[this.$props.section].ui.doc;
+        }
     }
 
     get activeUIBlocks() {
@@ -228,15 +122,65 @@ export default class TextEditor extends Vue {
             }
             return true;
         });
-    }*/
+    }
 
-    /*public get content() {
-        return get(this.$store.state.data[this.$props.section], this.$props.dataPath);
-    }*/
+    public mounted() {
+        let extensions = [
+            new Doc(),
+            new Text(),
+        ];
+        this.defaultNodeName = '';
+        this.schema.forEach((config: any) => {
+            if (config.type === 'block') {
+                extensions.push(new BlockNode(config));
+                if (this.defaultNodeName === '') {
+                    this.defaultNodeName = config.name;
+                }
+            } else if (config.type === 'wrapping') {
+                extensions.push(new WrappingNode(config));
+            } else if (config.type === 'inline' && config.name !== 'text') {
+                extensions.push(new InlineNode(config));
+            } else if (config.type === 'mark') {
+                extensions.push(new MarkNode(config));
+            }
+        });
+        this.editor = new Editor({
+            useBuiltInExtensions: false,
+            extensions: extensions,
+            content: {type: 'doc', content: [{ type: this.defaultNodeName, content: [] }]},
+            onUpdate: ({ getJSON }: any) => {
+                this.internalContentUpdate = true;
+                if (this.$props.nestedSection && this.$props.nestedId) {
+                    this.$store.commit('setTextDoc', { path: this.$props.section + '.nestedId.' + this.$props.nestedSection + '.' + this.$props.nestedId, doc: getJSON() });
+                } else {
+                    this.$store.commit('setTextDoc', { path: this.$props.section + '.doc', doc: getJSON() });
+                }
+            }
+        });
+        if (this.doc) {
+            this.editor.setContent(this.doc);
+        }
+        this.editor.focus();
+    }
+
+    public beforeDestroy() {
+        if (this.editor) {
+            this.editor.destroy();
+        }
+    }
+
+    @Watch('doc')
+    public updateContent(newValue: any) {
+        if (!this.internalContentUpdate && this.editor) {
+            this.editor.setContent(newValue);
+        }
+        this.internalContentUpdate = false;
+    }
+
     /**
      * Gets a node attribute value.
      */
-    getNodeAttributeValue(nodeName: string, attrName: string) {
+    public getNodeAttributeValue(nodeName: string, attrName: string) {
         const { from, to } = this.editor.state.selection;
         let value = '';
         this.editor.state.doc.nodesBetween(from, to, (node: any) => {
@@ -252,14 +196,14 @@ export default class TextEditor extends Vue {
     /**
      * Checks whether a node has an attribute with the given value.
      */
-    hasNodeAttributeValue(nodeName: string, attrName: string, value: string) {
+    public hasNodeAttributeValue(nodeName: string, attrName: string, value: string) {
         return this.getNodeAttributeValue(nodeName, attrName) === value;
     }
 
     /**
      * Set a node attribute to the given value. Keeps all other attributes the same value.
      */
-    setNodeAttributeValue(commands: any, nodeName: string, attrName: string, value: string) {
+    public setNodeAttributeValue(commands: any, nodeName: string, attrName: string, value: string) {
         const { from, to } = this.editor.state.selection;
         let attributes = {} as any;
         this.editor.state.doc.nodesBetween(from, to, (node: any) => {
@@ -271,7 +215,10 @@ export default class TextEditor extends Vue {
         commands[nodeName + '_setAttribute'](attributes);
     }
 
-    getMarkAttributeValue(markName: string, attrName: string) {
+    /**
+     * Gets a mark attribute value.
+     */
+    public getMarkAttributeValue(markName: string, attrName: string) {
         const { from, to } = this.editor.state.selection;
         let value = '';
         this.editor.state.doc.nodesBetween(from, to, (node: any) => {
@@ -286,11 +233,17 @@ export default class TextEditor extends Vue {
         return value
     }
 
-    hasMarkAttributeValue(markName: string, attrName: string, value: string) {
+    /**
+     * Checks whether a mark has a given attribute value.
+     */
+    public hasMarkAttributeValue(markName: string, attrName: string, value: string) {
         return this.getMarkAttributeValue(markName, attrName) === value;
     }
 
-    setMarkAttributeValue(markName: string, attrName: string, value: string) {
+    /**
+     * Sets the mark's attribute value.
+     */
+    public setMarkAttributeValue(markName: string, attrName: string, value: string) {
         if (value) {
             const { from, to } = this.editor.state.selection;
             let attributes = {} as any;
@@ -310,10 +263,24 @@ export default class TextEditor extends Vue {
         }
     }
 
-    editNestedDoc(commands: any, nodeName: string, attrName: string, editNodeName: string) {
+    /**
+     * Get all ids of nested documents of a certain type.
+     */
+    public getNestedIds(targetType: string) {
+        let nestedIds = [{value: '', label: 'New'}];
+        Object.keys(this.$store.state.content[this.$props.section].nested[targetType]).forEach((key) => {
+            nestedIds.push({value: key, label: key});
+        });
+        return nestedIds;
+    }
+
+    /**
+     * Open the nested editor.
+     */
+    public editNestedDoc(commands: any, nodeName: string, attrName: string, editNodeName: string) {
         let nestedId = this.getNodeAttributeValue(nodeName, attrName);
         if (!nestedId) {
-            let nestedDocs = this.$store.state.data[this.$props.section].nested[editNodeName];
+            let nestedDocs = this.$store.state.content[this.$props.section].nested[editNodeName];
             nestedId = editNodeName + '-1';
             let idx = 1;
             while (nestedDocs && nestedDocs[nestedId]) {
@@ -321,26 +288,21 @@ export default class TextEditor extends Vue {
                 nestedId = editNodeName + '-' + idx;
             }
             this.setNodeAttributeValue(commands, nodeName, attrName, nestedId);
-            this.$store.commit('addNestedDoc', {section: this.$props.section, nodeType: editNodeName, nodeId: nestedId});
+            this.$store.commit('addNestedDoc', { path: this.$props.section + '.nested.' + editNodeName + '.' + nestedId, doc: {type: 'doc', content: [{type: 'paragraph', content: []}]}});
         }
         this.showNested = true;
         this.nestedSettings = {
-            'dataPath': 'nested.' + editNodeName + '.' + nestedId + '.content.[0]',
-            'uiPath': editNodeName,
+            section: editNodeName,
+            id: nestedId
         };
     }
 
-    closeNestedEditor() {
+    /**
+     * Close the nested editor.
+     */
+    public closeNestedEditor() {
         this.showNested = false;
         this.nestedSettings = null;
-    }
-
-    getNestedIds(targetType: string) {
-        let nestedIds = [{value: '', label: 'New'}];
-        Object.keys(this.$store.state.data[this.$props.section].nested[targetType]).forEach((key) => {
-            nestedIds.push({value: key, label: key});
-        });
-        return nestedIds;
     }
 }
 </script>

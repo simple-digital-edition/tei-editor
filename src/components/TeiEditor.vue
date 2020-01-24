@@ -26,7 +26,7 @@
       <template v-for="(section, sectionName, index) in sections">
         <template v-if="sectionName === currentSection">
           <metadata-editor v-if="section.type === 'MetadataEditor'" :key="index" :config="section"></metadata-editor>
-          <text-editor v-if="section.type === 'TextEditor'" :key="index" :section="sectionName + '.doc'" :schema="section.schema" :content="getContentForSection(sectionName + '.doc')" @content-update="setContentForSection"></text-editor>
+          <text-editor v-if="section.type === 'TextEditor'" :key="index" :section="sectionName"></text-editor>
         </template>
       </template>
     </div>
