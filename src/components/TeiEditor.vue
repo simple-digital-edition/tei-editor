@@ -26,7 +26,7 @@
       <template v-for="(section, sectionName, index) in sections">
         <template v-if="sectionName === currentSection">
           <metadata-editor v-if="section.type === 'MetadataEditor'" :key="index" :config="section"></metadata-editor>
-          <text-editor v-if="section.type === 'TextEditor'" :key="index" :section="sectionName" :data="sectionData(sectionName)" :dataPath="'doc'" :uiPath="'doc'"></text-editor>
+          <text-editor v-if="section.type === 'TextEditor'" :key="index" :section="sectionName + '.doc'" :schema="section.schema" :content="getContentForSection(sectionName + '.doc')" @content-update="setContentForSection"></text-editor>
         </template>
       </template>
     </div>
@@ -40,6 +40,7 @@ import AriaMenu from './AriaMenu.vue';
 import MetadataEditor from './MetadataEditor.vue';
 import TextEditor from './TextEditor.vue';
 import TEISeraliser from '@/util/TEISerialiser';
+import get from '@/util/get';
 
 @Component({
     components: {
@@ -50,16 +51,10 @@ import TEISeraliser from '@/util/TEISerialiser';
     },
 })
 export default class TeiEditor extends Vue {
-    public get menuItems() {
-        return this.$store.state.ui.mainMenu;
-    }
+    currentSection: string | null = null;
 
     public get sections() {
         return this.$store.state.sections;
-    }
-
-    public get currentSection() {
-        return this.$store.state.ui.currentSection;
     }
 
     public get hasSaveCallback() {
@@ -70,8 +65,16 @@ export default class TeiEditor extends Vue {
         return this.$store.state.callbacks.load !== null;
     }
 
-    public sectionData(sectionName: string) {
-        return this.$store.state.data[sectionName];
+    public setCurrentSection(section: string) {
+        this.currentSection = section;
+    }
+
+    public getContentForSection(sectionName: string) {
+        return get(this.$store.state.content, sectionName);
+    }
+
+    public setContentForSection(section: string, doc: any) {
+        this.$store.commit('setTextDoc', { path: section, doc: doc});
     }
 
     public save() {
@@ -87,10 +90,6 @@ export default class TeiEditor extends Vue {
                 this.$store.dispatch('load', data);
             });
         }
-    }
-
-    public setCurrentSection(section: string) {
-        this.$store.commit('setCurrentSection', section);
     }
 }
 </script>

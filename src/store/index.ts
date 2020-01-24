@@ -10,14 +10,11 @@ import get from '@/util/get';
 Vue.use(Vuex);
 
 const defaultState: State = {
-    ui: {
-        currentSection: '',
-    },
     settings: {
         metadataSection: '',
     },
     sections: {},
-    data: {},
+    content: {},
     callbacks: {}
 };
 
@@ -27,12 +24,12 @@ export default new Vuex.Store({
       init(state, config) {
           state.sections = config.sections;
           Object.keys(config.sections).forEach((key, idx) => {
-              if (idx === 0) {
-                  state.ui.currentSection = key;
-              }
               if (config.sections[key].type === 'MetadataEditor') {
                   state.settings.metadataSection = key;
               }
+              Vue.set(state.content, key, {});
+              Vue.set(state.content[key], 'doc', null);
+              Vue.set(state.content[key], 'nested', {});
           });
           // @ts-ignore
           if (window.TEIEditor && window.TEIEditor.callbacks) {
@@ -45,26 +42,8 @@ export default new Vuex.Store({
           }
       },
 
-      setCurrentSection(state, sectionName: string) {
-          state.ui.currentSection = sectionName;
-      },
-
-      load(state, sourceData: string) {
-          let domParser = new DOMParser();
-          let dom = domParser.parseFromString(sourceData, 'application/xml');
-          Vue.set(state, 'data', {});
-          Object.entries(state.sections).forEach(([key, config]) => {
-              if (config.type === 'MetadataEditor') {
-                  Vue.set(state.data, key, (new TEIMetadataParser(dom, config)).get());
-              } else if (config.type === 'TextEditor') {
-                  let [doc, nestedDocs] = (new TEITextParser(dom, config)).get();
-                  Vue.set(state.data, key, {doc: doc, nested: nestedDocs});
-              }
-          });
-      },
-
-      setSections(state, sections: any) {
-          Vue.set(state, 'sections', sections);
+      /*setMetadata(state, metadata: any) {
+          Vue.set(state.data, state.settings.metadataSection, metadata);
       },
 
       setMetadataValue(state, payload: MetadataValueChange) {
@@ -158,11 +137,17 @@ export default new Vuex.Store({
                   'xml:id': payload.nodeId
               }
           })
-      },
+      },*/
 
       setTextDoc(state, payload: any) {
           let path = payload.path.split('.');
-          let obj = state.data[payload.section];
+          if (path.length === 2) {
+              Vue.set(state.content[path[0]], path[1], payload.doc);
+          } else {
+              console.log(path);
+          }
+          /*
+          let obj = state.data;
           while (path.length > 0) {
               let pathElement = path[0];
               if (pathElement[0] === '[' && pathElement[pathElement.length - 1] === ']') {
@@ -182,17 +167,25 @@ export default new Vuex.Store({
                   }
               }
               path.splice(0, 1);
-          }
-      }
+          }*/
+      },
   },
   actions: {
       load({ commit, state }, sourceData: string) {
-          commit('load', sourceData);
-          let sections = deepclone(state.sections);
-          commit('setSections', []);
-          Vue.nextTick(() => {
-              commit('setSections', sections);
-          })
+          let domParser = new DOMParser();
+          let dom = domParser.parseFromString(sourceData, 'application/xml');
+          Vue.set(state, 'data', {});
+          Object.entries(state.sections).forEach(([key, config]) => {
+              if (config.type === 'MetadataEditor') {
+                  //console.log((new TEIMetadataParser(dom, config)).get());
+                  //Vue.set(state.data, key, (new TEIMetadataParser(dom, config)).get());
+              } else if (config.type === 'TextEditor') {
+                  let [doc, nestedDocs] = (new TEITextParser(dom, config)).get();
+                  commit('setTextDoc', { path: key + '.doc', doc: null });
+                  commit('setTextDoc', { path: key + '.doc', doc: doc });
+                  //Vue.set(state.data, key, {doc: doc, nested: nestedDocs});
+              }
+          });
       }
   },
   modules: {}

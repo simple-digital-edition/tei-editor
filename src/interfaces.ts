@@ -1,13 +1,8 @@
 export interface State {
-    ui: StateUI;
     settings: Settings;
     sections: Sections;
-    data: Data;
+    content: Data;
     callbacks: Callbacks;
-}
-
-export interface StateUI {
-    currentSection: string;
 }
 
 export interface Settings {
