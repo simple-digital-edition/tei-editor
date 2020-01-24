@@ -34,7 +34,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator';
+import { Component, Vue, Watch } from 'vue-property-decorator';
 import AriaMenubar from './AriaMenubar.vue';
 import AriaMenu from './AriaMenu.vue';
 import MetadataEditor from './MetadataEditor.vue';
@@ -77,6 +77,13 @@ export default class TeiEditor extends Vue {
         this.$store.commit('setTextDoc', { path: section, doc: doc});
     }
 
+    public mounted() {
+        let sections = Object.keys(this.sections);
+        if (sections.length > 0) {
+            this.currentSection = sections[0];
+        }
+    }
+
     public save() {
         if (this.hasSaveCallback) {
             let serialiser = new TEISeraliser();
@@ -89,6 +96,14 @@ export default class TeiEditor extends Vue {
             this.$store.state.callbacks.load((data: string) => {
                 this.$store.dispatch('load', data);
             });
+        }
+    }
+
+    @Watch('sections')
+    public updateSections() {
+        let sections = Object.keys(this.sections);
+        if (sections.length > 0) {
+            this.currentSection = sections[0];
         }
     }
 }
