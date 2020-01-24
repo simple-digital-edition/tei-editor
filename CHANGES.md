@@ -1,5 +1,9 @@
 # Changes
 
+## DEV
+
+* **BUGFIX**: Fixed an issue with the nested editor
+
 ## 0.5.1
 
 * **BUGFIX**: Small CSS fix

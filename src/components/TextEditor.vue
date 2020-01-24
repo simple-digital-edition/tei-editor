@@ -62,6 +62,7 @@ import get from '@/util/get';
         EditorMenuBar,
         AriaMenubar,
     },
+    name: 'text-editor',
 })
 export default class TextEditor extends Vue {
     @Prop({type: String})
