@@ -1,7 +1,10 @@
 {
   "name": "tei-editor",
-  "version": "0.1.0",
-  "private": true,
+  "version": "0.5.0",
+  "license": "mit",
+  "repository": "https://github.com/scmmmh/tei-editor",
+  "description": "A highly configurable TEI editor that can be embedded as a custom HTML component.",
+  "author": "Mark Hall <mark.hall@work.room3b.eu>",
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
@@ -36,5 +39,10 @@
   },
   "resolutions": {
     "prosemirror-model": "1.8.2"
-  }
+  },
+  "files": [
+    "dist",
+    "public",
+    "src"
+  ]
 }
