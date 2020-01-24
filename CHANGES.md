@@ -1,5 +1,9 @@
 # Changes
 
+## 0.5.0:
+
+* **NEW**: Rewrite in Vue.js
+
 ## 0.4.2:
 
 * **BUGFIX**: Fixed a bug with non-duplicate TEI metadata

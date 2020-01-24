@@ -1,20 +1,10 @@
-import Application, { DOMBuilder, RuntimeCompilerLoader, SyncRenderer } from '@glimmer/application';
-import Resolver, { BasicModuleRegistry } from '@glimmer/resolver';
-import moduleMap from '../config/module-map';
-import resolverConfiguration from '../config/resolver-configuration';
+import Vue from "vue";
+import App from "./App.vue";
+import store from "./store";
 
-export default class App extends Application {
-  constructor() {
-    let moduleRegistry = new BasicModuleRegistry(moduleMap);
-    let resolver = new Resolver(resolverConfiguration, moduleRegistry);
-    const element = document.body;
+Vue.config.productionTip = false;
 
-    super({
-      builder: new DOMBuilder({ element, nextSibling: null }),
-      loader: new RuntimeCompilerLoader(resolver),
-      renderer: new SyncRenderer(),
-      resolver,
-      rootName: resolverConfiguration.app.rootName
-    });
-  }
-}
+new Vue({
+  store,
+  render: h => h(App)
+}).$mount("#app");
