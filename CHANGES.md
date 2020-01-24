@@ -1,6 +1,6 @@
 # Changes
 
-## DEV
+## 0.5.2
 
 * **BUGFIX**: Fixed an issue with the nested editor
 
