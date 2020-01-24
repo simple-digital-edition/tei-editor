@@ -147,7 +147,6 @@ export default class AriaMenubar extends Vue {
 
     li {
       flex: 0 0 auto;
-      display: inline-block;
       vertical-align: top;
 
       a {

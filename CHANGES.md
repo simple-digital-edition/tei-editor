@@ -1,5 +1,9 @@
 # Changes
 
+## Dev
+
+* **BUGFIX**: Small CSS fix
+
 ## 0.5.0:
 
 * **NEW**: Rewrite in Vue.js
