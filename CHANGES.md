@@ -1,6 +1,6 @@
 # Changes
 
-## Dev
+## 0.5.1
 
 * **BUGFIX**: Small CSS fix
 
