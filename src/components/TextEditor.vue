@@ -36,7 +36,7 @@
           </template>
         </div>
       </div>
-  </editor-menu-bar>
+    </editor-menu-bar>
     <div v-if="showNested" class="nested">
       <text-editor :section="section" :nestedSection="nestedSettings.section" :nestedId="nestedSettings.id" :closeNestedAction="closeNestedEditor"/>
     </div>
@@ -112,6 +112,8 @@ export default class TextEditor extends Vue {
     }
 
     get activeUIBlocks() {
+        // eslint-disable-next-line
+        console.log('activeUIBlocks');
         const isActive = this.editor.isActive;
         return this.ui.filter((block: any) => {
             if (block.condition) {
@@ -267,6 +269,8 @@ export default class TextEditor extends Vue {
      * Get all ids of nested documents of a certain type.
      */
     public getNestedIds(targetType: string) {
+        // eslint-disable-next-line
+        console.log('nestedids');
         let nestedIds = [{value: '', label: 'New'}];
         Object.keys(this.$store.state.content[this.$props.section].nested[targetType]).forEach((key) => {
             nestedIds.push({value: key, label: key});
