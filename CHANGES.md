@@ -1,6 +1,6 @@
 # Changes
 
-## Dev
+## 0.5.3
 
 * **UPDATE**: Worked on some performance improvements
 
