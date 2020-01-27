@@ -172,10 +172,20 @@ export default class TeiEditor extends Vue {
 
       > div:nth-child(1) {
           flex: 1 1 auto;
+          overflow-y: auto;
       }
 
       > div.sidebar {
           flex: 0 0 auto;
+          overflow-y: auto;
+
+          > div {
+              display: none;
+
+              &.is-active {
+                  display: block;
+              }
+          }
       }
 
       > div.nested {

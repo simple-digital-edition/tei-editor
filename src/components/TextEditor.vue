@@ -1,42 +1,43 @@
 <template>
   <div class="text-editor">
     <editor-content :editor="editor"/>
-    <editor-menu-bar :editor="editor" v-slot="{ commands, isActive, getMarkAttrs }">
-      <div class="sidebar">
-         <div v-for="(block, idx) in activeUIBlocks" :key="idx">
-          <h2>{{ block.label }}</h2>
-          <template v-for="(section, idx2) in block.entities">
-            <ul v-if="section.type === 'list'" :key="idx2">
-              <li v-for="(menuitem, idx3) in section.entities" :key="idx3" role="presentation">
-                <label>{{ menuitem.label }}
-                  <input v-if="menuitem.type === 'setNodeAttrString'" :value="getNodeAttributeValue(menuitem.nodeType, menuitem.attr)" @change="setNodeAttributeValue(commands, menuitem.nodeType, menuitem.attr, $event.target.value)"/>
-                </label>
-              </li>
-            </ul>
-            <aria-menubar v-if="section.type === 'menubar'" :key="idx2" v-slot="{ keyboardNav }">
-              <ul role="menubar">
+    <aria-menubar v-slot="{ keyboardNav }">
+      <editor-menu-bar :editor="editor" v-slot="{ commands, isActive, getMarkAttrs }">
+        <div class="sidebar">
+          <div v-for="(block, idx) in activeSidebar" :key="idx" :class="{'is-active': block.active}">
+            <h2>{{ block.label }}</h2>
+            <template v-for="(section, idx2) in block.entities">
+              <ul v-if="section.type === 'list'" :key="idx2">
+                <li v-for="(menuitem, idx3) in section.entities" :key="idx3" role="presentation">
+                  <label><span v-html="menuitem.label"></span>
+                    <input v-if="menuitem.type === 'setNodeAttrString'" :value="menuitem.value" @change="setNodeAttributeValue(commands, menuitem.nodeType, menuitem.attr, $event.target.value)"/>
+                    <!--<input v-if="menuitem.type === 'setNodeAttrString'" :value="getNodeAttributeValue(menuitem.nodeType, menuitem.attr)" @change="setNodeAttributeValue(commands, menuitem.nodeType, menuitem.attr, $event.target.value)"/>-->
+                  </label>
+                </li>
+              </ul>
+              <ul v-if="section.type === 'menubar'" :key="idx2" role="menubar">
                 <li v-for="(menuitem, idx3) in section.entities" :key="idx3" role="presentation" :class="menuitem.type === 'separator' ? 'separator' : null">
-                  <a v-if="menuitem.type === 'setNodeType'" role="menuitem" :tabindex="idx3 === 0 ? '0' : '-1'" v-html="menuitem.label" :aria-checked="isActive[menuitem.nodeType]() ? 'true' : 'false'" @keyup="keyboardNav" @click="commands[menuitem.nodeType]()"></a>
-                  <a v-if="menuitem.type === 'setNodeAttrValue'" role="menuitem" :tabindex="idx3 === 0 ? '0' : '-1'" v-html="menuitem.label" :aria-checked="hasNodeAttributeValue(menuitem.nodeType, menuitem.attr, menuitem.value) ? 'true' : 'false'" @keyup="keyboardNav" @click="setNodeAttributeValue(commands, menuitem.nodeType, menuitem.attr, menuitem.value)"></a>
-                  <a v-if="menuitem.type === 'toggleMark'" role="menuitem" :tabindex="idx3 === 0 ? '0' : '-1'" v-html="menuitem.label" :aria-checked="isActive[menuitem.markType]() ? 'true' : 'false'" @keyup="keyboardNav" @click="commands[menuitem.markType]()"></a>
-                  <select v-if="menuitem.type === 'selectNodeAttr'" role="menuitem" :tabindex="idx3 === 0 ? '0' : '-1'" @keyup="keyboardNav" @change="setNodeAttributeValue(commands, menuitem.nodeType, menuitem.attr, $event.target.value)">
-                    <option v-for="value in menuitem.values" :key="value.value" :selected="hasNodeAttributeValue(menuitem.nodeType, menuitem.attr, value.value)" :value="value.value">{{ value.label }}</option>
+                  <a v-if="menuitem.type === 'setNodeType'" role="menuitem" v-html="menuitem.label" :tabindex="menuitem.tabindex" :aria-checked="menuitem.checked" @keyup="keyboardNav" @click="commands[menuitem.nodeType]()"></a>
+                  <a v-else-if="menuitem.type === 'setNodeAttrValue'" role="menuitem" v-html="menuitem.label" :tabindex="menuitem.tabindex" :aria-checked="menuitem.checked" @keyup="keyboardNav" @click="setNodeAttributeValue(commands, menuitem.nodeType, menuitem.attr, menuitem.value)"></a>
+                  <select v-else-if="menuitem.type === 'selectNodeAttr'" role="menuitem" :tabindex="menuitem.tabindex" @keyup="keyboardNav" @change="setNodeAttributeValue(commands, menuitem.nodeType, menuitem.attr, $event.target.value)">
+                    <option v-for="value in menuitem.values" :key="value.value" v-html="value.label" :value="value.value" :selected="value.checked"></option>
                   </select>
-                  <select v-if="menuitem.type === 'selectMarkAttr'" role="menuitem" :tabindex="idx3 === 0 ? '0' : '-1'" @keyup="keyboardNav" @change="setMarkAttributeValue(menuitem.markType, menuitem.attr, $event.target.value)">
-                    <option v-for="value in menuitem.values" :key="value.value" :selected="hasMarkAttributeValue(menuitem.markType, menuitem.attr, value.value)" :value="value.value">{{ value.label }}</option>
+                  <a v-else-if="menuitem.type === 'toggleMark'" role="menuitem" v-html="menuitem.label" :tabindex="menuitem.tabindex" :aria-checked="menuitem.checked" @keyup="keyboardNav" @click="commands[menuitem.nodeType]()"></a>
+                  <select v-else-if="menuitem.type === 'selectMarkAttr'" role="menuitem" :tabindex="menuitem.tabindex" @keyup="keyboardNav" @change="setMarkAttributeValue(menuitem.nodeType, menuitem.attr, $event.target.value)">
+                    <option v-for="value in menuitem.values" :key="value.value" v-html="value.label" :value="value.value" :selected="value.checked"></option>
                   </select>
-                  <a v-if="menuitem.type === 'editNestedDoc'" role="menuitem" :tabindex="idx3 === 0 ? '0' : '-1'" v-html="menuitem.label" @keyup="keyboardNav" @click="editNestedDoc(commands, menuitem.nodeType, menuitem.attr, menuitem.targetNodeType)"></a>
-                  <a v-if="menuitem.type === 'closeNested'" role="menuitem" :tabindex="idx3 === 0 ? '0' : '-1'" v-html="menuitem.label" @keyup="keyboardNav" @click="closeNestedAction"></a>
-                  <select v-if="menuitem.type === 'linkNestedDoc'" role="menuitem" :tabindex="idx3 === 0 ? '0' : '-1'" @keyup="keyboardNav" @change="setNodeAttributeValue(commands, menuitem.nodeType, menuitem.attr, $event.target.value)">
-                    <option v-for="value in getNestedIds(menuitem.targetNodeType)" :key="value.value" :selected="hasNodeAttributeValue(menuitem.nodeType, menuitem.attr, value.value)" :value="value.value">{{ value.label }}</option>
+                  <a v-else-if="menuitem.type === 'editNestedDoc'" role="menuitem" v-html="menuitem.label" :tabindex="menuitem.tabindex" @keyup="keyboardNav" @click="editNestedDoc(commands, menuitem.nodeType, menuitem.attr, menuitem.targetType)"></a>
+                  <a v-else-if="menuitem.type === 'closeNested'" role="menuitem" v-html="menuitem.label" :tabindex="menuitem.tabindex" @keyup="keyboardNav" @click="closeNestedAction"></a>
+                  <select v-else-if="menuitem.type === 'linkNestedDoc'" role="menuitem" :tabindex="menuitem.tabindex" @keyup="keyboardNav" @change="setNodeAttributeValue(commands, menuitem.nodeType, menuitem.attr, $event.target.value)">
+                    <option v-for="value in menuitem.values" :key="value.value" v-html="value.label" :value="value.value" :selected="value.checked"></option>
                   </select>
                 </li>
               </ul>
-            </aria-menubar>
-          </template>
+            </template>
+          </div>
         </div>
-      </div>
-    </editor-menu-bar>
+      </editor-menu-bar>
+    </aria-menubar>
     <div v-if="showNested" class="nested">
       <text-editor :section="section" :nestedSection="nestedSettings.section" :nestedId="nestedSettings.id" :closeNestedAction="closeNestedEditor"/>
     </div>
@@ -82,6 +83,7 @@ export default class TextEditor extends Vue {
     nestedSettings = null as any;
     internalContentUpdate = false;
     defaultNodeName = '';
+    sidebar = [] as any;
 
     public get schema() {
         return this.$store.state.sections[this.$props.section].schema;
@@ -112,20 +114,83 @@ export default class TextEditor extends Vue {
         }
     }
 
-    get activeUIBlocks() {
+    /**
+     * Computed property of all selected nodes.
+     */
+    private get selectedNodes() {
+        if (this.editor) {
+            const { from, to } = this.editor.state.selection;
+            let selectedNodes = [] as any;
+            this.editor.state.doc.nodesBetween(from, to, (node: any) => {
+                selectedNodes.push(node);
+            });
+            return selectedNodes;
+        } else {
+            return [];
+        }
+    }
+
+    /**
+     * Get the menu ui schema with elements active status set.
+     */
+    public get activeSidebar() {
         const isActive = this.editor.isActive;
-        return this.ui.filter((block: any) => {
+        this.sidebar.forEach((block: any) => {
             if (block.condition) {
-                if (block.condition.type === 'isActive') {
-                    return isActive[block.condition.activeType]();
-                }
-                return false;
+                block.active = isActive[block.condition]();
             }
-            return true;
+            block.entities.forEach((entityBlock: any) => {
+                entityBlock.entities.forEach((entity: any) => {
+                    if (entity.type === 'setNodeAttrString') {
+                        entity.value = this.getNodeAttributeValue(entity.nodeType, entity.attr);
+                    } else if (entity.type === 'setNodeType' || entity.type === 'toggleMark') {
+                        entity.checked = isActive[entity.nodeType]() ? 'true' : 'false';
+                    } else if (entity.type === 'setNodeAttrValue') {
+                        entity.checked = this.hasNodeAttributeValue(entity.nodeType, entity.attr, entity.value) ? 'true' : 'false';
+                    } else if (entity.type === 'selectNodeAttr') {
+                        entity.values.forEach((value: any) => {
+                            value.checked = this.hasNodeAttributeValue(entity.nodeType, entity.attr, value.value) ? true : false;
+                        });
+                    } else if (entity.type === 'selectMarkAttr') {
+                        entity.values.forEach((value: any) => {
+                            value.checked = this.hasMarkAttributeValue(entity.nodeType, entity.attr, value.value) ? true : false;
+                        });
+                    } else if (entity.type === 'linkNestedDoc') {
+                        if (this.nestedDocIds[entity.targetType]) {
+                            entity.values = this.nestedDocIds[entity.targetType];
+                            entity.values.forEach((value: any) => {
+                                value.checked = this.hasNodeAttributeValue(entity.nodeType, entity.attr, value.value);
+                            });
+                        } else {
+                            entity.values = [{label: 'New', value: '', checked: false}];
+                        }
+                    }
+                });
+            });
         });
+        return this.sidebar;
+    }
+
+    /**
+     * Computed property to get the available nested doc ids.
+     */
+    private get nestedDocIds() {
+        let nestedIds = {} as any;
+        Object.entries(this.$store.state.content[this.$props.section].nested).forEach(([nestedKey, docObj]: any) => {
+            nestedIds[nestedKey] = Object.keys(docObj).map((docKey: string) => {
+                return {
+                    label: docKey,
+                    value: docKey,
+                    checked: false,
+                };
+            });
+            nestedIds[nestedKey].splice(0, 0, {label: 'New', value: '', checked: false});
+        });
+        return nestedIds;
     }
 
     public mounted() {
+        // Initialise the editor schema
         let extensions = [
             new Doc(),
             new Text(),
@@ -145,6 +210,7 @@ export default class TextEditor extends Vue {
                 extensions.push(new MarkNode(config));
             }
         });
+        // Initialise the editor
         this.editor = new Editor({
             useBuiltInExtensions: false,
             extensions: extensions,
@@ -162,6 +228,55 @@ export default class TextEditor extends Vue {
             this.editor.setContent(this.doc);
         }
         this.editor.focus();
+        // Initialise the sidebar structure
+        this.sidebar = this.ui.map((blockSchema: any) => {
+            let block = {
+                label: blockSchema.label,
+                active: true,
+            } as any;
+            if (blockSchema.condition) {
+                block.condition = blockSchema.condition.activeType;
+            }
+            if (blockSchema.entities) {
+                block.entities = blockSchema.entities.map((entityBlockSchema: any) => {
+                    let entityBlock = {
+                        type: entityBlockSchema.type,
+                    } as any;
+                    if (entityBlockSchema.entities) {
+                        entityBlock.entities = entityBlockSchema.entities.map((entitySchema: any, idx: number) => {
+                            let entity = {
+                                type: entitySchema.type,
+                                label: entitySchema.label,
+                                nodeType: entitySchema.nodeType || entitySchema.markType,
+                                attr: entitySchema.attr,
+                                value: '',
+                                checked: 'false',
+                                tabindex: idx === 0 ? 0 : -1,
+                            } as any;
+                            if (entitySchema.type === 'selectNodeAttr' || entitySchema.type === 'selectMarkAttr') {
+                                entity.values = entitySchema.values.map((value: any) => {
+                                    return {
+                                        label: value.label,
+                                        value: value.value,
+                                        checked: false,
+                                    }
+                                });
+                            } else if (entitySchema.type === 'setNodeAttrValue') {
+                                entity.value = entitySchema.value;
+                            } else if (entitySchema.type === 'editNestedDoc') {
+                                entity.targetType = entitySchema.targetNodeType;
+                            } else if (entitySchema.type === 'linkNestedDoc') {
+                                entity.targetType = entitySchema.targetNodeType;
+                                entity.values = [];
+                            }
+                            return entity;
+                        });
+                    }
+                    return entityBlock;
+                });
+            }
+            return block;
+        });
     }
 
     public beforeDestroy() {
@@ -182,16 +297,15 @@ export default class TextEditor extends Vue {
      * Gets a node attribute value.
      */
     public getNodeAttributeValue(nodeName: string, attrName: string) {
-        const { from, to } = this.editor.state.selection;
-        let value = '';
-        this.editor.state.doc.nodesBetween(from, to, (node: any) => {
+        for (let idx = 0; idx < this.selectedNodes.length; idx++) {
+            let node = this.selectedNodes[idx];
             if (node.type.name === nodeName) {
                 if (node.attrs[attrName] !== undefined && node.attrs[attrName] !== null) {
-                    value = node.attrs[attrName];
+                    return node.attrs[attrName];
                 }
             }
-        });
-        return value;
+        }
+        return '';
     }
 
     /**
@@ -220,18 +334,18 @@ export default class TextEditor extends Vue {
      * Gets a mark attribute value.
      */
     public getMarkAttributeValue(markName: string, attrName: string) {
-        const { from, to } = this.editor.state.selection;
-        let value = '';
-        this.editor.state.doc.nodesBetween(from, to, (node: any) => {
+        for (let idx = 0; idx < this.selectedNodes.length; idx++) {
+            let node = this.selectedNodes[idx];
             if (node.marks) {
-                node.marks.forEach((mark: any) => {
+                for (let idx2 = 0; idx2 < node.marks.length; idx2++) {
+                    let mark = node.marks[idx2];
                     if (mark.type.name === markName) {
-                        value = mark.attrs[attrName];
+                        return mark.attrs[attrName];
                     }
-                });
+                }
             }
-        });
-        return value
+        }
+        return '';
     }
 
     /**
@@ -262,17 +376,6 @@ export default class TextEditor extends Vue {
         } else {
             removeMark(this.editor.schema.marks[markName])(this.editor.state, this.editor.dispatchTransaction.bind(this.editor));
         }
-    }
-
-    /**
-     * Get all ids of nested documents of a certain type.
-     */
-    public getNestedIds(targetType: string) {
-        let nestedIds = [{value: '', label: 'New'}];
-        Object.keys(this.$store.state.content[this.$props.section].nested[targetType]).forEach((key) => {
-            nestedIds.push({value: key, label: key});
-        });
-        return nestedIds;
     }
 
     /**

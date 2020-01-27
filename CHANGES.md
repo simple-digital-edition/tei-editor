@@ -1,5 +1,9 @@
 # Changes
 
+## Dev
+
+* **UPDATE**: Worked on some performance improvements
+
 ## 0.5.2
 
 * **BUGFIX**: Fixed an issue with the nested editor
