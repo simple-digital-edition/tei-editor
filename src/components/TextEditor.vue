@@ -36,7 +36,7 @@
           </template>
         </div>
       </div>
-  </editor-menu-bar>
+    </editor-menu-bar>
     <div v-if="showNested" class="nested">
       <text-editor :section="section" :nestedSection="nestedSettings.section" :nestedId="nestedSettings.id" :closeNestedAction="closeNestedEditor"/>
     </div>
