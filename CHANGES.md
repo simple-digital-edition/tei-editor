@@ -1,5 +1,9 @@
 # Changes
 
+## Dev
+
+* **UPDATE**: Explicitly support ariaLabel for all menu items
+
 ## 0.5.3
 
 * **UPDATE**: Worked on some performance improvements
