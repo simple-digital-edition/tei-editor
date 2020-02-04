@@ -1,6 +1,6 @@
 # Changes
 
-## DEV
+## 0.6.0
 
 * **UPDATE**: Automatically filter out empty text nodes
 
