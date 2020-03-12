@@ -33,3 +33,14 @@ export interface MetadataMultiRowMove {
     idx: number;
     move: number;
 }
+
+export interface TextEditorNodeConfig {
+    type: 'block' | 'inline' | 'wrapping' | 'mark';
+    name: string;
+    content?: string;
+    attrs: { [x: string]: TextEditorNodeAttribute };
+}
+
+export interface TextEditorNodeAttribute {
+
+}

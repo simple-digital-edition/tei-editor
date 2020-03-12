@@ -1,6 +1,9 @@
 <template>
-  <div class="text-editor">
-    <editor-content :editor="editor"/>
+    <div class="text-editor">
+        <div class="editor"></div>
+        <div class="sidebar">
+        </div>
+    <!--<editor-content :editor="editor"/>
     <aria-menubar v-slot="{ keyboardNav }">
       <editor-menu-bar :editor="editor" v-slot="{ commands, isActive, getMarkAttrs }">
         <div class="sidebar">
@@ -11,7 +14,6 @@
                 <li v-for="(menuitem, idx3) in section.entities" :key="idx3" role="presentation">
                   <label><span v-html="menuitem.label"></span>
                     <input v-if="menuitem.type === 'setNodeAttrString'" :value="menuitem.value" @change="setNodeAttributeValue(commands, menuitem.nodeType, menuitem.attr, $event.target.value)"/>
-                    <!--<input v-if="menuitem.type === 'setNodeAttrString'" :value="getNodeAttributeValue(menuitem.nodeType, menuitem.attr)" @change="setNodeAttributeValue(commands, menuitem.nodeType, menuitem.attr, $event.target.value)"/>-->
                   </label>
                 </li>
               </ul>
@@ -37,7 +39,7 @@
           </div>
         </div>
       </editor-menu-bar>
-    </aria-menubar>
+  </aria-menubar>-->
     <div v-if="showNested" class="nested">
       <text-editor :section="section" :nestedSection="nestedSettings.section" :nestedId="nestedSettings.id" :closeNestedAction="closeNestedEditor"/>
     </div>
@@ -47,20 +49,23 @@
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator';
 // @ts-ignore
-import { Editor, EditorContent, EditorMenuBar, Doc, Text } from 'tiptap';
+//import { Editor, EditorContent, EditorMenuBar, Doc, Text } from 'tiptap';
 // @ts-ignore
-import { removeMark, updateMark } from 'tiptap-commands'
+//import { removeMark, updateMark } from 'tiptap-commands'
+import { Schema } from "prosemirror-model";
+import { EditorState } from "prosemirror-state";
+import { EditorView } from "prosemirror-view";
+import { baseKeymap } from 'prosemirror-commands';
+import { undo, redo, history } from 'prosemirror-history';
+import { keymap } from 'prosemirror-keymap';
+
 import AriaMenubar from './AriaMenubar.vue';
-import BlockNode from '@/nodes/BlockNode';
-import WrappingNode from '@/nodes/WrappingNode';
-import InlineNode from '@/nodes/InlineNode';
-import MarkNode from '@/nodes/MarkNode';
 import get from '@/util/get';
+import { generateSchemaNodes, generateSchemaMarks } from '@/util/prosemirror';
 
 @Component({
     components: {
-        EditorContent,
-        EditorMenuBar,
+//        EditorMenuBar,
         AriaMenubar,
     },
     name: 'text-editor',
@@ -78,7 +83,7 @@ export default class TextEditor extends Vue {
     @Prop({type: Function})
     readonly closeNestedAction!: any;
 
-    editor: Editor | null = null;
+    editor: EditorView | null = null;
     showNested = false;
     nestedSettings = null as any;
     internalContentUpdate = false;
@@ -117,7 +122,7 @@ export default class TextEditor extends Vue {
     /**
      * Computed property of all selected nodes.
      */
-    private get selectedNodes() {
+    /*private get selectedNodes() {
         if (this.editor) {
             const { from, to } = this.editor.state.selection;
             let selectedNodes = [] as any;
@@ -133,7 +138,7 @@ export default class TextEditor extends Vue {
     /**
      * Get the menu ui schema with elements active status set.
      */
-    public get activeSidebar() {
+    /*public get activeSidebar() {
         const isActive = this.editor.isActive;
         this.sidebar.forEach((block: any) => {
             if (block.condition) {
@@ -174,7 +179,7 @@ export default class TextEditor extends Vue {
     /**
      * Computed property to get the available nested doc ids.
      */
-    private get nestedDocIds() {
+    /*public get nestedDocIds() {
         let nestedIds = {} as any;
         Object.entries(this.$store.state.content[this.$props.section].nested).forEach(([nestedKey, docObj]: any) => {
             nestedIds[nestedKey] = Object.keys(docObj).map((docKey: string) => {
@@ -187,11 +192,40 @@ export default class TextEditor extends Vue {
             nestedIds[nestedKey].splice(0, 0, {label: 'New', value: '', checked: false});
         });
         return nestedIds;
-    }
+    }*/
 
     public mounted() {
+        const editorSchema = new Schema({
+            nodes: generateSchemaNodes(this.schema),
+            marks: generateSchemaMarks(this.schema),
+        });
+        this.editor = new EditorView(this.$el.querySelector('.editor') as Node, {
+            state: EditorState.create({
+                schema: editorSchema,
+                doc: editorSchema.nodeFromJSON({type: 'doc', content:[{type: 'paragraph', content: [{type: 'text', text: 'Hello'}]}]}),
+                plugins: [
+                    history(),
+                    keymap({
+                        'Mod-z': undo,
+                        'Mod-y': redo
+                    }),
+                    keymap(baseKeymap)
+                ],
+            }),
+        });
+        // eslint-disable-next-line
+        //console.log(textSchema);
+        // eslint-disable-next-line
+        //console.log(textSchema.nodeFromJSON({type: 'doc', content:[{type: 'text', text: 'Testing 1 2 3'}]}));
+        /*new EditorView(document.querySelector("#editor"), {
+            state: EditorState.create({
+                doc: DOMParser.fromSchema(textSchema).parse(document.querySelector("#content")),
+    plugins: exampleSetup({schema: mySchema})
+  })
+})*/
+
         // Initialise the editor schema
-        let extensions = [
+        /*let extensions = [
             new Doc(),
             new Text(),
         ];
@@ -277,19 +311,34 @@ export default class TextEditor extends Vue {
                 });
             }
             return block;
-        });
+        });*/
     }
 
-    public beforeDestroy() {
+    /*public beforeDestroy() {
         if (this.editor) {
             this.editor.destroy();
         }
-    }
+    }*/
 
     @Watch('doc')
     public updateContent(newValue: any) {
         if (!this.internalContentUpdate && this.editor) {
-            this.editor.setContent(newValue);
+            const editorSchema = new Schema({
+                nodes: generateSchemaNodes(this.schema),
+                marks: generateSchemaMarks(this.schema),
+            });
+            this.editor.updateState(EditorState.create({
+                schema: editorSchema,
+                doc: editorSchema.nodeFromJSON(this.doc),
+                plugins: [
+                    history(),
+                    keymap({
+                        'Mod-z': undo,
+                        'Mod-y': redo
+                    }),
+                    keymap(baseKeymap)
+                ],
+            }));
         }
         this.internalContentUpdate = false;
     }
@@ -297,7 +346,7 @@ export default class TextEditor extends Vue {
     /**
      * Gets a node attribute value.
      */
-    public getNodeAttributeValue(nodeName: string, attrName: string) {
+    /*public getNodeAttributeValue(nodeName: string, attrName: string) {
         for (let idx = 0; idx < this.selectedNodes.length; idx++) {
             let node = this.selectedNodes[idx];
             if (node.type.name === nodeName) {
@@ -312,14 +361,14 @@ export default class TextEditor extends Vue {
     /**
      * Checks whether a node has an attribute with the given value.
      */
-    public hasNodeAttributeValue(nodeName: string, attrName: string, value: string) {
+    /*public hasNodeAttributeValue(nodeName: string, attrName: string, value: string) {
         return this.getNodeAttributeValue(nodeName, attrName) === value;
     }
 
     /**
      * Set a node attribute to the given value. Keeps all other attributes the same value.
      */
-    public setNodeAttributeValue(commands: any, nodeName: string, attrName: string, value: string) {
+    /*public setNodeAttributeValue(commands: any, nodeName: string, attrName: string, value: string) {
         const { from, to } = this.editor.state.selection;
         let attributes = {} as any;
         this.editor.state.doc.nodesBetween(from, to, (node: any) => {
@@ -334,7 +383,7 @@ export default class TextEditor extends Vue {
     /**
      * Gets a mark attribute value.
      */
-    public getMarkAttributeValue(markName: string, attrName: string) {
+    /*public getMarkAttributeValue(markName: string, attrName: string) {
         for (let idx = 0; idx < this.selectedNodes.length; idx++) {
             let node = this.selectedNodes[idx];
             if (node.marks) {
@@ -352,14 +401,14 @@ export default class TextEditor extends Vue {
     /**
      * Checks whether a mark has a given attribute value.
      */
-    public hasMarkAttributeValue(markName: string, attrName: string, value: string) {
+    /*public hasMarkAttributeValue(markName: string, attrName: string, value: string) {
         return this.getMarkAttributeValue(markName, attrName) === value;
     }
 
     /**
      * Sets the mark's attribute value.
      */
-    public setMarkAttributeValue(markName: string, attrName: string, value: string) {
+    /*public setMarkAttributeValue(markName: string, attrName: string, value: string) {
         if (value) {
             const { from, to } = this.editor.state.selection;
             let attributes = {} as any;
@@ -382,7 +431,7 @@ export default class TextEditor extends Vue {
     /**
      * Open the nested editor.
      */
-    public editNestedDoc(commands: any, nodeName: string, attrName: string, editNodeName: string) {
+    /*public editNestedDoc(commands: any, nodeName: string, attrName: string, editNodeName: string) {
         let nestedId = this.getNodeAttributeValue(nodeName, attrName);
         if (!nestedId) {
             let nestedDocs = this.$store.state.content[this.$props.section].nested[editNodeName];
@@ -405,9 +454,9 @@ export default class TextEditor extends Vue {
     /**
      * Close the nested editor.
      */
-    public closeNestedEditor() {
+    /*public closeNestedEditor() {
         this.showNested = false;
         this.nestedSettings = null;
-    }
+    }*/
 }
 </script>
