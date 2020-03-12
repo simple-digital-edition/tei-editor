@@ -44,3 +44,52 @@ export interface TextEditorNodeConfig {
 export interface TextEditorNodeAttribute {
 
 }
+
+export interface TextEditorSidebarBlockConfig {
+    label: string;
+    condition: TextEditorSidebarConditionConfig;
+    entities: TextEditorSidebarSectionConfig[];
+}
+
+export interface TextEditorSidebarConditionConfig {
+    type: 'isActive';
+    activeType: string;
+}
+
+export interface TextEditorSidebarSectionConfig {
+    type: 'list' | 'menubar';
+    entities: TextEditorSidebarElementConfig[];
+}
+
+export interface TextEditorSidebarElementConfig {
+    type: string;
+    attr: string;
+    label: string;
+    values: {[x: string]: string}[];
+    nodeType?: string;
+    markType?: string;
+    ariaLabel?: string;
+    value?: string;
+    targetNodeType?: string;
+}
+
+export interface TextEditorActiveElements {
+    [x: string]: {[y: string]: string};
+}
+
+export interface TextEditorMenuItem {
+    type: string;
+    attr: string;
+    label: string;
+    values: {[x: string]: string}[];
+    nodeType?: string;
+    markType?: string;
+    ariaLabel?: string;
+    value?: string;
+    targetNodeType?: string;
+}
+
+export interface TextEditorMenuItemValuesValue {
+    label: string;
+    value: string;
+}

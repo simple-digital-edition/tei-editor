@@ -14,13 +14,14 @@ export function generateSchemaNodes(schema: TextEditorNodeConfig[]) {
                 content: 'inline*',
                 group: 'block',
                 attrs: config.attrs,
-                parseDom: [{
+                parseDOM: [{
                     tag: `div.node-${config.name}`,
-                    getAttrs: (dom: HTMLElement) => {
+                    node: config.name,
+                    getAttrs: (dom: Node | string) => {
                         let attrs = {} as any;
                         if (config.attrs) {
                             Object.keys(config.attrs).forEach((key) => {
-                                let value = dom.getAttribute(`data-${key}`);
+                                let value = (dom as HTMLElement).getAttribute(`data-${key}`);
                                 if (value) {
                                     attrs[key] = value;
                                 }
@@ -46,11 +47,11 @@ export function generateSchemaNodes(schema: TextEditorNodeConfig[]) {
                 attrs: config.attrs,
                 parseDOM: [{
                     tag: `div.node-${config.name}`,
-                    getAttrs: (dom: HTMLElement) => {
+                    getAttrs: (dom: Node | string) => {
                         let attrs = {} as any;
                         if (config.attrs) {
                             Object.keys(config.attrs).forEach((key) => {
-                                let value = dom.getAttribute(`data-${key}`);
+                                let value = (dom as HTMLElement).getAttribute(`data-${key}`);
                                 if (value) {
                                     attrs[key] = value;
                                 }
@@ -81,11 +82,11 @@ export function generateSchemaNodes(schema: TextEditorNodeConfig[]) {
                 attrs: config.attrs,
                 parseDOM: [{
                     tag: `span.node-${config.name}`,
-                    getAttrs: (dom: HTMLElement) => {
+                    getAttrs: (dom: Node | string) => {
                         let attrs = {} as any;
                         if (config.attrs) {
                             Object.keys(config.attrs).forEach((key) => {
-                                let value = dom.getAttribute(`data-${key}`);
+                                let value = (dom as HTMLElement).getAttribute(`data-${key}`);
                                 if (value) {
                                     attrs[key] = value;
                                 }
@@ -119,11 +120,11 @@ export function generateSchemaMarks(schema: TextEditorNodeConfig[]) {
                 parseDOM: [
                     {
                         tag: `span.mark-${config.name}`,
-                        getAttrs: (dom: HTMLElement) => {
+                        getAttrs: (dom: Node | string) => {
                             let attrs = {} as any;
                             if (config.attrs) {
                                 Object.keys(config.attrs).forEach((key) => {
-                                    let value = dom.getAttribute(`data-${key}`);
+                                    let value = (dom as HTMLElement).getAttribute(`data-${key}`);
                                     if (value) {
                                         attrs[key] = value;
                                     }
