@@ -1,4 +1,6 @@
-import { NodeSpec, MarkSpec } from 'prosemirror-model';
+import { NodeSpec, MarkSpec, MarkType, NodeType, Mark, ResolvedPos } from 'prosemirror-model';
+import { EditorState, Transaction } from 'prosemirror-state';
+import { findSelectedNodeOfType, findParentNodeOfType } from 'prosemirror-utils';
 
 import { TextEditorNodeConfig } from '@/interfaces';
 
@@ -149,4 +151,82 @@ export function generateSchemaMarks(schema: TextEditorNodeConfig[]) {
         }
     });
     return marks;
+}
+
+export function getMarkRange($pos: ResolvedPos, type: MarkType) {
+    if (!$pos || !type) {
+        return false;
+    }
+    const start = $pos.parent.childAfter($pos.parentOffset)
+    if (!start.node) {
+        return false;
+    }
+    const link = start.node.marks.find((mark: Mark) => { return mark.type === type; })
+    if (!link) {
+        return false;
+    }
+    let startIndex = $pos.index();
+    let startPos = $pos.start() + start.offset;
+    let endIndex = startIndex + 1;
+    let endPos = startPos + start.node.nodeSize;
+    while (startIndex > 0 && link.isInSet($pos.parent.child(startIndex - 1).marks)) {
+        startIndex -= 1;
+        startPos -= $pos.parent.child(startIndex).nodeSize;
+    }
+    while (endIndex < $pos.parent.childCount && link.isInSet($pos.parent.child(endIndex).marks)) {
+        endPos += $pos.parent.child(endIndex).nodeSize;
+        endIndex += 1;
+    }
+    return { from: startPos, to: endPos };
+}
+
+export function updateMark(type: MarkType, attrs: {[x: string]: string}) {
+    return (state: EditorState, dispatch: (tr: Transaction) => void) => {
+        const { tr, selection, doc } = state;
+        let { from, to } = selection;
+        const { $from, empty } = selection;
+        if (empty) {
+            const range = getMarkRange($from, type)
+            if (range) {
+                from = range.from;
+                to = range.to;
+            }
+        }
+        const hasMark = doc.rangeHasMark(from, to, type)
+        if (hasMark) {
+            tr.removeMark(from, to, type)
+        }
+        tr.addMark(from, to, type.create(attrs))
+        return dispatch(tr);
+    }
+}
+
+export function removeMark(type: MarkType) {
+    return (state: EditorState, dispatch: (tr: Transaction) => void) => {
+        const { tr, selection, doc } = state;
+        let { from, to } = selection;
+        const { $from, empty } = selection;
+        if (empty) {
+            const range = getMarkRange($from, type)
+            if (range) {
+                from = range.from;
+                to = range.to;
+            }
+        }
+        const hasMark = doc.rangeHasMark(from, to, type)
+        if (hasMark) {
+            tr.removeMark(from, to, type)
+            return dispatch(tr);
+        }
+    }
+}
+
+export function updateInlineNode(type: NodeType, attrs: {[x: string]: string}) {
+    return (state: EditorState, dispatch: (tr: Transaction) => void) => {
+        const result = findSelectedNodeOfType(type)(state.selection) || findParentNodeOfType(type)(state.selection);
+        if (result) {
+            const tr = state.tr.replaceRangeWith(result.pos, result.pos + result.node.nodeSize, type.create(attrs, result.node.content));
+            dispatch(tr);
+        }
+    }
 }

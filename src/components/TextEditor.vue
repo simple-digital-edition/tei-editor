@@ -9,24 +9,24 @@
                         <ul v-if="section.type === 'list'" :key="idx2">
                             <li v-for="(menuitem, idx3) in section.entities" :key="idx3" role="presentation">
                                 <label><span v-html="menuitem.label"></span>
-                                    <input v-if="menuitem.type === 'setNodeAttrString'" :value="menuitem.value" @change="setNodeType(menuitem, $event)"/>
+                                    <input v-if="menuitem.type === 'setNodeAttrString'" :value="menuitem.value" @change="menuAction(menuitem, $event)"/>
                                 </label>
                             </li>
                         </ul>
                         <ul v-else-if="section.type === 'menubar'" :key="idx2" role="menubar">
                             <li v-for="(menuitem, idx3) in section.entities" :key="idx3" role="presentation" :class="menuitem.type === 'separator' ? 'separator' : null">
-                                <a v-if="menuitem.type === 'setNodeType'" role="menuitem" v-html="menuitem.label" :tabindex="menuitem.tabindex" :aria-label="menuitem.ariaLabel" :title="menuitem.ariaLabel" :aria-checked="menuitem.checked" @keyup="keyboardNav" @click="setNodeType(menuitem)"></a>
-                                <a v-else-if="menuitem.type === 'setNodeAttrValue'" role="menuitem" v-html="menuitem.label" :tabindex="menuitem.tabindex" :aria-label="menuitem.ariaLabel" :title="menuitem.ariaLabel" :aria-checked="menuitem.checked" @keyup="keyboardNav" @click="setNodeType(menuitem)"></a>
-                                <select v-else-if="menuitem.type === 'selectNodeAttr'" role="menuitem" :tabindex="menuitem.tabindex" @keyup="keyboardNav" @change="setNodeType(menuitem, $event)">
+                                <a v-if="menuitem.type === 'setNodeType'" role="menuitem" v-html="menuitem.label" :tabindex="menuitem.tabindex" :aria-label="menuitem.ariaLabel" :title="menuitem.ariaLabel" :aria-checked="menuitem.checked" @keyup="keyboardNav" @click="menuAction(menuitem)"></a>
+                                <a v-else-if="menuitem.type === 'setNodeAttrValue'" role="menuitem" v-html="menuitem.label" :tabindex="menuitem.tabindex" :aria-label="menuitem.ariaLabel" :title="menuitem.ariaLabel" :aria-checked="menuitem.checked" @keyup="keyboardNav" @click="menuAction(menuitem)"></a>
+                                <select v-else-if="menuitem.type === 'selectNodeAttr'" role="menuitem" :tabindex="menuitem.tabindex" @keyup="keyboardNav" @change="menuAction(menuitem, $event)">
                                     <option v-for="value in menuitem.values" :key="value.value" v-html="value.label" :value="value.value" :selected="value.checked"></option>
                                 </select>
-                                <a v-else-if="menuitem.type === 'toggleMark'" role="menuitem" v-html="menuitem.label" :tabindex="menuitem.tabindex" :aria-label="menuitem.ariaLabel" :title="menuitem.ariaLabel" :aria-checked="menuitem.checked" @keyup="keyboardNav"></a>
-                                <select v-else-if="menuitem.type === 'selectMarkAttr'" role="menuitem" :tabindex="menuitem.tabindex" @keyup="keyboardNav">
+                                <a v-else-if="menuitem.type === 'toggleMark'" role="menuitem" v-html="menuitem.label" :tabindex="menuitem.tabindex" :aria-label="menuitem.ariaLabel" :title="menuitem.ariaLabel" :aria-checked="menuitem.checked" @keyup="keyboardNav" @click="menuAction(menuitem)"></a>
+                                <select v-else-if="menuitem.type === 'selectMarkAttr'" role="menuitem" :tabindex="menuitem.tabindex" @keyup="keyboardNav" @change="menuAction(menuitem, $event)">
                                     <option v-for="value in menuitem.values" :key="value.value" v-html="value.label" :value="value.value" :selected="value.checked"></option>
                                 </select>
-                                <a v-else-if="menuitem.type === 'editNestedDoc'" role="menuitem" v-html="menuitem.label" :tabindex="menuitem.tabindex" :aria-label="menuitem.ariaLabel" :title="menuitem.ariaLabel" @keyup="keyboardNav"></a>
-                                <a v-else-if="menuitem.type === 'closeNested'" role="menuitem" v-html="menuitem.label" :tabindex="menuitem.tabindex" :aria-label="menuitem.ariaLabel" :title="menuitem.ariaLabel" @keyup="keyboardNav"></a>
-                                <select v-else-if="menuitem.type === 'linkNestedDoc'" role="menuitem" :tabindex="menuitem.tabindex" @keyup="keyboardNav" @change="setNodeType(menuitem, $event)">
+                                <a v-else-if="menuitem.type === 'editNestedDoc'" role="menuitem" v-html="menuitem.label" :tabindex="menuitem.tabindex" :aria-label="menuitem.ariaLabel" :title="menuitem.ariaLabel" @keyup="keyboardNav" @click="menuAction(menuitem)"></a>
+                                <a v-else-if="menuitem.type === 'closeNested'" role="menuitem" v-html="menuitem.label" :tabindex="menuitem.tabindex" :aria-label="menuitem.ariaLabel" :title="menuitem.ariaLabel" @keyup="keyboardNav" @click="closeNestedAction"></a>
+                                <select v-else-if="menuitem.type === 'linkNestedDoc'" role="menuitem" :tabindex="menuitem.tabindex" @keyup="keyboardNav" @change="menuAction(menuitem, $event)">
                                     <option v-for="value in menuitem.values" :key="value.value" v-html="value.label" :value="value.value" :selected="value.checked"></option>
                                 </select>
                             </li>
@@ -35,25 +35,25 @@
                 </div>
             </div>
         </aria-menubar>
-    <div v-if="showNested" class="nested">
-      <text-editor :section="section" :nestedSection="nestedSettings.section" :nestedId="nestedSettings.id" :closeNestedAction="closeNestedEditor"/>
+        <div v-if="showNested" class="nested">
+            <text-editor :section="section" :nestedSection="nestedSettings.section" :nestedId="nestedSettings.id" :closeNestedAction="closeNestedEditor"/>
+        </div>
     </div>
-  </div>
 </template>
 
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator';
-import { Schema, Fragment, Slice } from "prosemirror-model";
+import { Schema, Fragment, Slice, Node as ProsemirrorNode } from "prosemirror-model";
 import { EditorState, Transaction } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
-import { baseKeymap, setBlockType } from 'prosemirror-commands';
+import { baseKeymap, setBlockType, toggleMark } from 'prosemirror-commands';
 import { undo, redo, history } from 'prosemirror-history';
 import { keymap } from 'prosemirror-keymap';
 
 import AriaMenubar from './AriaMenubar.vue';
 import get from '@/util/get';
 import deepclone from '@/util/deepclone';
-import { generateSchemaNodes, generateSchemaMarks } from '@/util/prosemirror';
+import { generateSchemaNodes, generateSchemaMarks, updateMark, removeMark, updateInlineNode } from '@/util/prosemirror';
 import { TextEditorSidebarBlockConfig, TextEditorActiveElements, TextEditorMenuItem, TextEditorMenuItemValuesValue } from '@/interfaces';
 
 @Component({
@@ -153,6 +153,7 @@ export default class TextEditor extends Vue {
                                 checked: 'false',
                                 tabindex: idx === 0 ? 0 : -1,
                                 ariaLabel: elementSchema.ariaLabel,
+                                targetNodeType: elementSchema.targetNodeType,
                             };
                             if (elementSchema.type === 'setNodeType') {
                                 entity.checked = elementSchema.nodeType && this.active[elementSchema.nodeType] ? 'true': 'false';
@@ -166,6 +167,8 @@ export default class TextEditor extends Vue {
                                         checked: elementSchema.nodeType && elementSchema.attr && this.active[elementSchema.nodeType] && this.active[elementSchema.nodeType][elementSchema.attr] === entry.value ? 'selected' : null,
                                     };
                                 });
+                            } else if (elementSchema.type === 'toggleMark') {
+                                entity.checked = elementSchema.markType && this.active[elementSchema.markType] ? 'true' : 'false';
                             } else if (elementSchema.type === 'selectMarkAttr') {
                                 entity.values = elementSchema.values.map((entry) => {
                                     return {
@@ -226,6 +229,18 @@ export default class TextEditor extends Vue {
                 if (component.editor) {
                     let newState = component.editor.state.apply(transaction);
                     component.stateChanged(newState, transaction);
+                    component.internalContentUpdate = true;
+                    if (component.$props.nestedSection && component.$props.nestedId) {
+                        component.$store.commit('setTextDoc', {
+                            path: component.$props.section + '.nestedId.' + component.$props.nestedSection + '.' + component.$props.nestedId,
+                            doc: newState.doc.toJSON(),
+                        });
+                    } else {
+                        component.$store.commit('setTextDoc', {
+                            path: component.$props.section + '.doc',
+                            doc: newState.doc.toJSON(),
+                        });
+                    }
                     component.editor.updateState(newState);
                 }
             },
@@ -249,44 +264,6 @@ export default class TextEditor extends Vue {
         }
         this.internalContentUpdate = false;
     }
-
-    /**
-     * Set a node attribute to the given value. Keeps all other attributes the same value.
-     */
-    /*public setNodeAttributeValue(commands: any, nodeName: string, attrName: string, value: string) {
-        const { from, to } = this.editor.state.selection;
-        let attributes = {} as any;
-        this.editor.state.doc.nodesBetween(from, to, (node: any) => {
-            if (node.type.name === nodeName) {
-                attributes = {...attributes, ...node.attrs};
-            }
-        });
-        attributes[attrName] = value;
-        commands[nodeName + '_setAttribute'](attributes);
-    }
-
-    /**
-     * Sets the mark's attribute value.
-     */
-    /*public setMarkAttributeValue(markName: string, attrName: string, value: string) {
-        if (value) {
-            const { from, to } = this.editor.state.selection;
-            let attributes = {} as any;
-            this.editor.state.doc.nodesBetween(from, to, (node: any) => {
-                if (node.marks) {
-                    node.marks.forEach((mark: any) => {
-                        if (mark.type.name === markName) {
-                            attributes = {...attributes, ...mark.attrs};
-                        }
-                    });
-                }
-            });
-            attributes[attrName] = value;
-            updateMark(this.editor.schema.marks[markName], attributes)(this.editor.state, this.editor.dispatchTransaction.bind(this.editor));
-        } else {
-            removeMark(this.editor.schema.marks[markName])(this.editor.state, this.editor.dispatchTransaction.bind(this.editor));
-        }
-    }*/
 
     // ==============
     // Event handlers
@@ -315,107 +292,138 @@ export default class TextEditor extends Vue {
         }, transaction.steps.length > 0 ? 500 : 50);
     }
 
-    public setNodeType(menuItem: TextEditorMenuItem, event: Event) {
+    public menuAction(menuItem: TextEditorMenuItem, event: Event) {
         if (this.editor) {
             if (menuItem.type === 'setNodeType' && menuItem.nodeType) {
                 if (this.editorSchema.nodes[menuItem.nodeType].isInline) {
                     const slice = this.editor.state.selection.content();
                     if (this.active[menuItem.nodeType]) {
-                        let fragment = slice.content.child(0).content;
-                        // eslint-disable-next-line
-                        console.log(fragment);
-                        for (let idx = 0; idx < fragment.childCount; idx++) {
-                            if (fragment.child(idx).type.name === menuItem.nodeType) {
-                                fragment = fragment.replaceChild(idx, fragment.child(idx).content.child(0));
+                        const nodeCallback = (node: ProsemirrorNode) => {
+                            if (node.type.isBlock) {
+                                return this.editorSchema.nodes[node.type.name].create({}, this.walkFragment(node.content, nodeCallback));
+                            } else if (node.type.isInline && node.type.name === menuItem.nodeType) {
+                                return this.editorSchema.text(node.textContent);
+                            } else {
+                                return node;
                             }
                         }
-                        // eslint-disable-next-line
-                        console.log(fragment);
+                        const fragment = this.walkFragment(slice.content, nodeCallback);
                         this.editor.dispatch(this.editor.state.tr.replaceSelection(new Slice(fragment, slice.openStart, slice.openEnd)));
                     } else {
-                        // eslint-disable-next-line
-                        console.log(slice.content);
-                        this.editor.dispatch(this.editor.state.tr.replaceSelection(new Slice(slice.content, slice.openStart, slice.openEnd)));
-                        //this.editor.dispatch(this.editor.state.tr.replaceSelectionWith(this.editorSchema.nodes[menuItem.nodeType].create({}, slice.content.child(0).content.child(0))));
+                        const nodeCallback = (node: ProsemirrorNode) => {
+                            if (node.type.isBlock) {
+                                return this.editorSchema.nodes[node.type.name].create(node.attrs, this.walkFragment(node.content, nodeCallback));
+                            } else if (node.type.isText && menuItem.nodeType) {
+                                return this.editorSchema.nodes[menuItem.nodeType].create({}, node);
+                            } else if (node.type.isInline && menuItem.nodeType) {
+                                return this.editorSchema.nodes[menuItem.nodeType].create(node.attrs, node.content);
+                            } else {
+                                return node;
+                            }
+                        }
+                        const fragment = this.walkFragment(slice.content, nodeCallback);
+                        this.editor.dispatch(this.editor.state.tr.replaceSelection(new Slice(fragment, slice.openStart, slice.openEnd)));
                     }
                 } else {
                     setBlockType(this.editorSchema.nodes[menuItem.nodeType], {})(this.editor.state, this.editor.dispatch);
                 }
             } else if ((menuItem.type === 'setNodeAttrValue' || menuItem.type === 'selectNodeAttr' || menuItem.type === 'setNodeAttrString') && menuItem.nodeType) {
+                let attrs = {} as { [x: string]: string };
+                if (this.active[menuItem.nodeType]) {
+                    attrs = deepclone(this.active[menuItem.nodeType]);
+                }
+                if (menuItem.attr) {
+                    if (event && event.target) {
+                        attrs[menuItem.attr] = (event.target as HTMLInputElement).value;
+                    } else if (menuItem.value) {
+                        attrs[menuItem.attr] = menuItem.value;
+                    }
+                }
                 if (this.editorSchema.nodes[menuItem.nodeType].isInline) {
-                    const state = this.editor.state;
-                    const { selection } = state;
-                    const { $from, $to, from, to } = selection;
-                    let slice = $from.parent.slice($from.parentOffset, $to.parentOffset);
-                    if (this.active[menuItem.nodeType]) {
-                        let fragment = slice.content;
-                        for (let idx = 0; idx < fragment.childCount; idx++) {
-                            if (fragment.child(idx).type.name === menuItem.nodeType) {
-                                fragment = fragment.replaceChild(idx, fragment.child(idx).content.child(0));
-                            }
+                    updateInlineNode(this.editorSchema.nodes[menuItem.nodeType], attrs)(this.editor.state, this.editor.dispatch);
+                } else {
+                    setBlockType(this.editorSchema.nodes[menuItem.nodeType], attrs)(this.editor.state, this.editor.dispatch);
+                }
+            } else if (menuItem.type === 'toggleMark' && menuItem.nodeType) {
+                toggleMark(this.editorSchema.marks[menuItem.nodeType])(this.editor.state, this.editor.dispatch);
+            } else if (menuItem.type === 'selectMarkAttr' && menuItem.nodeType) {
+                let attrs = {} as { [x: string]: string };
+                if (this.active[menuItem.nodeType]) {
+                    attrs = deepclone(this.active[menuItem.nodeType]);
+                }
+                if (menuItem.attr) {
+                    if (event && event.target) {
+                        attrs[menuItem.attr] = (event.target as HTMLInputElement).value;
+                    } else if (menuItem.value) {
+                        attrs[menuItem.attr] = menuItem.value;
+                    }
+                }
+                if (attrs[menuItem.attr] === '') {
+                    removeMark(this.editorSchema.marks[menuItem.nodeType])(this.editor.state, this.editor.dispatch);
+                } else {
+                    updateMark(this.editorSchema.marks[menuItem.nodeType], attrs)(this.editor.state, this.editor.dispatch);
+                }
+            } else if (menuItem.type === 'linkNestedDoc' && menuItem.nodeType) {
+                let attrs = {} as { [x: string]: string };
+                if (this.active[menuItem.nodeType]) {
+                    attrs = deepclone(this.active[menuItem.nodeType]);
+                }
+                if (menuItem.attr) {
+                    if (event && event.target) {
+                        attrs[menuItem.attr] = (event.target as HTMLInputElement).value;
+                    } else if (menuItem.value) {
+                        attrs[menuItem.attr] = menuItem.value;
+                    }
+                }
+                updateInlineNode(this.editorSchema.nodes[menuItem.nodeType], attrs)(this.editor.state, this.editor.dispatch);
+            } else if (menuItem.type === 'editNestedDoc') {
+                if (menuItem.nodeType && menuItem.attr && menuItem.targetNodeType && this.active[menuItem.nodeType]) {
+                    let nestedId = this.active[menuItem.nodeType][menuItem.attr];
+                    if (!this.active[menuItem.nodeType][menuItem.attr]) {
+                        const nestedDocs = this.$store.state.content[this.$props.section].nested[menuItem.targetNodeType];
+                        nestedId = menuItem.targetNodeType + '-1';
+                        let idx = 1;
+                        while (nestedDocs && nestedDocs[nestedId]) {
+                            idx = idx + 1;
+                            nestedId = menuItem.targetNodeType + '-' + idx;
                         }
-                        this.editor.dispatch(state.tr.replaceSelection(new Slice(fragment, slice.openStart, slice.openEnd)));
-                    } else {
                         let attrs = {} as { [x: string]: string };
                         if (this.active[menuItem.nodeType]) {
                             attrs = deepclone(this.active[menuItem.nodeType]);
                         }
                         if (menuItem.attr) {
-                            if (event && event.target) {
-                                attrs[menuItem.attr] = (event.target as HTMLInputElement).value;
-                            } else if (menuItem.value) {
-                                attrs[menuItem.attr] = menuItem.value;
-                            }
+                            attrs[menuItem.attr] = nestedId;
                         }
-                        this.editor.dispatch(state.tr.replaceSelectionWith(this.editorSchema.nodes[menuItem.nodeType].create(attrs, slice.content)));
+                        updateInlineNode(this.editorSchema.nodes[menuItem.nodeType], attrs)(this.editor.state, this.editor.dispatch);
+                        this.$store.commit('addNestedDoc', { path: this.$props.section + '.nested.' + menuItem.targetNodeType + '.' + nestedId, doc: {type: 'doc', content: [{type: 'paragraph', content: []}]}});
                     }
-                } else {
-                    let attrs = {} as { [x: string]: string };
-                    if (this.active[menuItem.nodeType]) {
-                        attrs = deepclone(this.active[menuItem.nodeType]);
+                    this.showNested = true;
+                    this.nestedSettings = {
+                        section: menuItem.targetNodeType,
+                        id: nestedId,
                     }
-                    if (menuItem.attr) {
-                        if (event && event.target) {
-                            attrs[menuItem.attr] = (event.target as HTMLInputElement).value;
-                        } else if (menuItem.value) {
-                            attrs[menuItem.attr] = menuItem.value;
-                        }
-                    }
-                    setBlockType(this.editorSchema.nodes[menuItem.nodeType], attrs)(this.editor.state, this.editor.dispatch);
                 }
             }
         }
     }
 
     /**
-     * Open the nested editor.
-     */
-    /*public editNestedDoc(commands: any, nodeName: string, attrName: string, editNodeName: string) {
-        let nestedId = this.getNodeAttributeValue(nodeName, attrName);
-        if (!nestedId) {
-            let nestedDocs = this.$store.state.content[this.$props.section].nested[editNodeName];
-            nestedId = editNodeName + '-1';
-            let idx = 1;
-            while (nestedDocs && nestedDocs[nestedId]) {
-                idx = idx + 1;
-                nestedId = editNodeName + '-' + idx;
-            }
-            this.setNodeAttributeValue(commands, nodeName, attrName, nestedId);
-            this.$store.commit('addNestedDoc', { path: this.$props.section + '.nested.' + editNodeName + '.' + nestedId, doc: {type: 'doc', content: [{type: 'paragraph', content: []}]}});
-        }
-        this.showNested = true;
-        this.nestedSettings = {
-            section: editNodeName,
-            id: nestedId
-        };
-    }
-
-    /**
      * Close the nested editor.
      */
-    /*public closeNestedEditor() {
+    public closeNestedEditor() {
         this.showNested = false;
         this.nestedSettings = null;
-    }*/
+    }
+
+    // ===============
+    // Private Helpers
+    // ===============
+
+    private walkFragment(fragment: Fragment, callback: (x: ProsemirrorNode) => ProsemirrorNode) {
+        for (let idx = 0; idx < fragment.childCount; idx++) {
+            fragment = fragment.replaceChild(idx, callback(fragment.child(idx)));
+        }
+        return fragment;
+    }
 }
 </script>

@@ -1,5 +1,9 @@
 # Changes
 
+## Dev
+
+* **UPDATE**: Rewrite removing TipTap
+
 ## 0.5.4
 
 * **UPDATE**: Explicitly support ariaLabel for all menu items
