@@ -95,10 +95,25 @@ export default new Vuex.Store({
           if (metadata) {
               metadata = deepclone(metadata);
               let parent = get(metadata, payload.path);
-              if (parent) {
-                  parent.push(payload.value);
-                  Vue.set(state.content, state.settings.metadataSection, metadata);
+              if (!parent) {
+                  let element = metadata;
+                  const path = payload.path.split('.');
+                  for (let idx = 0; idx < path.length; idx++) {
+                      if (element[path[idx]]) {
+                          element = element[path[idx]];
+                      } else {
+                          if (idx < path.length - 1) {
+                              element[path[idx]] = {}
+                          } else{
+                              element[path[idx]] = []
+                          }
+                          element = element[path[idx]];
+                      }
+                  }
+                  parent = get(metadata, payload.path);
               }
+              parent.push(payload.value);
+              Vue.set(state.content, state.settings.metadataSection, metadata);
           }
       },
 

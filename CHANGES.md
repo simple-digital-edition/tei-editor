@@ -3,6 +3,7 @@
 ## Dev
 
 * **UPDATE**: Rewrite removing TipTap
+* **BUGFIX**: Fix a bug when adding metadata to an empty header
 
 ## 0.5.4
 
