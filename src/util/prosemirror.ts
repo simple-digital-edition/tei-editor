@@ -1,9 +1,13 @@
-import { NodeSpec, MarkSpec, MarkType, NodeType, Mark, ResolvedPos } from 'prosemirror-model';
+import { Schema, NodeSpec, MarkSpec, MarkType, NodeType, Mark, ResolvedPos } from 'prosemirror-model';
 import { EditorState, Transaction } from 'prosemirror-state';
 import { findSelectedNodeOfType, findParentNodeOfType } from 'prosemirror-utils';
+import { liftTarget } from 'prosemirror-transform';
 
 import { TextEditorNodeConfig } from '@/interfaces';
 
+/**
+ * Generate the Prosemirror schema structure for nodes from the general node configuration.
+ */
 export function generateSchemaNodes(schema: TextEditorNodeConfig[]) {
     const nodes = {
         doc: {
@@ -112,6 +116,9 @@ export function generateSchemaNodes(schema: TextEditorNodeConfig[]) {
     return nodes;
 }
 
+/**
+ * Generate the Prosemirror schema structure for marks from the general node configuration.
+ */
 export function generateSchemaMarks(schema: TextEditorNodeConfig[]) {
     const marks = {
     } as { [x: string]: MarkSpec };
@@ -153,6 +160,11 @@ export function generateSchemaMarks(schema: TextEditorNodeConfig[]) {
     return marks;
 }
 
+/**
+ * Calculate the full range of the given mark type.
+ *
+ * Taken from https://github.com/scrumpy/tiptap/blob/master/packages/tiptap-utils/src/utils/getMarkRange.js
+ */
 export function getMarkRange($pos: ResolvedPos, type: MarkType) {
     if (!$pos || !type) {
         return false;
@@ -180,6 +192,9 @@ export function getMarkRange($pos: ResolvedPos, type: MarkType) {
     return { from: startPos, to: endPos };
 }
 
+/**
+ * Update the mark of the given type with the new attributes.
+ */
 export function updateMark(type: MarkType, attrs: {[x: string]: string}) {
     return (state: EditorState, dispatch: (tr: Transaction) => void) => {
         const { tr, selection, doc } = state;
@@ -201,6 +216,9 @@ export function updateMark(type: MarkType, attrs: {[x: string]: string}) {
     }
 }
 
+/**
+ * Remove the mark of the given type.
+ */
 export function removeMark(type: MarkType) {
     return (state: EditorState, dispatch: (tr: Transaction) => void) => {
         const { tr, selection, doc } = state;
@@ -221,6 +239,9 @@ export function removeMark(type: MarkType) {
     }
 }
 
+/**
+ * Update the inline node of the given type with the given attributes.
+ */
 export function updateInlineNode(type: NodeType, attrs: {[x: string]: string}) {
     return (state: EditorState, dispatch: (tr: Transaction) => void) => {
         const result = findSelectedNodeOfType(type)(state.selection) || findParentNodeOfType(type)(state.selection);
@@ -229,4 +250,55 @@ export function updateInlineNode(type: NodeType, attrs: {[x: string]: string}) {
             dispatch(tr);
         }
     }
+}
+
+/**
+ * Set the current block's type to contentType and then wrap it in the wrappingType block.
+ */
+export function wrapNode(wrappingType: NodeType, contentType: NodeType) {
+    return (state: EditorState, dispatch: (tr: Transaction) => void) => {
+        const { $from, $to } = state.selection;
+        const range = $from.blockRange($to);
+
+        if (range) {
+            let tr = state.tr.setBlockType(range.$from.pos, range.$to.pos, contentType);
+            tr = tr.wrap(range, [{type: wrappingType}]);
+            dispatch(tr);
+        } else {
+            return false;
+        }
+    }
+}
+
+/**
+ * Unwrap the current wrapped node and set it to the given type.
+ */
+export function unwrapNode(type: NodeType) {
+    return (state: EditorState, dispatch: (tr: Transaction) => void) => {
+        const { $from, $to } = state.selection;
+        const range = $from.blockRange($to);
+        const target = range && liftTarget(range)
+
+        if (range && target !== null && target !== undefined) {
+            let tr = state.tr.lift(range, target);
+            tr = tr.setBlockType(range.$from.pos, range.$to.pos, type);
+            dispatch(tr);
+        } else {
+            return false;
+        }
+    }
+}
+
+/**
+ * Test if the current node is inside a wrapping node type.
+ */
+export function isWrappedNode(state: EditorState, schema: any[], editorSchema: Schema) {
+    for (let idx = 0; idx < schema.length; idx++) {
+        if (schema[idx].type === 'wrapping') {
+            if (findParentNodeOfType(editorSchema.nodes[schema[idx].name])(state.selection)) {
+                return true;
+            }
+        }
+    }
+    return false;
 }

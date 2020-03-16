@@ -53,7 +53,7 @@ import { keymap } from 'prosemirror-keymap';
 import AriaMenubar from './AriaMenubar.vue';
 import get from '@/util/get';
 import deepclone from '@/util/deepclone';
-import { generateSchemaNodes, generateSchemaMarks, updateMark, removeMark, updateInlineNode } from '@/util/prosemirror';
+import { generateSchemaNodes, generateSchemaMarks, updateMark, removeMark, updateInlineNode, wrapNode, unwrapNode, isWrappedNode } from '@/util/prosemirror';
 import { TextEditorSidebarBlockConfig, TextEditorActiveElements, TextEditorMenuItem, TextEditorMenuItemValuesValue } from '@/interfaces';
 
 @Component({
@@ -325,7 +325,21 @@ export default class TextEditor extends Vue {
                         this.editor.dispatch(this.editor.state.tr.replaceSelection(new Slice(fragment, slice.openStart, slice.openEnd)));
                     }
                 } else {
-                    setBlockType(this.editorSchema.nodes[menuItem.nodeType], {})(this.editor.state, this.editor.dispatch);
+                    if (this.isWrappingType(menuItem.nodeType)) {
+                        let contentNodeType = '';
+                        for (let idx = 0; idx < this.schema.length; idx++) {
+                            if (this.schema[idx].name === menuItem.nodeType && this.schema[idx].type === 'wrapping') {
+                                contentNodeType = this.schema[idx].content;
+                            }
+                        }
+                        wrapNode(this.editorSchema.nodes[menuItem.nodeType], this.editorSchema.nodes[contentNodeType])(this.editor.state, this.editor.dispatch);
+                    } else {
+                        if (isWrappedNode(this.editor.state, this.schema, this.editorSchema)) {
+                            unwrapNode(this.editorSchema.nodes[menuItem.nodeType])(this.editor.state, this.editor.dispatch)
+                        } else {
+                            setBlockType(this.editorSchema.nodes[menuItem.nodeType], {})(this.editor.state, this.editor.dispatch);
+                        }
+                    }
                 }
             } else if ((menuItem.type === 'setNodeAttrValue' || menuItem.type === 'selectNodeAttr' || menuItem.type === 'setNodeAttrString') && menuItem.nodeType) {
                 let attrs = {} as { [x: string]: string };
@@ -424,6 +438,15 @@ export default class TextEditor extends Vue {
             fragment = fragment.replaceChild(idx, callback(fragment.child(idx)));
         }
         return fragment;
+    }
+
+    private isWrappingType(typeName: string) {
+        for (let idx = 0; idx < this.schema.length; idx++) {
+            if (this.schema[idx].name === typeName && this.schema[idx].type === 'wrapping') {
+                return true;
+            }
+        }
+        return false;
     }
 }
 </script>
