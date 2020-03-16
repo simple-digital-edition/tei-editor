@@ -331,7 +331,11 @@ export default class TEISerialiser {
                 }
                 this.nested[nodeSchema.reference.type].push(node.attrs[nodeSchema.reference.attr]);
             }
-            return obj;
+            if (obj.children.length > 0 || obj.text || Object.keys(obj.attrs).length > 0) {
+                return obj;
+            } else {
+                return null;
+            }
         } else {
             return null;
         }

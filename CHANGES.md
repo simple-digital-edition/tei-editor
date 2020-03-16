@@ -5,6 +5,11 @@
 * **UPDATE**: Rewrite removing TipTap
 * **BUGFIX**: Fix a bug when adding metadata to an empty header
 
+## 0.6.0
+
+* **UPDATE**: Automatically filter out empty text nodes
+
+
 ## 0.5.4
 
 * **UPDATE**: Explicitly support ariaLabel for all menu items
