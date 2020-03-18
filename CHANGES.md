@@ -1,6 +1,6 @@
 # Changes
 
-## Dev
+## 0.7.1
 
 * **UPDATE**: Metadata / Documentation update
 
