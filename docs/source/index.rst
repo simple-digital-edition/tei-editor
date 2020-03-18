@@ -19,6 +19,17 @@ all TEI files that are out there (and that is not the aim, either).
 
 The TEI Editor is MIT licensed.
 
+Documentation
+  https://tei-editor.readthedocs.io/en/latest/
+
+  .. image:: https://readthedocs.org/projects/tei-editor/badge/?version=latest
+    :target: https://tei-editor.readthedocs.io/en/latest/?badge=latest
+    :alt: Documentation Status
+Source Code
+  https://github.com/scmmmh/tei-editor
+NPM Package
+  https://www.npmjs.com/package/tei-editor
+
 Indices and tables
 ==================
 

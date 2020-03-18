@@ -1066,3 +1066,47 @@ The editor above uses the following configuration:
           }
       }
   }
+
+The editor also uses the following callbacks:
+
+.. sourcecode:: html
+
+  <script type="application/javascript">
+    window.TEIEditor = {
+        callbacks: {
+            load: function(callback) {
+                let fileSelector = document.createElement('input');
+                fileSelector.setAttribute('type', 'file');
+                fileSelector.setAttribute('class', 'hidden');
+                document.querySelector('body').appendChild(fileSelector);
+                fileSelector.click();
+                fileSelector.addEventListener('change', function(ev) {
+                    let files = ev.target.files;
+                    if (files.length > 0) {
+                        let reader = new FileReader();
+                        reader.onload = (ev) => {
+                            callback(ev.target.result);
+                        }
+                        reader.readAsText(files[0]);
+                    }
+                    fileSelector.remove();
+                });
+            },
+            autoLoad: function(callback) {
+                let docElement = document.getElementById('TEIEditorDocument');
+                if (docElement) {
+                    callback(docElement.innerHTML);
+                }
+            },
+            save: function(data) {
+                let blob = new Blob([data], {type: 'text/xml;charset=utf-8'});
+                let link = document.createElement('a');
+                link.setAttribute('href', URL.createObjectURL(blob));
+                link.setAttribute('download', 'download.tei');
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+        }
+    }
+  </script>
