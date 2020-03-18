@@ -59,6 +59,7 @@ html_theme_options = {
     'github_repo': 'tei-editor',
     'description': 'A graphical editor for TEI documents',
     'extra_nav_links': {
-        'NPM': 'https://www.npmjs.com/package/tei-editor'
+        'NPM': 'https://www.npmjs.com/package/tei-editor',
+        'Github': 'https://github.com/scmmmh/tei-editor',
     }
 }
