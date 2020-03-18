@@ -3,7 +3,8 @@
   "version": "0.7.0",
   "license": "mit",
   "repository": "https://github.com/scmmmh/tei-editor",
-  "description": "A highly configurable TEI editor that can be embedded as a custom HTML component.",
+  "homepage": "https://tei-editor.readthedocs.io/en/latest/",
+  "description": "A graphical editor for TEI documents.",
   "author": "Mark Hall <mark.hall@work.room3b.eu>",
   "scripts": {
     "serve": "vue-cli-service serve",

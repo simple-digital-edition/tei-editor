@@ -1,5 +1,9 @@
 # Changes
 
+## Dev
+
+* **UPDATE**: Metadata / Documentation update
+
 ## 0.7.0
 
 * **UPDATE**: Rewrite removing TipTap
