@@ -1,6 +1,6 @@
 # Changes
 
-## Dev
+## 0.7.2
 
 * **BUGFIX**: Allow editing of empty documents
 
