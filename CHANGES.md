@@ -1,5 +1,9 @@
 # Changes
 
+## Dev
+
+* **BUGFIX**: Allow editing of empty documents
+
 ## 0.7.1
 
 * **UPDATE**: Metadata / Documentation update

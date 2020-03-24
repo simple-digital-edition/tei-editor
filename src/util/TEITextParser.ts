@@ -35,7 +35,11 @@ export default class TEIParser {
                 }
             }
         }
-        return [this.doc, this.nestedDocs];
+        if (this.doc.content.length === 0) {
+            return [null, {}];
+        } else {
+            return [this.doc, this.nestedDocs];
+        }
     }
 
     private parseContentAttributes(node: Element, attrs: any) {
