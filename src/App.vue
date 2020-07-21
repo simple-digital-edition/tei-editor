@@ -1,12 +1,13 @@
 <template>
   <div id="app">
-    <tei-editor />
+    <tei-editor v-if="config" :config="config" />
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
 import TeiEditor from "./components/TeiEditor.vue";
+import { Config } from "@/interfaces";
 
 @Component({
     components: {
@@ -14,18 +15,15 @@ import TeiEditor from "./components/TeiEditor.vue";
     }
 })
 export default class App extends Vue {
+    public config = null as Config | null;
+
     public mounted() {
-        let configElement = document.getElementById('TEIEditorConfig');
+        const configElement = document.getElementById('TEIEditorConfig');
         if (configElement) {
-            let config = JSON.parse(configElement.innerHTML);
+            const config = JSON.parse(configElement.innerHTML);
             if (config) {
-                this.$store.commit('init', config);
+                this.config = config;
             }
-        }
-        if (this.$store.state.callbacks && this.$store.state.callbacks.autoLoad) {
-            this.$store.state.callbacks.autoLoad((sourceData: string) => {
-                this.$store.dispatch('load', sourceData);
-            });
         }
     }
 }

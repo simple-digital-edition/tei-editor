@@ -418,7 +418,7 @@ export default class TEISerialiser {
 
     private toString(node: any, indentation: string) {
         function xmlSafe(txt: string) {
-            return txt.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;');
+            return txt.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
         }
 
         // Render a node into an XML string representation as a list of lines

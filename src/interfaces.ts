@@ -1,37 +1,12 @@
-export interface State {
-    settings: Settings;
-    sections: Sections;
-    content: Data;
-    callbacks: Callbacks;
+export interface Config {
+    sections: {[x: string]: TextSection | MetadataSection}
 }
 
-export interface Settings {
-    metadataSection: string;
-}
-
-export interface Sections {
-    [x:string]: any;
-}
-
-export interface Data {
-    [x:string]: any;
-}
-
-export interface Callbacks {
-    save?: (data: any) => {};
-    load?: (callback: (data: any) => {}) => {};
-    autoLoad?: (callback: (data: any) => {}) => {};
-}
-
-export interface MetadataValueChange {
-    path: string;
-    value: any | null;
-}
-
-export interface MetadataMultiRowMove {
-    path: string;
-    idx: number;
-    move: number;
+export interface TextSection {
+    label: string;
+    type: 'TextEditor';
+    schema: TextEditorNodeConfig[];
+    ui: {[x: string]: TextEditorSidebarBlockConfig[]};
 }
 
 export interface TextEditorNodeConfig {
@@ -92,4 +67,38 @@ export interface TextEditorMenuItem {
 export interface TextEditorMenuItemValuesValue {
     label: string;
     value: string;
+}
+
+export interface MetadataSection {
+    label: string;
+    type: 'MetadataEditor';
+    schema: any;
+    ui: MetadataSectionUIBlock[];
+}
+
+export interface MetadataSectionUIBlock {
+    label: string;
+    entries: MetadataSectionUIElement[];
+}
+
+export interface MetadataSectionUIElement {
+    type: 'single-text' | 'multi-row' | 'multi-field';
+    label: string;
+    path: string;
+    entries?: MetadataSectionUIElement[];
+}
+
+export interface MetadataBlock {
+    _attrs: {[x: string]: string};
+    _text: string;
+    [x: string]: string | {[x: string]: string} | MetadataBlock | MetadataBlock[];
+}
+
+export interface TextDocsStore {
+    [x: string]: TextDocStore;
+}
+
+export interface TextDocStore {
+    doc: any;  // TODO: These should be replaced with actual Prosemirror Nodes
+    nested: {[x: string]: {[y: string]: any}};
 }

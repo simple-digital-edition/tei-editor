@@ -25,7 +25,7 @@
                                     <option v-for="value in menuitem.values" :key="value.value" v-html="value.label" :value="value.value" :selected="value.checked"></option>
                                 </select>
                                 <a v-else-if="menuitem.type === 'editNestedDoc'" role="menuitem" v-html="menuitem.label" :tabindex="menuitem.tabindex" :aria-label="menuitem.ariaLabel" :title="menuitem.ariaLabel" @keyup="keyboardNav" @click="menuAction(menuitem)"></a>
-                                <a v-else-if="menuitem.type === 'closeNested'" role="menuitem" v-html="menuitem.label" :tabindex="menuitem.tabindex" :aria-label="menuitem.ariaLabel" :title="menuitem.ariaLabel" @keyup="keyboardNav" @click="closeNestedAction"></a>
+                                <a v-else-if="menuitem.type === 'closeNested'" role="menuitem" v-html="menuitem.label" :tabindex="menuitem.tabindex" :aria-label="menuitem.ariaLabel" :title="menuitem.ariaLabel" @keyup="keyboardNav" @click="$emit('close')"></a>
                                 <select v-else-if="menuitem.type === 'linkNestedDoc'" role="menuitem" :tabindex="menuitem.tabindex" @keyup="keyboardNav" @change="menuAction(menuitem, $event)">
                                     <option v-for="value in menuitem.values" :key="value.value" v-html="value.label" :value="value.value" :selected="value.checked"></option>
                                 </select>
@@ -36,7 +36,7 @@
             </div>
         </aria-menubar>
         <div v-if="showNested" class="nested">
-            <text-editor :section="section" :nestedSection="nestedSettings.section" :nestedId="nestedSettings.id" :closeNestedAction="closeNestedEditor"/>
+            <text-editor :config="config" v-model="nestedDocs[nestedSettings.type][nestedSettings.id].content[0]" :nestedDocs="nestedDocs" :nested="nestedSettings" @close="closeNestedEditor"/>
         </div>
     </div>
 </template>
@@ -54,7 +54,7 @@ import AriaMenubar from './AriaMenubar.vue';
 import get from '@/util/get';
 import deepclone from '@/util/deepclone';
 import { generateSchemaNodes, generateSchemaMarks, updateMark, removeMark, updateInlineNode, wrapNode, unwrapNode, isWrappedNode } from '@/util/prosemirror';
-import { TextEditorSidebarBlockConfig, TextEditorActiveElements, TextEditorMenuItem, TextEditorMenuItemValuesValue } from '@/interfaces';
+import { TextSection, TextEditorActiveElements, TextEditorSidebarBlockConfig, TextEditorMenuItem, TextEditorMenuItemValuesValue } from '@/interfaces';
 
 @Component({
     components: {
@@ -63,41 +63,34 @@ import { TextEditorSidebarBlockConfig, TextEditorActiveElements, TextEditorMenuI
     name: 'text-editor',
 })
 export default class TextEditor extends Vue {
-    @Prop({type: String})
-    readonly section!: string;
-
-    @Prop({type: String})
-    readonly nestedSection!: string;
-
-    @Prop({type: String})
-    readonly nestedId!: string;
-
-    @Prop({type: Function})
-    readonly closeNestedAction!: any;
+    @Prop() public config!: TextSection;
+    @Prop() public value!: any;
+    @Prop() public nestedDocs!: {[x: string]: {[y: string]: any}};
+    @Prop() public nested!: {type: string, id: string};
 
     editor: EditorView | null = null;
     showNested = false;
     nestedSettings = null as any;
-    internalContentUpdate = false;
     stateDebounce: number | null = null
-
-    active: TextEditorActiveElements = {};
+    active = {} as TextEditorActiveElements;
 
     // ===================
     // Computed properties
     // ===================
 
-    public get schema() {
-        return this.$store.state.sections[this.$props.section].schema;
-    }
-
+    /**
+     * Get the schema for the editor.
+     */
     public get editorSchema() {
         return new Schema({
-            nodes: generateSchemaNodes(this.schema),
-            marks: generateSchemaMarks(this.schema),
+            nodes: generateSchemaNodes(this.config.schema),
+            marks: generateSchemaMarks(this.config.schema),
         });
     }
 
+    /**
+     * Get the plugins for the editor.
+     */
     public get editorPlugins() {
         return [
             history(),
@@ -109,31 +102,20 @@ export default class TextEditor extends Vue {
         ];
     }
 
-    public get content() {
-        return this.$store.state.content[this.$props.section];
-    }
-
-    public get doc() {
-        if (this.content) {
-            if (this.$props.nestedSection && this.$props.nestedId) {
-                if (this.content.nested && this.content.nested[this.$props.nestedSection] && this.content.nested[this.$props.nestedSection][this.$props.nestedId]) {
-                    return this.content.nested[this.$props.nestedSection][this.$props.nestedId].content[0];
-                }
-            } else {
-                return this.content.doc;
-            }
-        }
-        return null;
-    }
-
+    /**
+     * Get the currently active UI (main document or nested document).
+     */
     public get ui() {
-        if (this.$props.nestedSection && this.$store.state.sections[this.$props.section].ui[this.$props.nestedSection]) {
-            return this.$store.state.sections[this.$props.section].ui[this.$props.nestedSection];
+        if (this.nested) {
+            return this.config.ui[this.nested.type];
         } else {
-            return this.$store.state.sections[this.$props.section].ui.doc;
+            return this.config.ui.doc;
         }
     }
 
+    /**
+     * Gets the sidebar menu elements.
+     */
     public get sidebar() {
         return this.ui.map((blockSchema: TextEditorSidebarBlockConfig) => {
             return {
@@ -200,11 +182,11 @@ export default class TextEditor extends Vue {
     }
 
     /**
-     * Computed property to get the available nested doc ids.
+     * Gets all nested document ids.
      */
     public get nestedDocIds() {
         let nestedIds = {} as { [x: string]: TextEditorMenuItemValuesValue[] };
-        Object.entries(this.$store.state.content[this.$props.section].nested).forEach(([nestedKey, docObj]: any) => {
+        Object.entries(this.nestedDocs).forEach(([nestedKey, docObj]: any) => {
             nestedIds[nestedKey] = Object.keys(docObj).map((docKey: string) => {
                 return {
                     label: docKey,
@@ -216,64 +198,52 @@ export default class TextEditor extends Vue {
         return nestedIds;
     }
 
+    // ================
+    // Lifecycle events
+    // ================
+
+    /**
+     * Construct a new editor.
+     */
     public mounted() {
-        // Initialise the editor
-        const component = this;
         this.editor = new EditorView(this.$el.querySelector('.editor') as Node, {
             state: EditorState.create({
                 schema: this.editorSchema,
-                doc: this.doc ? this.editorSchema.nodeFromJSON(this.doc) : null,
+                doc: this.value ? this.editorSchema.nodeFromJSON(this.value) : null,
                 plugins: this.editorPlugins,
             }),
-            dispatchTransaction(transaction) {
-                if (component.editor) {
-                    let newState = component.editor.state.apply(transaction);
-                    component.stateChanged(newState, transaction);
-                    component.internalContentUpdate = true;
-                    if (component.$props.nestedSection && component.$props.nestedId) {
-                        component.$store.commit('setTextDoc', {
-                            path: component.$props.section + '.nestedId.' + component.$props.nestedSection + '.' + component.$props.nestedId,
-                            doc: newState.doc.toJSON(),
-                        });
-                    } else {
-                        component.$store.commit('setTextDoc', {
-                            path: component.$props.section + '.doc',
-                            doc: newState.doc.toJSON(),
-                        });
-                    }
-                    component.editor.updateState(newState);
+            dispatchTransaction: (transaction) => {
+                if (this.editor) {
+                    let newState = this.editor.state.apply(transaction);
+                    this.stateChanged(newState, transaction);
+                    this.editor.updateState(newState);
                 }
             },
         });
     }
 
+    /**
+     * Destroy the editor before destroying the component.
+     */
     public beforeDestroy() {
         if (this.editor) {
             this.editor.destroy();
         }
     }
 
-    @Watch('doc')
-    public updateContent(newValue: any) {
-        if (!this.internalContentUpdate && this.editor) {
-            this.editor.updateState(EditorState.create({
-                schema: this.editorSchema,
-                doc: this.editorSchema.nodeFromJSON(this.doc),
-                plugins: this.editorPlugins,
-            }));
-        }
-        this.internalContentUpdate = false;
-    }
-
     // ==============
     // Event handlers
     // ==============
 
+    /**
+     * Debounced Prosemirror state-change handler updates the menu and emits the input event
+     * with the current document state as JSON.
+     */
     public stateChanged(state: EditorState, transaction: Transaction) {
         if (this.stateDebounce !== null) {
             clearTimeout(this.stateDebounce);
         }
-        this.stateDebounce = setTimeout(() => {
+        this.stateDebounce = window.setTimeout(() => {
             const { from, to } = state.selection;
             const active: TextEditorActiveElements = {};
             state.doc.nodesBetween(from, to, (node) => {
@@ -289,11 +259,16 @@ export default class TextEditor extends Vue {
                 }
             });
             this.active = active;
+            this.$emit('input', state.doc.toJSON());
         }, transaction.steps.length > 0 ? 500 : 50);
     }
 
+    /**
+     * Handle all sidebar menu actions
+     */
     public menuAction(menuItem: TextEditorMenuItem, event: Event) {
         if (this.editor) {
+            // Set the block or inline Node type
             if (menuItem.type === 'setNodeType' && menuItem.nodeType) {
                 if (this.editorSchema.nodes[menuItem.nodeType].isInline) {
                     const slice = this.editor.state.selection.content();
@@ -327,20 +302,21 @@ export default class TextEditor extends Vue {
                 } else {
                     if (this.isWrappingType(menuItem.nodeType)) {
                         let contentNodeType = '';
-                        for (let idx = 0; idx < this.schema.length; idx++) {
-                            if (this.schema[idx].name === menuItem.nodeType && this.schema[idx].type === 'wrapping') {
-                                contentNodeType = this.schema[idx].content;
+                        for (let idx = 0; idx < this.config.schema.length; idx++) {
+                            if (this.config.schema[idx].name === menuItem.nodeType && this.config.schema[idx].type === 'wrapping') {
+                                contentNodeType = this.config.schema[idx].content as string;
                             }
                         }
                         wrapNode(this.editorSchema.nodes[menuItem.nodeType], this.editorSchema.nodes[contentNodeType])(this.editor.state, this.editor.dispatch);
                     } else {
-                        if (isWrappedNode(this.editor.state, this.schema, this.editorSchema)) {
+                        if (isWrappedNode(this.editor.state, this.config.schema, this.editorSchema)) {
                             unwrapNode(this.editorSchema.nodes[menuItem.nodeType])(this.editor.state, this.editor.dispatch)
                         } else {
                             setBlockType(this.editorSchema.nodes[menuItem.nodeType], {})(this.editor.state, this.editor.dispatch);
                         }
                     }
                 }
+            // Set an attribute value on a Node
             } else if ((menuItem.type === 'setNodeAttrValue' || menuItem.type === 'selectNodeAttr' || menuItem.type === 'setNodeAttrString') && menuItem.nodeType) {
                 let attrs = {} as { [x: string]: string };
                 if (this.active[menuItem.nodeType]) {
@@ -358,8 +334,10 @@ export default class TextEditor extends Vue {
                 } else {
                     setBlockType(this.editorSchema.nodes[menuItem.nodeType], attrs)(this.editor.state, this.editor.dispatch);
                 }
+            // Toggle a mark on or off
             } else if (menuItem.type === 'toggleMark' && menuItem.nodeType) {
                 toggleMark(this.editorSchema.marks[menuItem.nodeType])(this.editor.state, this.editor.dispatch);
+            // Set an attribute on a mark
             } else if (menuItem.type === 'selectMarkAttr' && menuItem.nodeType) {
                 let attrs = {} as { [x: string]: string };
                 if (this.active[menuItem.nodeType]) {
@@ -377,6 +355,7 @@ export default class TextEditor extends Vue {
                 } else {
                     updateMark(this.editorSchema.marks[menuItem.nodeType], attrs)(this.editor.state, this.editor.dispatch);
                 }
+            // Link to a nested docs
             } else if (menuItem.type === 'linkNestedDoc' && menuItem.nodeType) {
                 let attrs = {} as { [x: string]: string };
                 if (this.active[menuItem.nodeType]) {
@@ -390,14 +369,15 @@ export default class TextEditor extends Vue {
                     }
                 }
                 updateInlineNode(this.editorSchema.nodes[menuItem.nodeType], attrs)(this.editor.state, this.editor.dispatch);
+            // Edit a nested doc
             } else if (menuItem.type === 'editNestedDoc') {
                 if (menuItem.nodeType && menuItem.attr && menuItem.targetNodeType && this.active[menuItem.nodeType]) {
                     let nestedId = this.active[menuItem.nodeType][menuItem.attr];
-                    if (!this.active[menuItem.nodeType][menuItem.attr]) {
-                        const nestedDocs = this.$store.state.content[this.$props.section].nested[menuItem.targetNodeType];
+                    if (!nestedId) {
+                        const docList = this.nestedDocs[menuItem.targetNodeType];
                         nestedId = menuItem.targetNodeType + '-1';
                         let idx = 1;
-                        while (nestedDocs && nestedDocs[nestedId]) {
+                        while (docList && docList[nestedId]) {
                             idx = idx + 1;
                             nestedId = menuItem.targetNodeType + '-' + idx;
                         }
@@ -409,11 +389,11 @@ export default class TextEditor extends Vue {
                             attrs[menuItem.attr] = nestedId;
                         }
                         updateInlineNode(this.editorSchema.nodes[menuItem.nodeType], attrs)(this.editor.state, this.editor.dispatch);
-                        this.$store.commit('addNestedDoc', { path: this.$props.section + '.nested.' + menuItem.targetNodeType + '.' + nestedId, doc: {type: 'doc', content: [{type: 'paragraph', content: []}]}});
+                        Vue.set(this.nestedDocs[menuItem.targetNodeType], nestedId, {type: 'doc', content: [{type: 'paragraph', content: []}]})
                     }
                     this.showNested = true;
                     this.nestedSettings = {
-                        section: menuItem.targetNodeType,
+                        type: menuItem.targetNodeType,
                         id: nestedId,
                     }
                 }
@@ -433,6 +413,9 @@ export default class TextEditor extends Vue {
     // Private Helpers
     // ===============
 
+    /**
+     * Walks over the Fragment, replacing the children according to the callback.
+     */
     private walkFragment(fragment: Fragment, callback: (x: ProsemirrorNode) => ProsemirrorNode) {
         for (let idx = 0; idx < fragment.childCount; idx++) {
             fragment = fragment.replaceChild(idx, callback(fragment.child(idx)));
@@ -440,9 +423,12 @@ export default class TextEditor extends Vue {
         return fragment;
     }
 
+    /**
+     * Checks whether the given typeName is a wrapping node.
+     */
     private isWrappingType(typeName: string) {
-        for (let idx = 0; idx < this.schema.length; idx++) {
-            if (this.schema[idx].name === typeName && this.schema[idx].type === 'wrapping') {
+        for (let idx = 0; idx < this.config.schema.length; idx++) {
+            if (this.config.schema[idx].name === typeName && this.config.schema[idx].type === 'wrapping') {
                 return true;
             }
         }
