@@ -1,5 +1,9 @@
 # Changes
 
+## DEV
+
+* **UPDATE**: Refactored to provide re-usable components
+
 ## 0.7.2
 
 * **BUGFIX**: Allow editing of empty documents
