@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <link rel="icon" href="<%= BASE_URL %>favicon.ico">
-    <title>tei-editor</title>
+    <title>TEI Editor Demo</title>
     <style>
     body {
         margin: 0;
@@ -194,7 +194,7 @@
   </head>
   <body>
     <noscript>
-      <strong>We are sorry but tei-editor does not work properly without JavaScript enabled. Please enable it to continue.</strong>
+      <strong>We are sorry but the TEI Editor does not work properly without JavaScript enabled. Please enable it to continue.</strong>
     </noscript>
     <script id="TEIEditorConfig" type="application/json">
       {
@@ -812,7 +812,6 @@
                   "schema": [
                       {
                           "name": "paragraph",
-                          "label": "Paragraph",
                           "type": "block",
                           "attrs": {
                               "alignment": {
@@ -854,7 +853,6 @@
                       },
                       {
                           "name": "heading",
-                          "label": "Heading",
                           "type": "block",
                           "attrs": {
                               "level": {
@@ -1217,27 +1215,27 @@
                                               {
                                                   "type": "single-text",
                                                   "label": "Identifier",
-                                                  "path": "._attrs.xml:id"
+                                                  "path": "_attrs.xml:id"
                                               },
                                               {
                                                   "type": "multi-row",
-                                                  "path": ".resp",
+                                                  "path": "resp",
                                                   "entries": [
                                                       {
                                                           "type": "single-text",
                                                           "label": "Responsible for",
-                                                          "path": "._text"
+                                                          "path": "_text"
                                                       }
                                                   ]
                                               },
                                               {
                                                   "type": "multi-row",
-                                                  "path": ".name",
+                                                  "path": "name",
                                                   "entries": [
                                                       {
                                                           "type": "single-text",
                                                           "label": "Name",
-                                                          "path": "._text"
+                                                          "path": "_text"
                                                       }
                                                   ]
                                               }
@@ -1350,45 +1348,6 @@
           </tei:group>
         </tei:text>
       </tei:TEI>
-    </script>
-    <script type="application/javascript">
-      window.TEIEditor = {
-          callbacks: {
-              load: function(callback) {
-                  let fileSelector = document.createElement('input');
-                  fileSelector.setAttribute('type', 'file');
-                  fileSelector.setAttribute('class', 'hidden');
-                  document.querySelector('body').appendChild(fileSelector);
-                  fileSelector.click();
-                  fileSelector.addEventListener('change', function(ev) {
-                      let files = ev.target.files;
-                      if (files.length > 0) {
-                          let reader = new FileReader();
-                          reader.onload = (ev) => {
-                              callback(ev.target.result);
-                          }
-                          reader.readAsText(files[0]);
-                      }
-                      fileSelector.remove();
-                  });
-              },
-              autoLoad: function(callback) {
-                  let docElement = document.getElementById('TEIEditorDocument');
-                  if (docElement) {
-                      callback(docElement.innerHTML);
-                  }
-              },
-              save: function(data) {
-                  let blob = new Blob([data], {type: 'text/xml;charset=utf-8'});
-                  let link = document.createElement('a');
-                  link.setAttribute('href', URL.createObjectURL(blob));
-                  link.setAttribute('download', 'download.tei');
-                  document.body.appendChild(link);
-                  link.click();
-                  document.body.removeChild(link);
-              }
-          }
-      }
     </script>
     <div id="app"></div>
     <!-- built files will be auto injected -->

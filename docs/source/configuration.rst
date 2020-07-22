@@ -8,5 +8,5 @@ The TEI Editor is highly configurable and stylable.
   :maxdepth: 1
 
   configuration-data
-  configuration-callbacks
+  configuration-autoload
   configuration-styling

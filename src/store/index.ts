@@ -1,4 +1,4 @@
-import Vue from "vue";
+/*import Vue from "vue";
 import Vuex from "vuex";
 
 import { State, MetadataValueChange, MetadataMultiRowMove } from '@/interfaces';
@@ -198,3 +198,4 @@ export default new Vuex.Store({
   },
   modules: {}
 });
+*/
