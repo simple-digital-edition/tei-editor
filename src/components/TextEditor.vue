@@ -240,7 +240,7 @@ export default class TextEditor extends Vue {
      */
     @Watch('value')
     public updatedDoc() {
-        if (!this.internalUpdate) {
+        if (!this.internalUpdate && this.editor) {
             this.editor.updateState(EditorState.create({
                 schema: this.editorSchema,
                 doc: this.editorSchema.nodeFromJSON(this.value),
