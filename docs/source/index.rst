@@ -14,6 +14,7 @@ all TEI files that are out there (and that is not the aim, either).
    features
    design_ideas
    installation
+   use
    configuration
    demo
 

@@ -1067,46 +1067,106 @@ The editor above uses the following configuration:
       }
   }
 
-The editor also uses the following callbacks:
+The editor also uses the following default document:
 
 .. sourcecode:: html
 
-  <script type="application/javascript">
-    window.TEIEditor = {
-        callbacks: {
-            load: function(callback) {
-                let fileSelector = document.createElement('input');
-                fileSelector.setAttribute('type', 'file');
-                fileSelector.setAttribute('class', 'hidden');
-                document.querySelector('body').appendChild(fileSelector);
-                fileSelector.click();
-                fileSelector.addEventListener('change', function(ev) {
-                    let files = ev.target.files;
-                    if (files.length > 0) {
-                        let reader = new FileReader();
-                        reader.onload = (ev) => {
-                            callback(ev.target.result);
-                        }
-                        reader.readAsText(files[0]);
-                    }
-                    fileSelector.remove();
-                });
-            },
-            autoLoad: function(callback) {
-                let docElement = document.getElementById('TEIEditorDocument');
-                if (docElement) {
-                    callback(docElement.innerHTML);
-                }
-            },
-            save: function(data) {
-                let blob = new Blob([data], {type: 'text/xml;charset=utf-8'});
-                let link = document.createElement('a');
-                link.setAttribute('href', URL.createObjectURL(blob));
-                link.setAttribute('download', 'download.tei');
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-            }
-        }
-    }
-  </script>
+    <script id=TEIEditorDocument type=application/xml+tei>
+      <tei:TEI xmlns:tei="http://www.tei-c.org/ns/1.0">
+        <tei:teiHeader>
+          <tei:fileDesc>
+            <tei:titleStmt>
+              <tei:title>Test Document</tei:title>
+              <tei:author>Mark Hall</tei:author>
+              <tei:respStmt xml:id="markhall">
+                <tei:resp>Most things</tei:resp>
+                <tei:resp>Some other things</tei:resp>
+                <tei:name>Mark Hall</tei:name>
+                <tei:name>Mark M Hall</tei:name>
+              </tei:respStmt>
+            </tei:titleStmt>
+            <tei:publicationStmt>
+              <tei:distributor>Mark Hall</tei:distributor>
+            </tei:publicationStmt>
+          </tei:fileDesc>
+        </tei:teiHeader>
+        <tei:text>
+          <tei:group>
+            <tei:body type="main">
+              <tei:head type="level-1" data-navIdentifier="heading-1">
+                <tei:seg>TEI Editor Test</tei:seg>
+              </tei:head>
+              <tei:p style="align-left">
+                <tei:seg>This text is </tei:seg>
+                <tei:hi style="bold">bold</tei:hi>
+                <tei:seg> and </tei:seg>
+                <tei:hi style="bold italic">bold-italic</tei:hi>
+                <tei:seg> and left aligned.</tei:seg>
+              </tei:p>
+              <tei:p style="align-right">
+                <tei:seg>This text is right aligned.</tei:seg>
+              </tei:p>
+              <tei:p>
+                <tei:seg>Here is some </tei:seg>
+                <tei:hi style="font-size-large">large</tei:hi>
+                <tei:seg> and </tei:seg>
+                <tei:hi style="font-size-small">small</tei:hi>
+                <tei:seg> text.</tei:seg>
+              </tei:p>
+              <tei:list>
+                <tei:item>
+                  <tei:seg>A bullet point</tei:seg>
+                </tei:item>
+                <tei:item>
+                  <tei:seg>Another bullet point</tei:seg>
+                </tei:item>
+              </tei:list>
+              <tei:p>
+                <tei:metamark function="proof">This is proven.</tei:metamark>
+              </tei:p>
+              <tei:p>
+                <tei:seg>This line has a </tei:seg>
+                <tei:ref type="footnote" target="#footnote-1">footnote</tei:ref>
+                <tei:seg>.</tei:seg>
+              </tei:p>
+              <tei:p>
+                <tei:seg>This is </tei:seg>
+                <tei:ref type="annotation" target="#annotation-1">annotated</tei:ref>
+                <tei:seg>.</tei:seg>
+              </tei:p>
+              <tei:p>
+                <tei:seg>Unlike the footnote, the </tei:seg>
+                <tei:ref type="annotation" target="#annotation-1">annotation</tei:ref>
+                <tei:seg> can be referenced multiple times.</tei:seg>
+              </tei:p>
+              <tei:note xml:id="footnote-1" type="footnote">
+                <tei:p>
+                  <tei:seg>This is </tei:seg>
+                  <tei:hi style="bold">just</tei:hi>
+                  <tei:seg> a simple footnote.</tei:seg>
+                </tei:p>
+              </tei:note>
+              <tei:interp xml:id="annotation-1">
+                <tei:p>
+                  <tei:hi style="bold">1, annotation</tei:hi>
+                  <tei:seg>]</tei:seg>
+                </tei:p>
+                <tei:p>
+                  <tei:seg>An annotation is a piece of commentary on the text.</tei:seg>
+                </tei:p>
+              </tei:interp>
+            </tei:body>
+            <tei:body type="apparatus">
+              <tei:head type="level-1">
+                <tei:seg>Apparatus</tei:seg>
+              </tei:head>
+              <tei:p>
+                <tei:seg>This section contains comments that the annotator thought were </tei:seg>
+                <tei:hi style="bold">important</tei:hi>
+                <tei:seg>.</tei:seg>
+              </tei:p>
+            </tei:body>
+          </tei:group>
+        </tei:text>
+      </tei:TEI>
+    </script>
