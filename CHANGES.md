@@ -1,5 +1,9 @@
 # Changes
 
+## 0.8.1
+
+* **New**: Added importable module
+
 ## 0.8.0
 
 * **UPDATE**: Refactored to provide re-usable components
