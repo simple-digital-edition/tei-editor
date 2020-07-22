@@ -6,6 +6,7 @@
   "homepage": "https://tei-editor.readthedocs.io/en/latest/",
   "description": "A graphical editor for TEI documents.",
   "author": "Mark Hall <mark.hall@work.room3b.eu>",
+  "main": "dist/index.cjs.js",
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
@@ -42,6 +43,9 @@
     "eslint": "^5.16.0",
     "eslint-plugin-vue": "^5.0.0",
     "prettier": "^1.19.1",
+    "rollup": "^2.22.2",
+    "rollup-plugin-typescript2": "^0.27.1",
+    "rollup-plugin-vue": "^5.0.0",
     "sass": "^1.23.7",
     "sass-loader": "^8.0.0",
     "typescript": "~3.5.3",

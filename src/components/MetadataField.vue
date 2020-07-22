@@ -50,8 +50,8 @@ import { Component, Prop, Vue } from 'vue-property-decorator';
 
 import AriaMenubar from './AriaMenubar.vue';
 
-import { MetadataSectionUIElement, MetadataBlock } from '@/interfaces';
-import get from '@/util/get';
+import { MetadataSectionUIElement, MetadataBlock } from '../interfaces';
+import get from '../util/get';
 
 
 /**

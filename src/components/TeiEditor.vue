@@ -30,15 +30,14 @@
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator';
 
 import AriaMenubar from './AriaMenubar.vue';
-import AriaMenu from './AriaMenu.vue';
 import MetadataEditor from './MetadataEditor.vue';
 import TextEditor from './TextEditor.vue';
 
-import TEIMetadataParser from '@/util/TEIMetadataParser';
-import TEITextParser from '@/util/TEITextParser';
-import TEISeraliser from '@/util/TEISerialiser';
+import TEIMetadataParser from '../util/TEIMetadataParser';
+import TEITextParser from '../util/TEITextParser';
+import TEISeraliser from '../util/TEISerialiser';
 
-import { Config, TextDocsStore, TextSection, MetadataSection } from '@/interfaces';
+import { Config, TextDocsStore, TextSection, MetadataSection } from '../interfaces';
 
 /**
  * The TeiEditor component provides the full editor interface, for both text and metadata editing.
@@ -46,7 +45,6 @@ import { Config, TextDocsStore, TextSection, MetadataSection } from '@/interface
 @Component({
     components: {
         AriaMenubar,
-        AriaMenu,
         TextEditor,
         MetadataEditor,
     },

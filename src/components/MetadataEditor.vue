@@ -14,7 +14,7 @@ import { Component, Prop, Vue } from 'vue-property-decorator';
 
 import MetadataField from './MetadataField.vue';
 
-import { MetadataSection } from '@/interfaces';
+import { MetadataSection } from '../interfaces';
 
 /**
  * The MetadataEditor provides the metadata editing interface. Most of the functionality is delegated to
