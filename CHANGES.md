@@ -1,6 +1,6 @@
 # Changes
 
-## DEV
+## 0.8.0
 
 * **UPDATE**: Refactored to provide re-usable components
 
