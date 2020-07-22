@@ -54,6 +54,10 @@ import { MetadataSectionUIElement, MetadataBlock } from '@/interfaces';
 import get from '@/util/get';
 
 
+/**
+ * The MetadataField component implements the individual metadata editing UI elements. It implements the
+ * v-model VueJS pattern. Three types of MetadataField are supported: single-text, multi-row, and multi-field.
+ */
 @Component({
     components: {
         AriaMenubar,
@@ -70,10 +74,21 @@ export default class MetadataField extends Vue {
         },
     ];
 
+    // ===================
+    // Computed properties
+    // ===================
+
+    /**
+     * Gets the actual value for this MetadataField. This is needed as the value contains a tree structure and the configuration
+     * specifies the specific value for this MetadataField in that tree.
+     */
     public get localValue(): string | {[x: string]: string} | MetadataBlock | MetadataBlock[] {
         return get(this.value, this.config.path);
     }
 
+    /**
+     * Sets the value for this MetadataField.
+     */
     public set localValue(value: string | {[x: string]: string} | MetadataBlock | MetadataBlock[]) {
         const pathElements = this.config.path.split('.');
         if (pathElements.length === 1) {
@@ -83,6 +98,9 @@ export default class MetadataField extends Vue {
         }
     }
 
+    /**
+     * Returns the menu items for manipulating rows in a multi-row MetadataField.
+     */
     public modifyMenuItems(idx: number) {
         return [
             {
@@ -102,6 +120,9 @@ export default class MetadataField extends Vue {
         ];
     }
 
+    /**
+     * Handle the menu actions for a multi-row MetadataField.
+     */
     public menuAction(name: string) {
         if (name === 'add') {
             // Construct the empty data structure for the new value to add

@@ -56,6 +56,9 @@ import deepclone from '@/util/deepclone';
 import { generateSchemaNodes, generateSchemaMarks, updateMark, removeMark, updateInlineNode, wrapNode, unwrapNode, isWrappedNode } from '@/util/prosemirror';
 import { TextSection, TextEditorActiveElements, TextEditorSidebarBlockConfig, TextEditorMenuItem, TextEditorMenuItemValuesValue } from '@/interfaces';
 
+/**
+ * The TextEditor component wraps a single prosemirror editor. It supports nested documents.
+ */
 @Component({
     components: {
         AriaMenubar,
@@ -68,11 +71,12 @@ export default class TextEditor extends Vue {
     @Prop() public nestedDocs!: {[x: string]: {[y: string]: any}};
     @Prop() public nested!: {type: string, id: string};
 
-    editor: EditorView | null = null;
-    showNested = false;
-    nestedSettings = null as any;
-    stateDebounce: number | null = null
-    active = {} as TextEditorActiveElements;
+    public editor: EditorView | null = null;
+    public showNested = false;
+    public nestedSettings = null as any;
+    public stateDebounce: number | null = null
+    public internalUpdate = false;
+    public active = {} as TextEditorActiveElements;
 
     // ===================
     // Computed properties
@@ -203,7 +207,7 @@ export default class TextEditor extends Vue {
     // ================
 
     /**
-     * Construct a new editor.
+     * Mount a new TextEditor, initialising the prosemirror editor.
      */
     public mounted() {
         this.editor = new EditorView(this.$el.querySelector('.editor') as Node, {
@@ -223,12 +227,27 @@ export default class TextEditor extends Vue {
     }
 
     /**
-     * Destroy the editor before destroying the component.
+     * Destroy the prosemirror editor before destroying the component.
      */
     public beforeDestroy() {
         if (this.editor) {
             this.editor.destroy();
         }
+    }
+
+    /**
+     * Update the editor state if the value changes externaly.
+     */
+    @Watch('value')
+    public updatedDoc() {
+        if (!this.internalUpdate) {
+            this.editor.updateState(EditorState.create({
+                schema: this.editorSchema,
+                doc: this.editorSchema.nodeFromJSON(this.value),
+                plugins: this.editorPlugins,
+            }));
+        }
+        this.internalUpdate = false;
     }
 
     // ==============
@@ -259,6 +278,7 @@ export default class TextEditor extends Vue {
                 }
             });
             this.active = active;
+            this.internalUpdate = true;
             this.$emit('input', state.doc.toJSON());
         }, transaction.steps.length > 0 ? 500 : 50);
     }

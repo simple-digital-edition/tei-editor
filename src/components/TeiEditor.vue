@@ -3,18 +3,11 @@
         <nav>
             <aria-menubar v-slot="{ keyboardNav, mouseClickNav }">
                 <ul role="menubar">
-                    <li v-if="loadCallback || saveCallback" role="presentation">
-                        <a role="menuitem" tabindex="0" aria-expanded="false" @keyup="keyboardNav" @click="mouseClickNav">File</a>
-                        <aria-menu v-slot="{ keyboardNav, mouseClickNav }">
-                            <ul role="menu" aria-hidden="true">
-                                <li v-if="loadCallback" role="presentation">
-                                    <a role="menuitem" tabindex="-1" @click="mouseClickNav($event); load()" @keyup="keyboardNav">Load</a>
-                                </li>
-                                <li v-if="saveCallback" role="presentation">
-                                    <a role="menuitem" tabindex="-1" @click="mouseClickNav($event); save()" @keyup="keyboardNav">Save</a>
-                                </li>
-                            </ul>
-                        </aria-menu>
+                    <li v-if="loadCallback" role="presentation">
+                        <a role="menuitem" tabindex="-1" @click="mouseClickNav($event); load()" @keyup="keyboardNav">Load</a>
+                    </li>
+                    <li role="presentation">
+                        <a role="menuitem" tabindex="-1" @click="mouseClickNav($event); save()" @keyup="keyboardNav">Save</a>
                     </li>
                     <li v-for="(section, key, idx) in config.sections" :key="idx" role="presentation">
                         <a role="menuitem" tabindex="-1" :aria-checked="(key === currentSection) ? 'true' : 'false'" @click="mouseClickNav($event); setCurrentSection(key)" @keyup="keyboardNav">{{ section.label }}</a>
@@ -45,8 +38,11 @@ import TEIMetadataParser from '@/util/TEIMetadataParser';
 import TEITextParser from '@/util/TEITextParser';
 import TEISeraliser from '@/util/TEISerialiser';
 
-import { Config, TextDocsStore } from '@/interfaces';
+import { Config, TextDocsStore, TextSection, MetadataSection } from '@/interfaces';
 
+/**
+ * The TeiEditor component provides the full editor interface, for both text and metadata editing.
+ */
 @Component({
     components: {
         AriaMenubar,
@@ -57,40 +53,19 @@ import { Config, TextDocsStore } from '@/interfaces';
 })
 export default class TeiEditor extends Vue {
     @Prop() public config!: Config;
+    @Prop() public autoLoadCallback!: (callback: (data: string) => void) => void;
+    @Prop() public loadCallback!: (callback: (data: string) => void) => void;
     public currentSection: string | null = null;
     public textData = {} as TextDocsStore;
     public metadata = {};
 
-    public get saveCallback() {
-        // @ts-ignore
-        if (window.TEIEditor && window.TEIEditor.callbacks && window.TEIEditor.callbacks.save) {
-            // @ts-ignore
-            return window.TEIEditor.callbacks.save;
-        } else{
-            return null;
-        }
-    }
+    // ================
+    // Lifecycle events
+    // ================
 
-    public get loadCallback() {
-        // @ts-ignore
-        if (window.TEIEditor && window.TEIEditor.callbacks && window.TEIEditor.callbacks.load) {
-            // @ts-ignore
-            return window.TEIEditor.callbacks.load;
-        } else{
-            return null;
-        }
-    }
-
-    public get autoLoadCallback() {
-        // @ts-ignore
-        if (window.TEIEditor && window.TEIEditor.callbacks && window.TEIEditor.callbacks.autoLoad) {
-            // @ts-ignore
-            return window.TEIEditor.callbacks.autoLoad;
-        } else{
-            return null;
-        }
-    }
-
+    /**
+     * Mount the component, initialising the current section and automatically loading any content.
+     */
     public mounted() {
         this.currentSection = Object.keys(this.config.sections)[0];
         if (this.autoLoadCallback) {
@@ -98,29 +73,44 @@ export default class TeiEditor extends Vue {
         }
     }
 
+    // ==============
+    // Event handlers
+    // ==============
+
+    /**
+     * Set the currently selected section.
+     */
     public setCurrentSection(section: string) {
         this.currentSection = section;
     }
 
+    /**
+     * Save the current state of the various sections and emit the serialised data via the "save" event.
+     */
     public save() {
-        if (this.saveCallback) {
-            const serialiser = new TEISeraliser();
-            const data = { metadata: this.metadata, ... this.textData}
-            this.saveCallback(serialiser.serialise(data, this.config.sections));
-            //this.saveCallback(serialiser.serialise(this.$store.state.content, this.$store.state.sections));
-        }
+        const serialiser = new TEISeraliser();
+        const data = { metadata: this.metadata, ... this.textData}
+        this.$emit('save', serialiser.serialise(data, this.config.sections));
     }
 
+    /**
+     * Load the editor state via the configured loadCallback.
+     */
     public load() {
         if (this.loadCallback) {
             this.loadCallback(this.loadData);
         }
     }
 
-    private loadData(data: string) {
+    /**
+     * Handler to load the actual data.
+     */
+    public loadData(data: string) {
         const domParser = new DOMParser();
         const dom = domParser.parseFromString(data, 'application/xml');
-        Object.entries(this.config.sections).forEach(([key, config]) => {
+        this.metadata = {};
+        this.textData = {};
+        Object.entries(this.config.sections).forEach(([key, config]: [string, TextSection | MetadataSection]) => {
             if (config.type === 'MetadataEditor') {
                 this.metadata = (new TEIMetadataParser(dom, config)).get();
             } else if (config.type === 'TextEditor') {
@@ -133,61 +123,6 @@ export default class TeiEditor extends Vue {
         });
     }
 
-    /*
-
-    public get sections() {
-        return this.$store.state.sections;
-    }
-
-    public get hasSaveCallback() {
-        return this.$store.state.callbacks.save ? true : false;
-    }
-
-    public get hasLoadCallback() {
-        return this.$store.state.callbacks.load ? true : false;
-    }
-
-    public setCurrentSection(section: string) {
-        this.currentSection = section;
-    }
-
-    public getContentForSection(sectionName: string) {
-        return get(this.$store.state.content, sectionName);
-    }
-
-    public setContentForSection(section: string, doc: any) {
-        this.$store.commit('setTextDoc', { path: section, doc: doc});
-    }
-
-    public mounted() {
-        let sections = Object.keys(this.sections);
-        if (sections.length > 0) {
-            this.currentSection = sections[0];
-        }
-    }
-
-    public save() {
-        if (this.hasSaveCallback) {
-            let serialiser = new TEISeraliser();
-            this.$store.state.callbacks.save(serialiser.serialise(this.$store.state.content, this.$store.state.sections));
-        }
-    }
-
-    public load() {
-        if (this.hasLoadCallback) {
-            this.$store.state.callbacks.load((data: string) => {
-                this.$store.dispatch('load', data);
-            });
-        }
-    }
-
-    @Watch('sections')
-    public updateSections() {
-        let sections = Object.keys(this.sections);
-        if (sections.length > 0) {
-            this.currentSection = sections[0];
-        }
-    }*/
 }
 </script>
 

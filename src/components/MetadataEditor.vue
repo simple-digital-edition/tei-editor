@@ -16,6 +16,10 @@ import MetadataField from './MetadataField.vue';
 
 import { MetadataSection } from '@/interfaces';
 
+/**
+ * The MetadataEditor provides the metadata editing interface. Most of the functionality is delegated to
+ * the MetadataField component.
+ */
 @Component({
     components: {
         MetadataField,
