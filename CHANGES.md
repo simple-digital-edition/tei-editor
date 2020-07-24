@@ -1,5 +1,9 @@
 # Changes
 
+## Dev
+
+* **Bugfix**: Fix adding new multi-rows where no parent exists
+
 ## 0.8.1
 
 * **New**: Added importable module

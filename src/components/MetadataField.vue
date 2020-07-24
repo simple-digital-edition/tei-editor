@@ -83,7 +83,15 @@ export default class MetadataField extends Vue {
      * specifies the specific value for this MetadataField in that tree.
      */
     public get localValue(): string | {[x: string]: string} | MetadataBlock | MetadataBlock[] {
-        return get(this.value, this.config.path);
+        let value = get(this.value, this.config.path);
+        if (!value) {
+            const pathElements = this.config.path.split('.');
+            if (this.config.type === 'multi-row') {
+                Vue.set(get(this.value, pathElements.slice(0, pathElements.length - 1).join('.')), pathElements[pathElements.length - 1], []);
+                value = get(this.value, this.config.path);
+            }
+        }
+        return value;
     }
 
     /**
