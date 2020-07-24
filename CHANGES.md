@@ -1,5 +1,9 @@
 # Changes
 
+## DEV
+
+* **Bugfix**: Fixed a bug serialising null documents
+
 ## 0.8.2
 
 * **Bugfix**: Fix adding new multi-rows where no parent exists

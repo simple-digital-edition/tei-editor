@@ -74,7 +74,7 @@ export default class TEISerialiser {
     }
 
     private serialiseSingleText(data: any, section: any) {
-        if (data) {
+        if (data && data.doc) {
             let rootPath = section.serialiser.tag.split('/');
             this.nested = {} as any;
             let text = {
