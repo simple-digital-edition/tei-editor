@@ -1,6 +1,6 @@
 # Changes
 
-## DEV
+## 0.8.3
 
 * **Bugfix**: Fixed a bug serialising null documents
 
