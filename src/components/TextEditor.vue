@@ -44,7 +44,7 @@
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator';
 import { Schema, Fragment, Slice, Node as ProsemirrorNode } from "prosemirror-model";
-import { EditorState, Transaction } from "prosemirror-state";
+import { EditorState, Transaction, Selection, TextSelection } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
 import { baseKeymap, setBlockType, toggleMark } from 'prosemirror-commands';
 import { undo, redo, history } from 'prosemirror-history';
@@ -263,7 +263,7 @@ export default class TextEditor extends Vue {
             clearTimeout(this.stateDebounce);
         }
         this.stateDebounce = window.setTimeout(() => {
-            const { from, to } = state.selection;
+            const { from, to, empty, $from } = state.selection;
             const active: TextEditorActiveElements = {};
             state.doc.nodesBetween(from, to, (node) => {
                 active[node.type.name] = node.attrs;
@@ -277,6 +277,18 @@ export default class TextEditor extends Vue {
                     });
                 }
             });
+            if (empty) {
+                active[$from.parent.type.name] = $from.parent.attrs;
+                if ((state.selection as TextSelection).$cursor && (state.selection as TextSelection).$cursor.marks()) {
+                    (state.selection as TextSelection).$cursor.marks().forEach((mark) => {
+                        if (mark.attrs) {
+                            active[mark.type.name] = mark.attrs;
+                        } else {
+                            active[mark.type.name] = {};
+                        }
+                    });
+                }
+            }
             this.active = active;
             this.internalUpdate = true;
             this.$emit('input', state.doc.toJSON());

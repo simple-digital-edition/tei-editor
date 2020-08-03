@@ -1,5 +1,9 @@
 # Changes
 
+## Dev
+
+* **Bugfix**: Fix the handling of inline nodes and marks
+
 ## 0.8.3
 
 * **Bugfix**: Fixed a bug serialising null documents
