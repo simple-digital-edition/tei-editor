@@ -19,7 +19,7 @@
             <template v-for="(section, key, index) in config.sections">
                 <template v-if="key === currentSection">
                     <metadata-editor v-if="section.type === 'MetadataEditor'" :key="index" :config="section" :value="metadata"></metadata-editor>
-                    <text-editor v-if="section.type === 'TextEditor'" :key="index" :config="section" v-model="textData[key].doc" :nestedDocs="textData[key].nested"></text-editor>
+                    <text-editor v-if="section.type === 'TextEditor'" :key="index" :config="section" v-model="textData[key]"></text-editor>
                 </template>
             </template>
         </div>
@@ -87,7 +87,7 @@ export default class TeiEditor extends Vue {
      */
     public save() {
         const serialiser = new TEISeraliser();
-        const data = { metadata: this.metadata, ... this.textData}
+        const data = { metadata: this.metadata, ... this.textData};
         this.$emit('save', serialiser.serialise(data, this.config.sections));
     }
 

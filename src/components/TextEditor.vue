@@ -35,8 +35,8 @@
                 </div>
             </div>
         </aria-menubar>
-        <div v-if="showNested" class="nested">
-            <text-editor :config="config" v-model="nestedDocs[nestedSettings.type][nestedSettings.id].content[0]" :nestedDocs="nestedDocs" :nested="nestedSettings" @close="closeNestedEditor"/>
+        <div v-if="nestedDoc" class="nested">
+            <text-editor :config="config" v-model="nestedDoc" :nested="nestedSettings" @close="closeNestedEditor"/>
         </div>
     </div>
 </template>
@@ -54,7 +54,7 @@ import AriaMenubar from './AriaMenubar.vue';
 import get from '../util/get';
 import deepclone from '../util/deepclone';
 import { generateSchemaNodes, generateSchemaMarks, updateMark, removeMark, updateInlineNode, wrapNode, unwrapNode, isWrappedNode } from '../util/prosemirror';
-import { TextSection, TextEditorActiveElements, TextEditorSidebarBlockConfig, TextEditorMenuItem, TextEditorMenuItemValuesValue } from '../interfaces';
+import { TextSection, TextEditorActiveElements, TextEditorSidebarBlockConfig, TextEditorMenuItem, TextEditorMenuItemValuesValue, TextDocStore } from '../interfaces';
 
 /**
  * The TextEditor component wraps a single prosemirror editor. It supports nested documents.
@@ -67,12 +67,11 @@ import { TextSection, TextEditorActiveElements, TextEditorSidebarBlockConfig, Te
 })
 export default class TextEditor extends Vue {
     @Prop() public config!: TextSection;
-    @Prop() public value!: any;
-    @Prop() public nestedDocs!: {[x: string]: {[y: string]: any}};
+    @Prop() public value!: TextDocStore;
     @Prop() public nested!: {type: string, id: string};
 
     public editor: EditorView | null = null;
-    public showNested = false;
+    public nestedDoc: TextDocStore | null = null;
     public nestedSettings = null as any;
     public stateDebounce: number | null = null
     public internalUpdate = false;
@@ -104,6 +103,17 @@ export default class TextEditor extends Vue {
             }),
             keymap(baseKeymap)
         ];
+    }
+
+    /**
+     * Get the current main document.
+     */
+    public get doc() {
+        if (this.value) {
+            return this.value.doc;
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -190,7 +200,7 @@ export default class TextEditor extends Vue {
      */
     public get nestedDocIds() {
         let nestedIds = {} as { [x: string]: TextEditorMenuItemValuesValue[] };
-        Object.entries(this.nestedDocs).forEach(([nestedKey, docObj]: any) => {
+        Object.entries(this.value.nested).forEach(([nestedKey, docObj]: any) => {
             nestedIds[nestedKey] = Object.keys(docObj).map((docKey: string) => {
                 return {
                     label: docKey,
@@ -213,7 +223,7 @@ export default class TextEditor extends Vue {
         this.editor = new EditorView(this.$el.querySelector('.editor') as Node, {
             state: EditorState.create({
                 schema: this.editorSchema,
-                doc: this.value ? this.editorSchema.nodeFromJSON(this.value) : null,
+                doc: this.doc ? this.editorSchema.nodeFromJSON(this.doc) : null,
                 plugins: this.editorPlugins,
             }),
             dispatchTransaction: (transaction) => {
@@ -243,7 +253,7 @@ export default class TextEditor extends Vue {
         if (!this.internalUpdate && this.editor) {
             this.editor.updateState(EditorState.create({
                 schema: this.editorSchema,
-                doc: this.editorSchema.nodeFromJSON(this.value),
+                doc: this.editorSchema.nodeFromJSON(this.doc),
                 plugins: this.editorPlugins,
             }));
         }
@@ -292,7 +302,7 @@ export default class TextEditor extends Vue {
             }
             this.active = active;
             this.internalUpdate = true;
-            this.$emit('input', state.doc.toJSON());
+            this.$emit('input', {doc: state.doc.toJSON(), nested: {... this.value.nested}});
         }, transaction.steps.length > 0 ? 500 : 50);
     }
 
@@ -407,7 +417,10 @@ export default class TextEditor extends Vue {
                 if (menuItem.nodeType && menuItem.attr && menuItem.targetNodeType && this.active[menuItem.nodeType]) {
                     let nestedId = this.active[menuItem.nodeType][menuItem.attr];
                     if (!nestedId) {
-                        const docList = this.nestedDocs[menuItem.targetNodeType];
+                        if (!this.value.nested[menuItem.targetNodeType]) {
+                            Vue.set(this.value.nested, menuItem.targetNodeType, {});
+                        }
+                        const docList = this.value.nested[menuItem.targetNodeType];
                         nestedId = menuItem.targetNodeType + '-1';
                         let idx = 1;
                         while (docList && docList[nestedId]) {
@@ -422,9 +435,14 @@ export default class TextEditor extends Vue {
                             attrs[menuItem.attr] = nestedId;
                         }
                         updateInlineNode(this.editorSchema.nodes[menuItem.nodeType], attrs)(this.editor.state, this.editor.dispatch);
-                        Vue.set(this.nestedDocs[menuItem.targetNodeType], nestedId, {type: 'doc', content: [{type: 'paragraph', content: []}]})
+                        Vue.set(this.value.nested[menuItem.targetNodeType], nestedId, {
+                            type: menuItem.targetNodeType,
+                            attrs: {id: nestedId},
+                            content: [{type: 'doc', content: [{type: 'paragraph', content: []}]}],
+                            nestedDoc: true
+                        });
                     }
-                    this.showNested = true;
+                    this.nestedDoc = {doc: this.value.nested[menuItem.targetNodeType][nestedId].content[0], nested: this.value.nested};
                     this.nestedSettings = {
                         type: menuItem.targetNodeType,
                         id: nestedId,
@@ -439,8 +457,13 @@ export default class TextEditor extends Vue {
      * Close the nested editor.
      */
     public closeNestedEditor() {
-        this.showNested = false;
-        this.nestedSettings = null;
+        if (this.editor && this.nestedDoc) {
+            const newValue = {doc: this.editor.state.doc.toJSON(), nested: {... this.value.nested}};
+            newValue.nested[this.nestedSettings.type][this.nestedSettings.id].content[0] = this.nestedDoc.doc;
+            this.$emit('input', newValue);
+            this.nestedDoc = null;
+            this.nestedSettings = null;
+        }
     }
 
     // ===============

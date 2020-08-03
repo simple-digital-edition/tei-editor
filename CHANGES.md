@@ -1,5 +1,7 @@
 # Changes
 
+* **Bugfix**: Fixed bugs in creating new nested documents
+
 ## 0.8.4
 
 * **Bugfix**: Fix the handling of inline nodes and marks
