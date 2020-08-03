@@ -279,8 +279,9 @@ export default class TextEditor extends Vue {
             });
             if (empty) {
                 active[$from.parent.type.name] = $from.parent.attrs;
-                if ((state.selection as TextSelection).$cursor && (state.selection as TextSelection).$cursor.marks()) {
-                    (state.selection as TextSelection).$cursor.marks().forEach((mark) => {
+                const textSelection = (state.selection as TextSelection);
+                if (textSelection && textSelection.$cursor && textSelection.$cursor.marks()) {
+                    textSelection.$cursor.marks().forEach((mark) => {
                         if (mark.attrs) {
                             active[mark.type.name] = mark.attrs;
                         } else {
