@@ -1,5 +1,7 @@
 # Changes
 
+## 0.8.5
+
 * **Bugfix**: Fixed bugs in creating new nested documents
 
 ## 0.8.4
