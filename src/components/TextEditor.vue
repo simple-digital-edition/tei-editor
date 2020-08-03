@@ -430,6 +430,7 @@ export default class TextEditor extends Vue {
                     }
                 }
             }
+            this.editor.focus();
         }
     }
 

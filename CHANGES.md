@@ -3,6 +3,7 @@
 ## Dev
 
 * **Bugfix**: Fix the handling of inline nodes and marks
+* **Bugfix**: Focus the editor after applying a command
 
 ## 0.8.3
 
