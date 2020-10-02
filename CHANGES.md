@@ -1,5 +1,9 @@
 # Changes
 
+## 0.9.1
+
+* **Bugfix**: Packaging fix
+
 ## 0.9.0
 
 * **New**: Add support for numeric attribute value selection
