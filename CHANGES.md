@@ -1,5 +1,7 @@
 # Changes
 
+## 0.9.0
+
 * **New**: Add support for numeric attribute value selection
 
 ## 0.8.5
