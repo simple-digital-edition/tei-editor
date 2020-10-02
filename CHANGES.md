@@ -1,8 +1,10 @@
 # Changes
 
+* **New**: Add support for numeric attribute value selection
+
 ## 0.8.5
 
-* **Bugfix**: Fixed bugs in creating new nested documents
+* **Bugfix**: Fixed bugs in creating New nested documents
 
 ## 0.8.4
 
@@ -15,7 +17,7 @@
 
 ## 0.8.2
 
-* **Bugfix**: Fix adding new multi-rows where no parent exists
+* **Bugfix**: Fix adding New multi-rows where no parent exists
 
 ## 0.8.1
 
@@ -23,137 +25,137 @@
 
 ## 0.8.0
 
-* **UPDATE**: Refactored to provide re-usable components
+* **Update**: Refactored to provide re-usable components
 
 ## 0.7.2
 
-* **BUGFIX**: Allow editing of empty documents
+* **Bugfix**: Allow editing of empty documents
 
 ## 0.7.1
 
-* **UPDATE**: Metadata / Documentation update
+* **Update**: Metadata / Documentation Update
 
 ## 0.7.0
 
-* **UPDATE**: Rewrite removing TipTap
-* **BUGFIX**: Fix a bug when adding metadata to an empty header
+* **Update**: Rewrite removing TipTap
+* **Bugfix**: Fix a bug when adding metadata to an empty header
 
 ## 0.6.0
 
-* **UPDATE**: Automatically filter out empty text nodes
+* **Update**: Automatically filter out empty text nodes
 
 
 ## 0.5.4
 
-* **UPDATE**: Explicitly support ariaLabel for all menu items
+* **Update**: Explicitly support ariaLabel for all menu items
 
 ## 0.5.3
 
-* **UPDATE**: Worked on some performance improvements
+* **Update**: Worked on some performance improvements
 
 ## 0.5.2
 
-* **BUGFIX**: Fixed an issue with the nested editor
+* **Bugfix**: Fixed an issue with the nested editor
 
 ## 0.5.1
 
-* **BUGFIX**: Small CSS fix
+* **Bugfix**: Small CSS fix
 
 ## 0.5.0:
 
-* **NEW**: Rewrite in Vue.js
+* **New**: Rewrite in Vue.js
 
 ## 0.4.2:
 
-* **BUGFIX**: Fixed a bug with non-duplicate TEI metadata
+* **Bugfix**: Fixed a bug with non-duplicate TEI metadata
 
 ## 0.4.1:
 
-* **BUGFIX**: Small bugfix
+* **Bugfix**: Small Bugfix
 
 ## 0.4.0:
 
-* **NEW**: Support deduplication of fields in the TEI output
+* **New**: Support deduplication of fields in the TEI output
 
 ## 0.3.2:
 
-* **BUGFIX**: Make the serialiser more resilient to missing data
+* **Bugfix**: Make the serialiser more resilient to missing data
 
 ## 0.3.1
 
-* **BUGFIX**: Fixed an issue with creating new multi-value fields
+* **Bugfix**: Fixed an issue with creating New multi-value fields
 
 ## 0.3.0
 
-* **UPDATE**: Don't filter empty attribute values on loading
+* **Update**: Don't filter empty attribute values on loading
 
 ## 0.2.1
 
-* **BUGFIX**: Remove debug statements
+* **Bugfix**: Remove debug statements
 
 ## 0.2.0
 
-* **NEW**: Support inline nodes without content
+* **New**: Support inline nodes without content
 
 ## 0.1.2
 
-* **NEW**: Added support for textarea attributes
-* **NEW**: Added support for serialising attributes as text
-* **NEW**: Added support for expanded menus
+* **New**: Added support for textarea attributes
+* **New**: Added support for serialising attributes as text
+* **New**: Added support for expanded menus
 
 ## 0.1.1
 
-* **BUGFIX**: Fix a release error
+* **Bugfix**: Fix a release error
 
 ## 0.1.0
 
-* **UPDATE**: Only serialise attributes if the attribute is not empty
+* **Update**: Only serialise attributes if the attribute is not empty
 
 ## 0.0.13
 
-* **BUGFIX**: Fixed a bug with nested marks
+* **Bugfix**: Fixed a bug with nested marks
 
 ## 0.0.11
 
-* **UPDATE**: Allow multi-texts to reference other multi texts
+* **Update**: Allow multi-texts to reference other multi texts
 
 ## 0.0.10
 
-* **BUGFIX**: Fixed an issue with the XML serialisation
+* **Bugfix**: Fixed an issue with the XML serialisation
 
 ## 0.0.9
 
-* **BUGFIX**: Fix issues handling missing data
+* **Bugfix**: Fix issues handling missing data
 
 ## 0.0.8
 
-* **BUGFIX**: Correctly handle missing sections in the source data
+* **Bugfix**: Correctly handle missing sections in the source data
 
 ## 0.0.7
 
-* **BUGFIX**: Fixed the generated section id values
+* **Bugfix**: Fixed the generated section id values
 
 ## 0.0.6
 
-* **UPDATE**: Re-written configuration from scratch
+* **Update**: Re-written configuration from scratch
 
 ## 0.0.5
 
-* **UPDATE**: Added option to strip id values
+* **Update**: Added option to strip id values
 
 ## 0.0.4
 
-* **UPDATE**: Run the initLoad action when the component is inserted.
+* **Update**: Run the initLoad action when the component is inserted.
 
 ## 0.0.3
 
-* **NEW**: Added action callbacks to handle load/save functionality.
-* **NEW**: Made the load menu item configurable.
-* **UPDATE**: Remove the undo/redo UI elements.
+* **New**: Added action callbacks to handle load/save functionality.
+* **New**: Made the load menu item configurable.
+* **Update**: Remove the undo/redo UI elements.
 
 ## 0.0.2
 
-* **UPDATE**: Editor is now 100% height of its parent, rather than fixed to 100vh.
+* **Update**: Editor is now 100% height of its parent, rather than fixed to 100vh.
 
 ## 0.0.1
 

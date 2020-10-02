@@ -46,6 +46,9 @@ export interface TextEditorSidebarElementConfig {
     ariaLabel?: string;
     value?: string;
     targetNodeType?: string;
+    min?: string;
+    max?: string;
+    step?: string;
 }
 
 export interface TextEditorActiveElements {

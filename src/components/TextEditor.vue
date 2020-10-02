@@ -29,6 +29,12 @@
                                 <select v-else-if="menuitem.type === 'linkNestedDoc'" role="menuitem" :tabindex="menuitem.tabindex" @keyup="keyboardNav" @change="menuAction(menuitem, $event)">
                                     <option v-for="value in menuitem.values" :key="value.value" v-html="value.label" :value="value.value" :selected="value.checked"></option>
                                 </select>
+                                <label v-else-if="menuitem.type === 'setNodeAttrString'">{{ menuitem.label }}
+                                    <input type="text" :value="menuitem.value" @change="menuAction(menuitem, $event)"/>
+                                </label>
+                                <label v-else-if="menuitem.type === 'setNodeAttrNumber'">{{ menuitem.label }}
+                                    <input type="number" :value="menuitem.value" @change="menuAction(menuitem, $event)" :min="menuitem.min" :max="menuitem.max" :step="menuitem.step"/>
+                                </label>
                             </li>
                         </ul>
                     </template>
@@ -150,6 +156,9 @@ export default class TextEditor extends Vue {
                                 tabindex: idx === 0 ? 0 : -1,
                                 ariaLabel: elementSchema.ariaLabel,
                                 targetNodeType: elementSchema.targetNodeType,
+                                min: undefined as string | null | undefined,
+                                max: undefined as string | null | undefined,
+                                step: undefined as string | null | undefined,
                             };
                             if (elementSchema.type === 'setNodeType') {
                                 entity.checked = elementSchema.nodeType && this.active[elementSchema.nodeType] ? 'true': 'false';
@@ -186,6 +195,11 @@ export default class TextEditor extends Vue {
                                 }
                             } else if (elementSchema.type === 'setNodeAttrString') {
                                 entity.value = elementSchema.nodeType && this.active[elementSchema.nodeType] && this.active[elementSchema.nodeType][elementSchema.attr] ? this.active[elementSchema.nodeType][elementSchema.attr]: '';
+                            } else if (elementSchema.type === 'setNodeAttrNumber') {
+                                entity.value = elementSchema.nodeType && this.active[elementSchema.nodeType] && this.active[elementSchema.nodeType][elementSchema.attr] ? this.active[elementSchema.nodeType][elementSchema.attr]: '';
+                                entity.min = elementSchema.min;
+                                entity.max = elementSchema.max;
+                                entity.step = elementSchema.step;
                             }
                             return entity;
                         }),
@@ -360,7 +374,7 @@ export default class TextEditor extends Vue {
                     }
                 }
             // Set an attribute value on a Node
-            } else if ((menuItem.type === 'setNodeAttrValue' || menuItem.type === 'selectNodeAttr' || menuItem.type === 'setNodeAttrString') && menuItem.nodeType) {
+            } else if ((menuItem.type === 'setNodeAttrValue' || menuItem.type === 'selectNodeAttr' || menuItem.type === 'setNodeAttrString' || menuItem.type === 'setNodeAttrNumber') && menuItem.nodeType) {
                 let attrs = {} as { [x: string]: string };
                 if (this.active[menuItem.nodeType]) {
                     attrs = deepclone(this.active[menuItem.nodeType]);

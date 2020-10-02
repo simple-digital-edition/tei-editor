@@ -272,7 +272,10 @@ The ``TextEditorUIEntity`` configures a single element that modifies the documen
     "?attr": "AttributeName",
     "?value": "AnyString",
     "?values": ["ValueLabelPair"],
-    "?targetNodeType": "NestedElementName"
+    "?targetNodeType": "NestedElementName",
+    "min?": "AnyNumber";
+    "max?": "AnyNumber";
+    "step?": "AnyNumber";
   }
 
 The ``type`` configures the type of user-interface element to show and **must** be one of the following:

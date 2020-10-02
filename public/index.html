@@ -78,6 +78,36 @@
     .node-paragraph[data-alignment="justify"] {
         text-align: justify;
     }
+    .node-paragraph[data-marginleft="1"] {
+        margin-left: 1cm;
+    }
+    .node-paragraph[data-marginleft="2"] {
+        margin-left: 2cm;
+    }
+    .node-paragraph[data-marginleft="3"] {
+        margin-left: 3cm;
+    }
+    .node-paragraph[data-marginleft="4"] {
+        margin-left: 4cm;
+    }
+    .node-paragraph[data-marginleft="5"] {
+        margin-left: 5cm;
+    }
+    .node-paragraph[data-marginright="1"] {
+        margin-right: 1cm;
+    }
+    .node-paragraph[data-marginright="2"] {
+        margin-right: 2cm;
+    }
+    .node-paragraph[data-marginright="3"] {
+        margin-right: 3cm;
+    }
+    .node-paragraph[data-marginright="4"] {
+        margin-right: 4cm;
+    }
+    .node-paragraph[data-marginright="5"] {
+        margin-right: 5cm;
+    }
     .node-list {
         margin-left: 1rem;
         margin-bottom: 0.5rem;
@@ -129,6 +159,9 @@
     }
     .text-editor .nested {
         background: #ffffff;
+    }
+    #tei-editor .text-editor .sidebar ul[role="menubar"] {
+        margin-bottom: 0.5rem;
     }
 
     /** Metadata styling */
@@ -244,6 +277,24 @@
                                       "attr": "style",
                                       "value": "align-{value}"
                                   }
+                              },
+                              "marginLeft": {
+                                  "default": "0",
+                                  "parser": {
+                                      "selector": "@marginLeft"
+                                  },
+                                  "serialiser": {
+                                      "attr": "marginLeft"
+                                  }
+                              },
+                              "marginRight": {
+                                "default": "0",
+                                "parser": {
+                                    "selector": "@marginRight"
+                                },
+                                "serialiser": {
+                                    "attr": "marginRight"
+                                }
                               }
                           },
                           "parser": {
@@ -658,6 +709,29 @@
                                               "value": "justify",
                                               "label": "Justify"
                                           }
+                                      ]
+                                  },
+                                  {
+                                      "type": "menubar",
+                                      "entities": [
+                                          {
+                                              "type": "setNodeAttrNumber",
+                                              "nodeType": "paragraph",
+                                              "attr": "marginLeft",
+                                              "label": "Left Margin",
+                                              "min": "0",
+                                              "max": "5",
+                                              "step": "1"
+                                          },
+                                          {
+                                            "type": "setNodeAttrNumber",
+                                            "nodeType": "paragraph",
+                                            "attr": "marginRight",
+                                            "label": "Right Margin",
+                                            "min": "0",
+                                            "max": "5",
+                                            "step": "1"
+                                        }
                                       ]
                                   }
                               ]
@@ -1275,7 +1349,7 @@
               <tei:head type="level-1" data-navIdentifier="heading-1">
                 <tei:seg>TEI Editor Test</tei:seg>
               </tei:head>
-              <tei:p style="align-left">
+              <tei:p style="align-left" marginLeft="5" marginRight="4">
                 <tei:seg>This text is </tei:seg>
                 <tei:hi style="bold">bold</tei:hi>
                 <tei:seg> and </tei:seg>
