@@ -1,5 +1,9 @@
 # Changes
 
+## 0.9.2
+
+* **Update**: Dependencies updated, fixing a number of UI bugs
+
 ## 0.9.1
 
 * **Bugfix**: Packaging fix
