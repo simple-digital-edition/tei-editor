@@ -17,12 +17,8 @@ jobs:
         with:
           node-version: 12
 
-      - name: Install Yarn Dependencies
-        uses: CultureHQ/actions-yarn@master
-        with:
-          args: install
-
       - run: |
+          yarn install
           rollup -c rollup.config.js
         
       - name: Publish NPM Package
