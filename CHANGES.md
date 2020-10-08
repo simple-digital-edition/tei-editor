@@ -1,6 +1,6 @@
 # Changes
 
-## Dev
+## 0.10.1
 
 * **Bugfix**: Type assignment error
 
