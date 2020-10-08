@@ -6,4 +6,4 @@ A graphical editor for TEI documents.
 
 **Source Code**: https://github.com/scmmmh/tei-editor
 
-**NPM Package**: https://www.npmjs.com/package/tei-editor
+**NPM Package**: https://www.npmjs.com/package/tei-editor [![NPM Version](https://badge.fury.io/js/tei-editor.svg)](https://badge.fury.io/js/tei-editor)
