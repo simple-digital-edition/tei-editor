@@ -400,7 +400,7 @@ export default class TextEditor extends Vue {
                 }
                 if (menuItem.attr && attrs[menuItem.attr] === menuItem.value) {
                     attrs[menuItem.attr] = '';
-                } else {
+                } else if (menuItem.value) {
                     attrs[menuItem.attr] = menuItem.value;
                 }
                 if (this.editorSchema.nodes[menuItem.nodeType].isInline) {

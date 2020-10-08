@@ -1,5 +1,9 @@
 # Changes
 
+## Dev
+
+* **Bugfix**: Type assignment error
+
 ## 0.10.0
 
 * **New**: Add support for toggling attribute values
