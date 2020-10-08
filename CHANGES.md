@@ -1,5 +1,9 @@
 # Changes
 
+## Dev
+
+* **New**: Add support for toggling attribute values
+
 ## 0.9.2
 
 * **Update**: Dependencies updated, fixing a number of UI bugs

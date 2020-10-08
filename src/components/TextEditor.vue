@@ -20,6 +20,7 @@
                                 <select v-else-if="menuitem.type === 'selectNodeAttr'" role="menuitem" :tabindex="menuitem.tabindex" @keyup="keyboardNav" @change="menuAction(menuitem, $event)">
                                     <option v-for="value in menuitem.values" :key="value.value" v-html="value.label" :value="value.value" :selected="value.checked"></option>
                                 </select>
+                                <a v-else-if="menuitem.type === 'toggleNodeAttrValue'" role="menuitem" v-html="menuitem.label" :tabindex="menuitem.tabindex" :aria-label="menuitem.ariaLabel" :title="menuitem.ariaLabel" :aria-checked="menuitem.checked" @keyup="keyboardNav" @click="menuAction(menuitem)"></a>
                                 <a v-else-if="menuitem.type === 'toggleMark'" role="menuitem" v-html="menuitem.label" :tabindex="menuitem.tabindex" :aria-label="menuitem.ariaLabel" :title="menuitem.ariaLabel" :aria-checked="menuitem.checked" @keyup="keyboardNav" @click="menuAction(menuitem)"></a>
                                 <select v-else-if="menuitem.type === 'selectMarkAttr'" role="menuitem" :tabindex="menuitem.tabindex" @keyup="keyboardNav" @change="menuAction(menuitem, $event)">
                                     <option v-for="value in menuitem.values" :key="value.value" v-html="value.label" :value="value.value" :selected="value.checked"></option>
@@ -162,7 +163,7 @@ export default class TextEditor extends Vue {
                             };
                             if (elementSchema.type === 'setNodeType') {
                                 entity.checked = elementSchema.nodeType && this.active[elementSchema.nodeType] ? 'true': 'false';
-                            } else if (elementSchema.type === 'setNodeAttrValue') {
+                            } else if (elementSchema.type === 'setNodeAttrValue' || elementSchema.type === 'toggleNodeAttrValue') {
                                 entity.checked = elementSchema.nodeType && elementSchema.attr && this.active[elementSchema.nodeType] && this.active[elementSchema.nodeType][elementSchema.attr] === elementSchema.value ? 'true' : 'false';
                             } else if (elementSchema.type === 'selectNodeAttr') {
                                 entity.values = elementSchema.values.map((entry) => {
@@ -385,6 +386,22 @@ export default class TextEditor extends Vue {
                     } else if (menuItem.value) {
                         attrs[menuItem.attr] = menuItem.value;
                     }
+                }
+                if (this.editorSchema.nodes[menuItem.nodeType].isInline) {
+                    updateInlineNode(this.editorSchema.nodes[menuItem.nodeType], attrs)(this.editor.state, this.editor.dispatch);
+                } else {
+                    setBlockType(this.editorSchema.nodes[menuItem.nodeType], attrs)(this.editor.state, this.editor.dispatch);
+                }
+            // Toggle an attribute value on a Node
+            } else if (menuItem.type === 'toggleNodeAttrValue' && menuItem.nodeType) {
+                let attrs = {} as { [x: string]: string };
+                if (this.active[menuItem.nodeType]) {
+                    attrs = deepclone(this.active[menuItem.nodeType]);
+                }
+                if (menuItem.attr && attrs[menuItem.attr] === menuItem.value) {
+                    attrs[menuItem.attr] = '';
+                } else {
+                    attrs[menuItem.attr] = menuItem.value;
                 }
                 if (this.editorSchema.nodes[menuItem.nodeType].isInline) {
                     updateInlineNode(this.editorSchema.nodes[menuItem.nodeType], attrs)(this.editor.state, this.editor.dispatch);

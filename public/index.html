@@ -288,13 +288,22 @@
                                   }
                               },
                               "marginRight": {
-                                "default": "0",
-                                "parser": {
-                                    "selector": "@marginRight"
-                                },
-                                "serialiser": {
-                                    "attr": "marginRight"
-                                }
+                                  "default": "0",
+                                  "parser": {
+                                      "selector": "@marginRight"
+                                  },
+                                  "serialiser": {
+                                      "attr": "marginRight"
+                                  }
+                              },
+                              "extract": {
+                                  "default": "",
+                                  "parser": {
+                                      "selector": "@extract"
+                                  },
+                                  "serialiser": {
+                                      "attr": "extract"
+                                  }
                               }
                           },
                           "parser": {
@@ -708,6 +717,16 @@
                                               "attr": "alignment",
                                               "value": "justify",
                                               "label": "Justify"
+                                          },
+                                          {
+                                              "type": "separator"
+                                          },
+                                          {
+                                              "type": "toggleNodeAttrValue",
+                                              "nodeType": "paragraph",
+                                              "attr": "extract",
+                                              "value": "true",
+                                              "label": "Star"
                                           }
                                       ]
                                   },

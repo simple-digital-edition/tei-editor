@@ -265,7 +265,7 @@ The ``TextEditorUIEntity`` configures a single element that modifies the documen
 .. sourcecode:: json
 
   {
-    "type": "setNodeType | toggleMark | selectNodeAttr | setNodeAttrString | setNodeAttrValue | selectMarkAttr | editNestedDoc | linkNestedDoc | closeNested"
+    "type": "setNodeType | toggleMark | selectNodeAttr | setNodeAttrString | setNodeAttrNumber | setNodeAttrValue | toggleNodeAttrValue | selectMarkAttr | editNestedDoc | linkNestedDoc | closeNested"
     "label": "AnyHTMLString",
     "nodeType": "ElementName",
     "?ariaLabel": "AnyString",
@@ -290,8 +290,12 @@ The ``type`` configures the type of user-interface element to show and **must** 
   specified via the ``attr`` and the potential values to select from via ``values``.
 * *setNodeAttrString*: Allows the user to enter the ``TagElement`` attribute's value into a single-line text input. The
   attribute is specified via ``attr``.
+* *setNodeAttrNumber*: Allows the user to enter the ``TagElement`` attribute's value into a single-line number input. The
+  attribute is specified via ``attr``.
 * *setNodeAttrValue*: Allows the user to set a fixed ``TagElement`` attribute value by clicking on a button. The
   attribute is specified via ``attr`` and the value to set via ``value``.
+* *toggleNodeAttrValue*: Toggle the value ``value`` on the ``TagElement`` attribute. The attribute is specified via
+  ``attr``.
 * *selectMarkAttr*: Select a ``mark`` ``TagElement`` attribute value from a drop-down list. The attribute is specified
   via the ``attr`` and the potential values to select from via ``values``.
 * *editNestedDoc*: Edit the nested document linked to the current ``inline`` ``TagElement``. The attribute that contains
