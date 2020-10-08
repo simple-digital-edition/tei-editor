@@ -1,6 +1,6 @@
 # Changes
 
-## Dev
+## 0.10.0
 
 * **New**: Add support for toggling attribute values
 
