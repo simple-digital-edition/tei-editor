@@ -1442,6 +1442,62 @@
         </tei:text>
       </tei:TEI>
     </script>
+    <!--<script id="TEIEditorConfig" type="application/json">
+        {
+            "sections": {
+                "body": {
+                    "label": "Main Text",
+                    "type": "TextEditor",
+                    "parser": {
+                        "selector": "tei:text/tei:body"
+                    },
+                    "serialiser": {
+                        "tag": "tei:text/tei:body",
+                        "attrs": {
+                            "type": "main"
+                        }
+                    },
+                    "schema": [
+                        {
+                            "name": "paragraph",
+                            "type": "block",
+                            "parser": {
+                                "selector": "tei:p"
+                            },
+                            "serialiser": {
+                                "tag": "tei:p"
+                            }
+                        },
+                        {
+                            "name": "text",
+                            "type": "inline",
+                            "parser": {
+                                "selector": "tei:seg",
+                                "text": "text()"
+                            },
+                            "serialiser": {
+                                "tag": "tei:seg"
+                            }
+                        }
+                    ],
+                    "ui": {
+                        "doc": []
+                    }
+                }
+            }
+        }
+    </script>
+    <script id="TEIEditorDocument" type="application/xml+tei">
+      <tei:TEI xmlns:tei="http://www.tei-c.org/ns/1.0">
+        <tei:text>
+          <tei:body>
+            <tei:p style="align-left" marginLeft="5" marginRight="4">
+              <tei:seg>The text goes here.</tei:seg>
+            </tei:p>
+          </tei:body>
+        </tei:text>
+      </tei:TEI>
+    </script>-->
     <div id="app"></div>
     <!-- built files will be auto injected -->
   </body>
