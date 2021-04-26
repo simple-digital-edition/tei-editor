@@ -1,5 +1,9 @@
 # Changes
 
+## Dev
+
+* **Bugfix**: Fix errors with missing meta-data settings
+
 ## 0.10.1
 
 * **Bugfix**: Type assignment error

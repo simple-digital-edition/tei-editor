@@ -87,6 +87,15 @@ export default class MetadataField extends Vue {
         if (!value) {
             const pathElements = this.config.path.split('.');
             if (this.config.type === 'multi-row') {
+                for (let idx = 1; idx < pathElements.length; idx++) {
+                    if (!get(this.value, pathElements.slice(0, idx).join('.'))) {
+                        if (idx === 1) {
+                            Vue.set(this.value, pathElements[idx - 1], {});
+                        } else {
+                            Vue.set(get(this.value, pathElements.slice(0, idx - 1).join('.')), pathElements[idx - 1], {});
+                        }
+                    }
+                }
                 Vue.set(get(this.value, pathElements.slice(0, pathElements.length - 1).join('.')), pathElements[pathElements.length - 1], []);
                 value = get(this.value, this.config.path);
             }
@@ -102,6 +111,15 @@ export default class MetadataField extends Vue {
         if (pathElements.length === 1) {
             Vue.set(this.value, pathElements[0], value);
         } else {
+            for (let idx = 1; idx < pathElements.length; idx++) {
+                if (!get(this.value, pathElements.slice(0, idx).join('.'))) {
+                    if (idx === 1) {
+                        Vue.set(this.value, pathElements[idx - 1], {});
+                    } else {
+                        Vue.set(get(this.value, pathElements.slice(0, idx - 1).join('.')), pathElements[idx - 1], {});
+                    }
+                }
+            }
             Vue.set(get(this.value, pathElements.slice(0, pathElements.length - 1).join('.')), pathElements[pathElements.length - 1], value);
         }
     }
