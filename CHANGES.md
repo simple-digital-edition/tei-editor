@@ -1,6 +1,6 @@
 # Changes
 
-## Dev
+## 0.10.2
 
 * **Bugfix**: Fix errors with missing meta-data settings
 
