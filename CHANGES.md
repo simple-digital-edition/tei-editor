@@ -1,6 +1,6 @@
 # Changes
 
-## Dev
+## 0.11.0
 
 * **New**: Support linking nested documents across sections
 * **Update**: Improved the UX on nested document linking

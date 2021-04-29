@@ -18,11 +18,11 @@ import sphinx_rtd_theme
 # -- Project information -----------------------------------------------------
 
 project = 'TEI Editor'
-copyright = '2020, Mark Hall'
+copyright = '2020-2021, Mark Hall'
 author = 'Mark Hall'
 
 # The full version, including alpha/beta/rc tags
-release = '0.10.1'
+release = '0.11.0'
 
 
 # -- General configuration ---------------------------------------------------
