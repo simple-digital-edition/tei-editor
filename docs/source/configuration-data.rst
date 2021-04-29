@@ -268,11 +268,12 @@ The ``TextEditorUIEntity`` configures a single element that modifies the documen
     "type": "setNodeType | toggleMark | selectNodeAttr | setNodeAttrString | setNodeAttrNumber | setNodeAttrValue | toggleNodeAttrValue | selectMarkAttr | editNestedDoc | linkNestedDoc | closeNested"
     "label": "AnyHTMLString",
     "nodeType": "ElementName",
-    "?ariaLabel": "AnyString",
-    "?attr": "AttributeName",
-    "?value": "AnyString",
-    "?values": ["ValueLabelPair"],
-    "?targetNodeType": "NestedElementName",
+    "ariaLabel?": "AnyString",
+    "attr?": "AttributeName",
+    "value?": "AnyString",
+    "values?": ["ValueLabelPair"],
+    "targetNodeType?": "NestedElementName",
+    "targetNodeSection?": "AnyString",
     "min?": "AnyNumber";
     "max?": "AnyNumber";
     "step?": "AnyNumber";
@@ -309,6 +310,9 @@ The ``type`` configures the type of user-interface element to show and **must** 
 The ``label`` is the label shown to the user and can by any HTML content. By providing HTML content, images can be
 used as the label. If using an image for the ``label``, then you **must** provide an ``ariaLabel`` text for
 accessibility reasons.
+
+* *targetNodeType*: The name of the target node type for linking to or editing nested docs.
+* *targetNodeSection*: The name of the section containing the target nodes for linking to nested docs.
 
 ValueLabelPair
 **************

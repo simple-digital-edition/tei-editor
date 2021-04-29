@@ -61,7 +61,7 @@ import AriaMenubar from './AriaMenubar.vue';
 import get from '../util/get';
 import deepclone from '../util/deepclone';
 import { generateSchemaNodes, generateSchemaMarks, updateMark, removeMark, updateInlineNode, wrapNode, unwrapNode, isWrappedNode } from '../util/prosemirror';
-import { TextSection, TextEditorActiveElements, TextEditorSidebarBlockConfig, TextEditorMenuItem, TextEditorMenuItemValuesValue, TextDocStore } from '../interfaces';
+import { TextSection, TextEditorActiveElements, TextEditorSidebarBlockConfig, TextEditorMenuItem, TextDocsStore, TextDocStore } from '../interfaces';
 
 /**
  * The TextEditor component wraps a single prosemirror editor. It supports nested documents.
@@ -76,6 +76,7 @@ export default class TextEditor extends Vue {
     @Prop() public config!: TextSection;
     @Prop() public value!: TextDocStore;
     @Prop() public nested!: {type: string, id: string};
+    @Prop() public textData!: TextDocsStore;
 
     public editor: EditorView | null = null;
     public nestedDoc: TextDocStore | null = null;
@@ -185,14 +186,51 @@ export default class TextEditor extends Vue {
                                 });
                             // } else if (elementSchema.type === 'editNestedDoc') {
                             } else if (elementSchema.type === 'linkNestedDoc') {
-                                if (elementSchema.targetNodeType && this.nestedDocIds[elementSchema.targetNodeType]) {
-                                    entity.values = this.nestedDocIds[elementSchema.targetNodeType].map((entry) => {
-                                        return {
-                                            value: entry.value,
-                                            label: entry.label,
-                                            checked: elementSchema.nodeType && elementSchema.attr && this.active[elementSchema.nodeType] && this.active[elementSchema.nodeType][elementSchema.attr] === entry.value ? 'selected' : null,
-                                        };
-                                    });
+                                if (elementSchema.targetNodeType && elementSchema.nodeType && elementSchema.attr && this.active[elementSchema.nodeType]) {
+                                    let nestedDocs = null;
+                                    if (elementSchema.targetNodeSection) {
+                                        if (this.textData && this.textData[elementSchema.targetNodeSection] && this.textData[elementSchema.targetNodeSection].nested && this.textData[elementSchema.targetNodeSection].nested[elementSchema.targetNodeType]) {
+                                            nestedDocs = this.textData[elementSchema.targetNodeSection].nested[elementSchema.targetNodeType];
+                                        }
+                                    } else {
+                                        if (this.value.nested && this.value.nested[elementSchema.targetNodeType]) {
+                                            nestedDocs = this.value.nested[elementSchema.targetNodeType];
+                                        }
+                                    }
+                                    if (nestedDocs) {
+                                        entity.values = Object.entries(nestedDocs).map(([docKey, contentObj]: any) => {
+                                            const doc = contentObj.content[0];
+                                            if (doc.content.length > 0) {
+                                                const label = this.extractText(doc.content[0]);
+                                                if (label !== '') {
+                                                    return {
+                                                        label: label.substring(0, 20),
+                                                        value: docKey,
+                                                        checked: elementSchema.nodeType && elementSchema.attr && this.active[elementSchema.nodeType] && this.active[elementSchema.nodeType][elementSchema.attr] === docKey ? 'selected' : null,
+                                                    };
+                                                } else {
+                                                    return {
+                                                        label: docKey,
+                                                        value: docKey,
+                                                        checked: elementSchema.nodeType && elementSchema.attr && this.active[elementSchema.nodeType] && this.active[elementSchema.nodeType][elementSchema.attr] === docKey ? 'selected' : null,
+                                                    };
+                                                }
+                                            } else {
+                                                return {
+                                                    label: docKey,
+                                                    value: docKey,
+                                                    checked: elementSchema.nodeType && elementSchema.attr && this.active[elementSchema.nodeType] && this.active[elementSchema.nodeType][elementSchema.attr] === docKey ? 'selected' : null,
+                                                };
+                                            }
+                                        });
+                                        if (this.active[elementSchema.nodeType].target === '') {
+                                            entity.values.push({
+                                                label: 'New',
+                                                value: '',
+                                                checked: 'selected',
+                                            });
+                                        }
+                                    }
                                 }
                             } else if (elementSchema.type === 'setNodeAttrString') {
                                 entity.value = elementSchema.nodeType && this.active[elementSchema.nodeType] && this.active[elementSchema.nodeType][elementSchema.attr] ? this.active[elementSchema.nodeType][elementSchema.attr]: '';
@@ -208,39 +246,6 @@ export default class TextEditor extends Vue {
                 }) : [],
             }
         });
-    }
-
-    /**
-     * Gets all nested document ids.
-     */
-    public get nestedDocIds() {
-        let nestedIds = {} as { [x: string]: TextEditorMenuItemValuesValue[] };
-        Object.entries(this.value.nested).forEach(([nestedKey, docObj]: any) => {
-            nestedIds[nestedKey] = Object.entries(docObj).map(([docKey, contentObj]: any) => {
-                const doc = contentObj.content[0];
-                if (doc.content.length > 0) {
-                    const label = this.extractText(doc.content[0]);
-                    if (label !== '') {
-                        return {
-                            label: label.substring(0, 20),
-                            value: docKey,
-                        };
-                    } else {
-                        return {
-                            label: docKey,
-                            value: docKey,
-                        };
-                    }
-                } else {
-                    return {
-                        label: docKey,
-                        value: docKey,
-                    };
-                }
-            });
-            nestedIds[nestedKey].splice(0, 0, {label: 'New', value: ''});
-        });
-        return nestedIds;
     }
 
     // ================

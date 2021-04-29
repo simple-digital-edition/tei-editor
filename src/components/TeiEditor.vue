@@ -19,7 +19,7 @@
             <template v-for="(section, key, index) in config.sections">
                 <template v-if="key === currentSection">
                     <metadata-editor v-if="section.type === 'MetadataEditor'" :key="index" :config="section" :value="metadata"></metadata-editor>
-                    <text-editor v-if="section.type === 'TextEditor'" :key="index" :config="section" v-model="textData[key]"></text-editor>
+                    <text-editor v-if="section.type === 'TextEditor'" :key="index" :config="section" :textData="textData" v-model="textData[key]"></text-editor>
                 </template>
             </template>
         </div>

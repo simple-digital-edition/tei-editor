@@ -976,6 +976,36 @@
                           }
                       },
                       {
+                        "name": "annotationMarker",
+                        "type": "inline",
+                        "parser": {
+                            "selector": "tei:ref[@type=\"annotation\"]",
+                            "text": "text()"
+                        },
+                        "serialiser": {
+                            "tag": "tei:ref",
+                            "attrs": {
+                                "type": "annotation"
+                            }
+                        },
+                        "attrs": {
+                            "target": {
+                                "default": "",
+                                "parser": {
+                                    "selector": "substring(@target, 2)"
+                                },
+                                "serialiser": {
+                                    "attr": "target",
+                                    "value": "#{value}"
+                                }
+                            }
+                        },
+                        "reference": {
+                            "type": "annotation",
+                            "attr": "target"
+                        }
+                    },
+                    {
                           "name": "text",
                           "type": "inline",
                           "parsers": [
@@ -1110,7 +1140,12 @@
                                              "type": "setNodeType",
                                              "label": "Proof",
                                              "nodeType": "proof"
-                                          }
+                                            },
+                                            {
+                                                "type": "setNodeType",
+                                                "label": "Annotation",
+                                                "nodeType": "annotationMarker"
+                                            }
                                       ]
                                   }
                               ]
@@ -1209,6 +1244,27 @@
                                               "attr": "alignment",
                                               "value": "justify",
                                               "label": "Justify"
+                                          }
+                                      ]
+                                  }
+                              ]
+                          },
+                          {
+                              "label": "Annotation",
+                              "condition": {
+                                  "type": "isActive",
+                                  "activeType": "annotationMarker"
+                              },
+                              "entities": [
+                                  {
+                                      "type": "menubar",
+                                      "entities": [
+                                          {
+                                              "type": "linkNestedDoc",
+                                              "nodeType": "annotationMarker",
+                                              "attr": "target",
+                                              "targetNodeType": "annotation",
+                                              "targetNodeSection": "body"
                                           }
                                       ]
                                   }
@@ -1436,6 +1492,11 @@
                 <tei:seg>This section contains comments that the annotator thought were </tei:seg>
                 <tei:hi style="bold">important</tei:hi>
                 <tei:seg>.</tei:seg>
+              </tei:p>
+              <tei:p>
+                <tei:seg>It is also possible to cross-reference </tei:seg>
+                <tei:ref type="annotation" target="#annotation-1">annotations</tei:ref>
+                <tei:seg> from other sections.</tei:seg>
               </tei:p>
             </tei:body>
           </tei:group>
