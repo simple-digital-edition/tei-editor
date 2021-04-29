@@ -216,11 +216,27 @@ export default class TextEditor extends Vue {
     public get nestedDocIds() {
         let nestedIds = {} as { [x: string]: TextEditorMenuItemValuesValue[] };
         Object.entries(this.value.nested).forEach(([nestedKey, docObj]: any) => {
-            nestedIds[nestedKey] = Object.keys(docObj).map((docKey: string) => {
-                return {
-                    label: docKey,
-                    value: docKey,
-                };
+            nestedIds[nestedKey] = Object.entries(docObj).map(([docKey, contentObj]: any) => {
+                const doc = contentObj.content[0];
+                if (doc.content.length > 0) {
+                    const label = this.extractText(doc.content[0]);
+                    if (label !== '') {
+                        return {
+                            label: label.substring(0, 20),
+                            value: docKey,
+                        };
+                    } else {
+                        return {
+                            label: docKey,
+                            value: docKey,
+                        };
+                    }
+                } else {
+                    return {
+                        label: docKey,
+                        value: docKey,
+                    };
+                }
             });
             nestedIds[nestedKey].splice(0, 0, {label: 'New', value: ''});
         });
@@ -521,6 +537,20 @@ export default class TextEditor extends Vue {
             }
         }
         return false;
+    }
+
+    private extractText(node: any): string {
+        if (node.type === 'text') {
+            return node.text;
+        } else {
+            if (node.content && node.content.length > 0) {
+                return node.content.map((child: any) => {
+                    return this.extractText(child);
+                }).join('');
+            } else {
+                return '';
+            }
+        }
     }
 }
 </script>

@@ -1,5 +1,9 @@
 # Changes
 
+## Dev
+
+* **Update**: Improved the UX on nested document linking
+
 ## 0.10.2
 
 * **Bugfix**: Fix errors with missing meta-data settings
