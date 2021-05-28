@@ -58,7 +58,6 @@ import { undo, redo, history } from 'prosemirror-history';
 import { keymap } from 'prosemirror-keymap';
 
 import AriaMenubar from './AriaMenubar.vue';
-import get from '../util/get';
 import deepclone from '../util/deepclone';
 import { generateSchemaNodes, generateSchemaMarks, updateMark, removeMark, updateInlineNode, wrapNode, unwrapNode, isWrappedNode } from '../util/prosemirror';
 import { TextSection, TextEditorActiveElements, TextEditorSidebarBlockConfig, TextEditorMenuItem, TextDocsStore, TextDocStore } from '../interfaces';
