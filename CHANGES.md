@@ -2,6 +2,7 @@
 
 ## DEV
 
+* **New**: Support string attributes on marks
 * **Bugfix**: Fix errors when unwrapping block nodes
 * **Bugfix**: Fix the full range of static mark attribute serialisation
 

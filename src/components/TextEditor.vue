@@ -10,6 +10,7 @@
                             <li v-for="(menuitem, idx3) in section.entities" :key="idx3" role="presentation">
                                 <label><span v-html="menuitem.label"></span>
                                     <input v-if="menuitem.type === 'setNodeAttrString'" :value="menuitem.value" @change="menuAction(menuitem, $event)"/>
+                                    <input v-if="menuitem.type === 'setMarkAttrString'" :value="menuitem.value" @change="menuAction(menuitem, $event)"/>
                                 </label>
                             </li>
                         </ul>
@@ -20,6 +21,12 @@
                                 <select v-else-if="menuitem.type === 'selectNodeAttr'" role="menuitem" :tabindex="menuitem.tabindex" @keyup="keyboardNav" @change="menuAction(menuitem, $event)">
                                     <option v-for="value in menuitem.values" :key="value.value" v-html="value.label" :value="value.value" :selected="value.checked"></option>
                                 </select>
+                                <label v-else-if="menuitem.type === 'setNodeAttrString'">{{ menuitem.label }}
+                                    <input type="text" :value="menuitem.value" @change="menuAction(menuitem, $event)"/>
+                                </label>
+                                <label v-else-if="menuitem.type === 'setNodeAttrNumber'">{{ menuitem.label }}
+                                    <input type="number" :value="menuitem.value" @change="menuAction(menuitem, $event)" :min="menuitem.min" :max="menuitem.max" :step="menuitem.step"/>
+                                </label>
                                 <a v-else-if="menuitem.type === 'toggleNodeAttrValue'" role="menuitem" v-html="menuitem.label" :tabindex="menuitem.tabindex" :aria-label="menuitem.ariaLabel" :title="menuitem.ariaLabel" :aria-checked="menuitem.checked" @keyup="keyboardNav" @click="menuAction(menuitem)"></a>
                                 <a v-else-if="menuitem.type === 'toggleMark'" role="menuitem" v-html="menuitem.label" :tabindex="menuitem.tabindex" :aria-label="menuitem.ariaLabel" :title="menuitem.ariaLabel" :aria-checked="menuitem.checked" @keyup="keyboardNav" @click="menuAction(menuitem)"></a>
                                 <select v-else-if="menuitem.type === 'selectMarkAttr'" role="menuitem" :tabindex="menuitem.tabindex" @keyup="keyboardNav" @change="menuAction(menuitem, $event)">
@@ -30,12 +37,6 @@
                                 <select v-else-if="menuitem.type === 'linkNestedDoc'" role="menuitem" :tabindex="menuitem.tabindex" @keyup="keyboardNav" @change="menuAction(menuitem, $event)">
                                     <option v-for="value in menuitem.values" :key="value.value" v-html="value.label" :value="value.value" :selected="value.checked"></option>
                                 </select>
-                                <label v-else-if="menuitem.type === 'setNodeAttrString'">{{ menuitem.label }}
-                                    <input type="text" :value="menuitem.value" @change="menuAction(menuitem, $event)"/>
-                                </label>
-                                <label v-else-if="menuitem.type === 'setNodeAttrNumber'">{{ menuitem.label }}
-                                    <input type="number" :value="menuitem.value" @change="menuAction(menuitem, $event)" :min="menuitem.min" :max="menuitem.max" :step="menuitem.step"/>
-                                </label>
                             </li>
                         </ul>
                     </template>
@@ -175,6 +176,8 @@ export default class TextEditor extends Vue {
                                 });
                             } else if (elementSchema.type === 'toggleMark') {
                                 entity.checked = elementSchema.markType && this.active[elementSchema.markType] ? 'true' : 'false';
+                            } else if (elementSchema.type === 'setMarkAttrString') {
+                                entity.value = elementSchema.markType && this.active[elementSchema.markType] && this.active[elementSchema.markType][elementSchema.attr] ? this.active[elementSchema.markType][elementSchema.attr]: '';
                             } else if (elementSchema.type === 'selectMarkAttr') {
                                 entity.values = elementSchema.values.map((entry) => {
                                     return {
@@ -183,7 +186,6 @@ export default class TextEditor extends Vue {
                                         checked: elementSchema.markType && elementSchema.attr && this.active[elementSchema.markType] && this.active[elementSchema.markType][elementSchema.attr] === entry.value ? 'selected' : null,
                                     };
                                 });
-                            // } else if (elementSchema.type === 'editNestedDoc') {
                             } else if (elementSchema.type === 'linkNestedDoc') {
                                 if (elementSchema.targetNodeType && elementSchema.nodeType && elementSchema.attr && this.active[elementSchema.nodeType]) {
                                     let nestedDocs = null;
@@ -436,7 +438,7 @@ export default class TextEditor extends Vue {
             } else if (menuItem.type === 'toggleMark' && menuItem.nodeType) {
                 toggleMark(this.editorSchema.marks[menuItem.nodeType])(this.editor.state, this.editor.dispatch);
             // Set an attribute on a mark
-            } else if (menuItem.type === 'selectMarkAttr' && menuItem.nodeType) {
+            } else if ((menuItem.type === 'selectMarkAttr' || menuItem.type === 'setMarkAttrString') && menuItem.nodeType) {
                 let attrs = {} as { [x: string]: string };
                 if (this.active[menuItem.nodeType]) {
                     attrs = deepclone(this.active[menuItem.nodeType]);
