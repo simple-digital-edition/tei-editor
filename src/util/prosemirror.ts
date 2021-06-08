@@ -1,4 +1,4 @@
-import { Schema, NodeSpec, MarkSpec, MarkType, NodeType, Mark, ResolvedPos, Node as ProsemirrorNode } from 'prosemirror-model';
+import { Schema, NodeSpec, MarkSpec, MarkType, NodeType, Mark, ResolvedPos, Node as ProsemirrorNode, NodeRange } from 'prosemirror-model';
 import { EditorState, TextSelection, Transaction } from 'prosemirror-state';
 import { findSelectedNodeOfType, findParentNodeOfType } from 'prosemirror-utils';
 import { liftTarget } from 'prosemirror-transform';
@@ -304,6 +304,49 @@ export function unwrapNode(type: NodeType) {
                     if (target !== undefined && target !== null) {
                         dispatch(state.tr.lift(nodeRange, target));
                         return true;
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+}
+
+
+export function updateBlockNodeAttrs(type: NodeType, attrs: { [x: string]: string }) {
+    return (state: EditorState, dispatch: (tr: Transaction) => void) => {
+        const { $head } = state.selection;
+
+        if ($head) {
+            let start = -1;
+            let end = -1;
+            let node = null;
+            for (let depth = $head.depth; depth >= 0; depth--) {
+                if ($head.node(depth).type === type) {
+                    node = $head.node(depth);
+                    start = $head.start(depth);
+                    end = $head.end(depth);
+                    break;
+                }
+            }
+            if (start >= 0 && end >= 0 && node) {
+                if (type.isTextblock) {
+                    dispatch(state.tr.setBlockType(start + 1, end - 1, type, attrs));
+                    return true;
+                } else {
+                    const nodeRangeUnwrap = state.doc.resolve(start + 1).blockRange(state.doc.resolve(end - 1));
+                    if (nodeRangeUnwrap) {
+                        const target = liftTarget(nodeRangeUnwrap);
+                        if (target !== undefined && target !== null) {
+                            let tr = state.tr.lift(nodeRangeUnwrap, target);
+                            const nodeRangeWrap = tr.doc.resolve(start).blockRange(tr.doc.resolve(end - 3));
+                            if (nodeRangeWrap) {
+                                tr = tr.wrap(nodeRangeWrap, [{type: type, attrs: attrs}]);
+                                dispatch(tr);
+                                return true;
+                            }
+                        }
                     }
                 }
             }

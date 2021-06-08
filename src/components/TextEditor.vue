@@ -60,7 +60,7 @@ import { keymap } from 'prosemirror-keymap';
 
 import AriaMenubar from './AriaMenubar.vue';
 import deepclone from '../util/deepclone';
-import { generateSchemaNodes, generateSchemaMarks, updateMark, removeMark, updateInlineNode, wrapNode, unwrapNode, isWrappedNode } from '../util/prosemirror';
+import { generateSchemaNodes, generateSchemaMarks, updateMark, removeMark, updateInlineNode, wrapNode, unwrapNode, isWrappedNode, updateBlockNodeAttrs } from '../util/prosemirror';
 import { TextSection, TextEditorActiveElements, TextEditorSidebarBlockConfig, TextEditorMenuItem, TextDocsStore, TextDocStore } from '../interfaces';
 
 /**
@@ -416,7 +416,7 @@ export default class TextEditor extends Vue {
                 if (this.editorSchema.nodes[menuItem.nodeType].isInline) {
                     updateInlineNode(this.editorSchema.nodes[menuItem.nodeType], attrs)(this.editor.state, this.editor.dispatch);
                 } else {
-                    setBlockType(this.editorSchema.nodes[menuItem.nodeType], attrs)(this.editor.state, this.editor.dispatch);
+                    updateBlockNodeAttrs(this.editorSchema.nodes[menuItem.nodeType], attrs)(this.editor.state, this.editor.dispatch);
                 }
             // Toggle an attribute value on a Node
             } else if (menuItem.type === 'toggleNodeAttrValue' && menuItem.nodeType) {
