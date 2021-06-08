@@ -1,6 +1,6 @@
 # Changes
 
-## DEV
+## 0.12.0
 
 * **New**: Support string attributes on marks
 * **New**: Enable setting attributes on wrapping nodes
