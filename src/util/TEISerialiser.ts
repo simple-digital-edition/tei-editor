@@ -225,6 +225,12 @@ export default class TEISerialiser {
                                         } else {
                                             markObj.attrs[entry[0]] = [entry[1].value];
                                         }
+                                    } else {
+                                        if (markObj.attrs[entry[0]]) {
+                                            markObj.attrs[entry[0]].push(entry[1]);
+                                        } else {
+                                            markObj.attrs[entry[0]] = [entry[1]];
+                                        }
                                     }
                                 });
                             }

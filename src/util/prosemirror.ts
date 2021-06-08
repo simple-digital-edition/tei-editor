@@ -1,5 +1,5 @@
-import { Schema, NodeSpec, MarkSpec, MarkType, NodeType, Mark, ResolvedPos } from 'prosemirror-model';
-import { EditorState, Transaction } from 'prosemirror-state';
+import { Schema, NodeSpec, MarkSpec, MarkType, NodeType, Mark, ResolvedPos, Node as ProsemirrorNode } from 'prosemirror-model';
+import { EditorState, TextSelection, Transaction } from 'prosemirror-state';
 import { findSelectedNodeOfType, findParentNodeOfType } from 'prosemirror-utils';
 import { liftTarget } from 'prosemirror-transform';
 
@@ -258,11 +258,21 @@ export function updateInlineNode(type: NodeType, attrs: {[x: string]: string}) {
 export function wrapNode(wrappingType: NodeType, contentType: NodeType) {
     return (state: EditorState, dispatch: (tr: Transaction) => void) => {
         const { $from, $to } = state.selection;
-        const range = $from.blockRange($to);
+        const range = $from.blockRange($to, (node) => {
+            if (node.type.isInline) {
+                return false;
+            }
+            return true;
+        });
 
         if (range) {
-            let tr = state.tr.setBlockType(range.$from.pos, range.$to.pos, contentType);
-            tr = tr.wrap(range, [{type: wrappingType}]);
+            let tr = state.tr;
+            if (contentType) {
+                tr = tr.setBlockType(range.start, range.end, contentType);
+                tr = tr.wrap(range, [{type: wrappingType}]);
+            } else {
+                tr = tr.wrap(range, [{type: wrappingType}]);
+            }
             dispatch(tr);
         } else {
             return false;
@@ -275,17 +285,31 @@ export function wrapNode(wrappingType: NodeType, contentType: NodeType) {
  */
 export function unwrapNode(type: NodeType) {
     return (state: EditorState, dispatch: (tr: Transaction) => void) => {
-        const { $from, $to } = state.selection;
-        const range = $from.blockRange($to);
-        const target = range && liftTarget(range)
+        const { $head } = state.selection;
 
-        if (range && target !== null && target !== undefined) {
-            let tr = state.tr.lift(range, target);
-            tr = tr.setBlockType(range.$from.pos, range.$to.pos, type);
-            dispatch(tr);
-        } else {
-            return false;
+        if ($head) {
+            let start = -1;
+            let end = -1;
+            for (let depth = $head.depth; depth >= 0; depth--) {
+                if ($head.node(depth).type === type) {
+                    start = $head.start(depth);
+                    end = $head.end(depth);
+                    break;
+                }
+            }
+            if (start >= 0 && end >= 0) {
+                const nodeRange = state.doc.resolve(start + 1).blockRange(state.doc.resolve(end - 1));
+                if (nodeRange) {
+                    const target = liftTarget(nodeRange);
+                    if (target !== undefined && target !== null) {
+                        dispatch(state.tr.lift(nodeRange, target));
+                        return true;
+                    }
+                }
+            }
         }
+
+        return false;
     }
 }
 

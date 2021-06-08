@@ -1,5 +1,10 @@
 # Changes
 
+## DEV
+
+* **Bugfix**: Fix errors when unwrapping block nodes
+* **Bugfix**: Fix the full range of static mark attribute serialisation
+
 ## 0.11.0
 
 * **New**: Support linking nested documents across sections
