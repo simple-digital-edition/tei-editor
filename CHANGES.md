@@ -1,5 +1,9 @@
 # Changes
 
+## Dev
+
+* **Bugfix**: Fix setting nodes with initial attributes
+
 ## 0.12.0
 
 * **New**: Support string attributes on marks

@@ -163,7 +163,11 @@ export default class TextEditor extends Vue {
                                 step: undefined as string | null | undefined,
                             };
                             if (elementSchema.type === 'setNodeType') {
-                                entity.checked = elementSchema.nodeType && this.active[elementSchema.nodeType] ? 'true': 'false';
+                                if (elementSchema.attr) {
+                                    entity.checked = elementSchema.nodeType && this.active[elementSchema.nodeType] && this.active[elementSchema.nodeType][elementSchema.attr] === elementSchema.value ? 'true': 'false';
+                                } else {
+                                    entity.checked = elementSchema.nodeType && this.active[elementSchema.nodeType] ? 'true': 'false';
+                                }
                             } else if (elementSchema.type === 'setNodeAttrValue' || elementSchema.type === 'toggleNodeAttrValue') {
                                 entity.checked = elementSchema.nodeType && elementSchema.attr && this.active[elementSchema.nodeType] && this.active[elementSchema.nodeType][elementSchema.attr] === elementSchema.value ? 'true' : 'false';
                             } else if (elementSchema.type === 'selectNodeAttr') {
@@ -396,7 +400,11 @@ export default class TextEditor extends Vue {
                         if (isWrappedNode(this.editor.state, this.config.schema, this.editorSchema)) {
                             unwrapNode(this.editorSchema.nodes[menuItem.nodeType])(this.editor.state, this.editor.dispatch);
                         } else {
-                            setBlockType(this.editorSchema.nodes[menuItem.nodeType], {})(this.editor.state, this.editor.dispatch);
+                            const attrs = {} as {[x:string]: string};
+                            if (menuItem.attr && menuItem.value) {
+                                attrs[menuItem.attr] = menuItem.value;
+                            }
+                            setBlockType(this.editorSchema.nodes[menuItem.nodeType], attrs)(this.editor.state, this.editor.dispatch);
                         }
                     }
                 }
