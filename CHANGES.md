@@ -1,6 +1,6 @@
 # Changes
 
-## Dev
+## 0.12.1
 
 * **Bugfix**: Fix setting nodes with initial attributes
 
