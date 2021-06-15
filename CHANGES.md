@@ -1,5 +1,9 @@
 # Changes
 
+## Dev
+
+* **Update**: Add an overlay element for nested docs
+
 ## 0.12.1
 
 * **Bugfix**: Fix setting nodes with initial attributes

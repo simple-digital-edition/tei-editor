@@ -44,6 +44,7 @@
             </div>
         </aria-menubar>
         <div v-if="nestedDoc" class="nested">
+            <div class="overlay"></div>
             <text-editor :config="config" v-model="nestedDoc" :nested="nestedSettings" @close="closeNestedEditor"/>
         </div>
     </div>

@@ -207,6 +207,15 @@ export default class TeiEditor extends Vue {
           position: absolute;
           width: 100%;
           height: 100%;
+
+          > div.overlay {
+              position: fixed;
+              left: 0;
+              top: 0;
+              width: 100vw;
+              height: 100vh;
+              cursor: not-allowed;
+          }
       }
   }
 }
