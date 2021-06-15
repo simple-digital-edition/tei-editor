@@ -1,6 +1,6 @@
 # Changes
 
-## Dev
+## 0.12.2
 
 * **Update**: Add an overlay element for nested docs
 
