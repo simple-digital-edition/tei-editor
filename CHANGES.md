@@ -1,5 +1,9 @@
 # Changes
 
+## Dev
+
+* **Bugfix**: Fix toggling attributes on wrapping nodes
+
 ## 0.12.2
 
 * **Update**: Add an overlay element for nested docs

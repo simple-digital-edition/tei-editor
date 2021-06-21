@@ -441,7 +441,7 @@ export default class TextEditor extends Vue {
                 if (this.editorSchema.nodes[menuItem.nodeType].isInline) {
                     updateInlineNode(this.editorSchema.nodes[menuItem.nodeType], attrs)(this.editor.state, this.editor.dispatch);
                 } else {
-                    setBlockType(this.editorSchema.nodes[menuItem.nodeType], attrs)(this.editor.state, this.editor.dispatch);
+                    updateBlockNodeAttrs(this.editorSchema.nodes[menuItem.nodeType], attrs)(this.editor.state, this.editor.dispatch);
                 }
             // Toggle a mark on or off
             } else if (menuItem.type === 'toggleMark' && menuItem.nodeType) {
