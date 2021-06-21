@@ -1,6 +1,6 @@
 # Changes
 
-## Dev
+## 0.12.3
 
 * **Bugfix**: Fix toggling attributes on wrapping nodes
 
