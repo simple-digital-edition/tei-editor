@@ -1,5 +1,7 @@
 # TEI Editor
 
+**The simple-digital-edition project is being replaced by the [uEdition](https://uEdition.github.io) project. As a result, this project has been archived.**
+
 A graphical editor for TEI documents.
 
 **Documentation**: https://tei-editor.readthedocs.io/en/latest/ [![Documentation Status](https://readthedocs.org/projects/tei-editor/badge/?version=latest)](https://tei-editor.readthedocs.io/en/latest/?badge=latest)
